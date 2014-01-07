@@ -4,16 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import eu.europeana.api.client.*;
-import eu.europeana.api.client.adv.EuropeanaComplexQuery;
 
 public class MainActivity extends Activity {
 
