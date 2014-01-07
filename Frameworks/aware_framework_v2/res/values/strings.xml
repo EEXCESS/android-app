@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AWARE</string>
+    <string name="aware_description">AWARE is an Android\'s framework dedicated to infer, log and share mobile context information between mobile applications. Check www.awareframework.com for details.</string>
+    <string name="aware_plugins">AWARE Add-ons</string>
+    <string name="read_permission">Allow read-only access to the Context Providers data.</string>
+    <string name="write_permission">Allow read and write access to the Context Providers data.</string>
+</resources>

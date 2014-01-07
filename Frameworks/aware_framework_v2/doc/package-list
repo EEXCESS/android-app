@@ -1,0 +1,9 @@
+com.aware
+com.aware.utils
+org.eclipse.paho.client.mqttv3
+org.eclipse.paho.client.mqttv3.internal
+org.eclipse.paho.client.mqttv3.internal.comms
+org.eclipse.paho.client.mqttv3.internal.logging
+org.eclipse.paho.client.mqttv3.internal.security
+org.eclipse.paho.client.mqttv3.internal.trace
+org.eclipse.paho.client.mqttv3.internal.wire
