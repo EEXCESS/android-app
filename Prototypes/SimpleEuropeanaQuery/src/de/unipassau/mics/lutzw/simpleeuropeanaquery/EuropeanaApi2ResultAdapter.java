@@ -46,14 +46,19 @@ public class EuropeanaApi2ResultAdapter extends ArrayAdapter<EuropeanaApi2Item> 
 
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
         TextView textView = (TextView) rowView.findViewById(R.id.textView);
-        textView.setText(Ids[position].getTitle().get(0));
 
-        //int id = Integer.parseInt(Ids[position]);
-        //String imageFile = Model.GetbyId(id).IconFile;
+        if(Ids[position] != null) {
+            if(Ids[position].getTitle() != null && Ids[position].getTitle().size() > 0){
+            textView.setText(Ids[position].getTitle().get(0));
+            }
 
-        new DownloadImageTask(imageView)
+            if (Ids[position].getEdmPreview() != null && Ids[position].getEdmPreview().size() > 0) {
+                new DownloadImageTask(imageView)
                 .execute(Ids[position].getEdmPreview().get(0));
-
+            }
+        } else {
+            System.out.println("Ids[position] is null for position " + position);
+        }
 
         // get input stream
 //        InputStream ims = null;
