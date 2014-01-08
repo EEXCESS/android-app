@@ -19,6 +19,11 @@ import android.view.View;
 
 import com.aware.utils.Aware_Plugin;
 
+import java.util.ArrayList;
+
+import eu.europeana.api.client.EuropeanaApi2Item;
+import eu.europeana.api.client.EuropeanaApi2Results;
+
 /**
  * A Tool, that listens to the TermCollector, does Europeana Queries and sends out a Notification
  * 
@@ -80,9 +85,8 @@ public class Plugin extends Aware_Plugin {
 	protected void runQuery(String term) {
 		Log.d(TAG, "Running Query for term " + term);
 
+        new ExecuteSearchTask(this).execute(term);
 
-
-	    createAndSendNotification(term);
     }
 
     public void createAndSendNotification(String term) {
@@ -120,6 +124,38 @@ public class Plugin extends Aware_Plugin {
         note.defaults |= Notification.DEFAULT_VIBRATE;
         note.defaults |= Notification.DEFAULT_SOUND;
         mNotificationManager.notify(notifyID, note);
+
+    }
+
+    public void postResultsFromQuery(EuropeanaApi2Results results) {
+
+      //  Intent intent = new Intent(this, DisplayResultsActivity.class);
+
+        // Instanciating an array list (you don't need to do this, you already have yours)
+        ArrayList<String> your_array_list = new ArrayList<String>();
+
+        int count = 0;
+        for (EuropeanaApi2Item item : results.getAllItems()) {
+
+
+//            Log.wtf(TAG,"**** " + (count++ + 1));
+//            Log.wtf(TAG,"Title: " + item.getTitle());
+            your_array_list.add(item.toJSON());
+//            Log.wtf(TAG,"Europeana URL: " + item.getObjectURL());
+//            Log.wtf(TAG,"Type: " + item.getType());
+//            Log.wtf(TAG,"Creator(s): " + item.getDcCreator());
+//            Log.wtf(TAG,"Thumbnail(s): " + item.getEdmPreview());
+//            Log.wtf(TAG,"Data provider: "
+//                    + item.getDataProvider());
+        }
+
+
+     //   intent.putStringArrayListExtra("results_list", your_array_list);
+
+       // startActivity(intent);
+
+        createAndSendNotification(your_array_list.size() + " new results!");
+
 
     }
 
