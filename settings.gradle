@@ -5,6 +5,7 @@ include "Plugins:ImageReceiver"
 include "Plugins:SMSReceiver"
 include "Plugins:TermCollector"
 include "Plugins:LocationDissolver"
+include "Plugins:AutomaticQuery"
 include "Frameworks:aware_framework_v2"
 include 'Frameworks:EuropeanaClient'
 include "Support:TermViewer"
