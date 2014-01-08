@@ -1,3 +1,7 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
 buildscript {
     repositories {
         mavenCentral()
@@ -8,9 +12,10 @@ buildscript {
 }
 apply plugin: 'android'
 
-repositories {
-    mavenCentral()
+dependencies {
+    compile project(':Frameworks:EuropeanaClient')
 }
+
 
 android.applicationVariants.all { variant ->
     variant.processResources.manifestFile = file('AndroidManifest.xml')
@@ -40,6 +45,3 @@ android {
     }
 }
 
-dependencies {
-    compile project(':Frameworks:EuropeanaClient')
-}

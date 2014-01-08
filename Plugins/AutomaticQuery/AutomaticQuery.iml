@@ -66,8 +66,13 @@
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="android-support-v4" level="project" />
+    <orderEntry type="module" module-name="EuropeanaClient" exported="" />
     <orderEntry type="library" exported="" name="org.eclipse.paho.client.mqttv3" level="project" />
+    <orderEntry type="library" exported="" name="commons-codec-1.8" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="module" module-name="aware_framework_v2" exported="" />
+    <orderEntry type="library" exported="" name="commons-httpclient-3.1" level="project" />
+    <orderEntry type="library" exported="" name="commons-logging-1.1.3" level="project" />
   </component>
 </module>
 
