@@ -1,12 +1,20 @@
 package com.aware.plugin.automatic_query;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 
 
 import com.aware.utils.Aware_Plugin;
@@ -71,8 +79,49 @@ public class Plugin extends Aware_Plugin {
 
 	protected void runQuery(String term) {
 		Log.d(TAG, "Running Query for term " + term);
-	}
 
+
+
+	    createAndSendNotification(term);
+    }
+
+    public void createAndSendNotification(String term) {
+        int notifyID = 1;
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("A new query was run")
+                        .setContentText(term);
+
+//// Creates an explicit intent for an Activity in your app
+//        Intent resultIntent = new Intent(this, MainActivity.class);
+//
+//// The stack builder object will contain an artificial back stack for the
+//// started Activity.
+//// This ensures that navigating backward from the Activity leads out of
+//// your application to the Home screen.
+//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+//// Adds the back stack for the Intent (but not the Intent itself)
+//        stackBuilder.addParentStack(MainActivity.class);
+//// Adds the Intent that starts the Activity to the top of the stack
+//        stackBuilder.addNextIntent(resultIntent);
+//        PendingIntent resultPendingIntent =
+//                stackBuilder.getPendingIntent(
+//                        0,
+//                        PendingIntent.FLAG_UPDATE_CURRENT
+//                );
+//        mBuilder.setContentIntent(resultPendingIntent);
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // notifyID allows you to update the notification later on.
+        Notification note = mBuilder.build();
+        note.defaults |= Notification.DEFAULT_VIBRATE;
+        note.defaults |= Notification.DEFAULT_SOUND;
+        mNotificationManager.notify(notifyID, note);
+
+    }
 
 	public class TermCollectorObserver extends ContentObserver {
 		public TermCollectorObserver(Handler handler) {
