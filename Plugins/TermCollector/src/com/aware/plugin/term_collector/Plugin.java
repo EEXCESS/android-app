@@ -29,6 +29,8 @@ public class Plugin extends Aware_Plugin {
 
 	private static final String TAG = "TermCollector Plugin";
 	public static final String ACTION_AWARE_TERMCOLLECTOR = "ACTION_AWARE_TERMCOLLECTOR";
+
+    private static StopList stopList;
 	private ClipboardManager.OnPrimaryClipChangedListener clipboardListener;
 
 	public static final String EXTRA_TERMCONTENT = "termcontent";
@@ -55,6 +57,8 @@ public class Plugin extends Aware_Plugin {
 	public void onCreate() {
 		Log.d(TAG, "Plugin Created");
 		super.onCreate();
+
+        stopList = new StopList();
 
 		// Share the context back to the framework and other applications
 		CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
@@ -152,6 +156,10 @@ public class Plugin extends Aware_Plugin {
         String[] contentTokens = content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
 
         int tokenIndex = 0;
+
+        //filter Stopwords
+        contentTokens = stopList.filteredArray(contentTokens);
+
         for(String token: contentTokens) {
             if(Character.isUpperCase(token.charAt(0))){
                if(token.length() > 2) {
