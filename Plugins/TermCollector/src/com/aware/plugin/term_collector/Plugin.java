@@ -151,11 +151,14 @@ public class Plugin extends Aware_Plugin {
         //remove all characters that are not A-Za-z
         String[] contentTokens = content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
 
+        int tokenIndex = 0;
         for(String token: contentTokens) {
             if(Character.isUpperCase(token.charAt(0))){
                if(token.length() > 2) {
                    Log.d(TAG, "Accepting " + token);
-                   saveData(timestamp, source, token);
+                   // add TokenIndex to avoid duplicate timestamps
+                   saveData(timestamp + tokenIndex, source, token);
+                   tokenIndex++;
                } else {
                    Log.d(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
                }
