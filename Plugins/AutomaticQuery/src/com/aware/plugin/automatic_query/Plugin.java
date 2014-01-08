@@ -89,7 +89,7 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    public void createAndSendNotification(String term) {
+    public void createAndSendNotification(Intent intent, String term) {
         int notifyID = 1;
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -97,24 +97,21 @@ public class Plugin extends Aware_Plugin {
                         .setContentTitle("A new query was run")
                         .setContentText(term);
 
-//// Creates an explicit intent for an Activity in your app
-//        Intent resultIntent = new Intent(this, MainActivity.class);
-//
+
 //// The stack builder object will contain an artificial back stack for the
 //// started Activity.
 //// This ensures that navigating backward from the Activity leads out of
 //// your application to the Home screen.
-//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-//// Adds the back stack for the Intent (but not the Intent itself)
-//        stackBuilder.addParentStack(MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
 //// Adds the Intent that starts the Activity to the top of the stack
-//        stackBuilder.addNextIntent(resultIntent);
-//        PendingIntent resultPendingIntent =
-//                stackBuilder.getPendingIntent(
-//                        0,
-//                        PendingIntent.FLAG_UPDATE_CURRENT
-//                );
-//        mBuilder.setContentIntent(resultPendingIntent);
+        stackBuilder.addNextIntent(intent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
 
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -123,20 +120,22 @@ public class Plugin extends Aware_Plugin {
         Notification note = mBuilder.build();
         note.defaults |= Notification.DEFAULT_VIBRATE;
         note.defaults |= Notification.DEFAULT_SOUND;
+        note.flags |= Notification.FLAG_AUTO_CANCEL;
+
         mNotificationManager.notify(notifyID, note);
 
     }
 
-    public void postResultsFromQuery(EuropeanaApi2Results results) {
+    public void postResultsFromQuery(EuropeanaApi2Results results, String[] queryTerms) {
 
-      //  Intent intent = new Intent(this, DisplayResultsActivity.class);
+        Intent intent = new Intent(this, DisplayResultsActivity.class);
 
         // Instanciating an array list (you don't need to do this, you already have yours)
         ArrayList<String> your_array_list = new ArrayList<String>();
 
-        int count = 0;
+        // Only react to non-empty resultsets
+        if(results.getAllItems().size() > 0) {
         for (EuropeanaApi2Item item : results.getAllItems()) {
-
 
 //            Log.wtf(TAG,"**** " + (count++ + 1));
 //            Log.wtf(TAG,"Title: " + item.getTitle());
@@ -150,13 +149,27 @@ public class Plugin extends Aware_Plugin {
         }
 
 
-     //   intent.putStringArrayListExtra("results_list", your_array_list);
+        intent.putStringArrayListExtra("results_list", your_array_list);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-       // startActivity(intent);
+        //startActivity(intent);
 
-        createAndSendNotification(your_array_list.size() + " new results!");
+        createAndSendNotification(intent, your_array_list.size() + " new results for keywords "  + join(queryTerms, ", ") + "!");
+        }
 
 
+    }
+
+    private String join(String[] tokens, String delim) {
+        StringBuilder sb = new StringBuilder();
+
+        String separator = "";
+        for(String token : tokens ){
+            sb.append(token+separator);
+            separator = delim;
+        }
+
+        return sb.toString();
     }
 
 	public class TermCollectorObserver extends ContentObserver {

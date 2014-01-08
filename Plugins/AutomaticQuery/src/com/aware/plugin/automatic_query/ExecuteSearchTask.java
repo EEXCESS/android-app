@@ -18,7 +18,7 @@ import eu.europeana.api.client.EuropeanaApi2Results;
 public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Results> {
 
     private String TAG = "ExecuteSearchTask";
-    private Exception exception;
+    private String[] queryTerms;
 
     private Plugin pluginRef;
 
@@ -27,10 +27,10 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
     }
 
         protected EuropeanaApi2Results doInBackground(String... terms) {
-//create the query object
+            //create the query object
             Api2Query europeanaQuery = new Api2Query();
+            queryTerms = terms;
 //            europeanaQuery.setCreator("picasso");
-//
 //            europeanaQuery.setType(EuropeanaComplexQuery.TYPE.IMAGE);
 //            europeanaQuery.setNotProvider("Hispana");
 
@@ -61,6 +61,6 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         }
 
         protected void onPostExecute(EuropeanaApi2Results result) {
-            pluginRef.postResultsFromQuery(result);
+            pluginRef.postResultsFromQuery(result, queryTerms);
         }
  }
