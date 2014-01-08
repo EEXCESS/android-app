@@ -1,7 +1,5 @@
 package com.aware.plugin.term_collector;
 
-import com.aware.plugin.term_collector.R;
-import com.aware.plugin.term_collector.TermCollector_Provider.TermCollector;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
