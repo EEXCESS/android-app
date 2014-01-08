@@ -95,6 +95,7 @@ public class Plugin extends Aware_Plugin {
 		Log.d(TAG, "@saveData(Response res)");
 		
 		if (res != null) {
+            long timestamp = System.currentTimeMillis();
 
             for (int i = 0; i < res.size(); i++) {
 
@@ -103,9 +104,9 @@ public class Plugin extends Aware_Plugin {
             rowData.put(LocationDissolver.DEVICE_ID, Aware.getSetting(
 					getContentResolver(), Aware_Preferences.DEVICE_ID));
 
-            long timestamp = System.currentTimeMillis();
 
-            rowData.put(LocationDissolver.TIMESTAMP, timestamp);
+            // add i to produce slightly different timestamps
+            rowData.put(LocationDissolver.TIMESTAMP, timestamp + i);
 
 			rowData.put(LocationDissolver.NAME, res.get("result").get(i).get("name").toString());
 			rowData.put(LocationDissolver.TYPE, res.get("result").get(i).get("type").toString());
