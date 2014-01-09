@@ -14,8 +14,8 @@ buildscript {
 apply plugin: 'android'
 
 dependencies {
-//    compile 'com.android.support:support-v13:18.0.+'
-    compile project(path:':Frameworks:aware_framework_v2')
+    compile project(':Frameworks:aware_framework_v2')
+
 }
 
 android.applicationVariants.all { variant ->
@@ -26,6 +26,11 @@ android.applicationVariants.all { variant ->
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.0"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 19
+    }
 
     sourceSets {
         main {
