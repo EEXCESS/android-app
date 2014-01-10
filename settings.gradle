@@ -1,4 +1,4 @@
-include "Prototypes:SimpleEuropeanaQuery"
+include "Prototypes:SimpleEuropeanaQuery", ':Frameworks:aware_framework_v2', ':Frameworks:EuropeanaClient', ':Plugins:AutomaticQuery', ':Plugins:ClipboardCatcher', ':Plugins:ImageReceiver', ':Plugins:LocationDissolver', ':Plugins:SMSReceiver', ':Plugins:TermCollector', ':Prototypes:NotificationTester', ':Prototypes:SimpleEuropeanaQuery', ':Support:TermViewer'
 include "Prototypes:NotificationTester"
 include "Plugins:ClipboardCatcher"
 include "Plugins:ImageReceiver"
@@ -8,4 +8,5 @@ include "Plugins:LocationDissolver"
 include "Plugins:AutomaticQuery"
 include "Frameworks:aware_framework_v2"
 include 'Frameworks:EuropeanaClient'
+include 'Frameworks:MingleClient'
 include "Support:TermViewer"
