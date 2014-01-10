@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 
 
+import com.aware.plugin.automatic_query.situations.SituationManager;
 import com.aware.utils.Aware_Plugin;
 
 import java.util.ArrayList;
@@ -36,9 +37,14 @@ public class Plugin extends Aware_Plugin {
 
 	private static final String TAG = "AutomaticQuery Plugin";
 
+    private int notificationNumber = 0;
 	public static Uri termCollectorContentUri;
 	private static TermCollectorObserver termCollectorObs = null;
 
+    public static Uri lightContentUri;
+    private static LightObserver lightObs = null;
+
+    private SituationManager situationManager;
 
 	/**
 	 * Thread manager
@@ -50,6 +56,7 @@ public class Plugin extends Aware_Plugin {
 		Log.d(TAG, "Plugin Created");
 		super.onCreate();
 
+        situationManager = new SituationManager();
 
 		threads = new HandlerThread(TAG);
 		threads.start();
@@ -64,9 +71,17 @@ public class Plugin extends Aware_Plugin {
 		getContentResolver().registerContentObserver(
                 termCollectorContentUri, true, termCollectorObs);
 		Log.d(TAG, "termCollectorObs registered");
-		
 
-		
+
+        lightContentUri = Uri
+                .parse("content://com.aware.provider.light/light");
+        lightObs = new LightObserver(new Handler(
+                threads.getLooper()));
+        getContentResolver().registerContentObserver(
+                lightContentUri, true, lightObs);
+        Log.d(TAG, "lightObs registered");
+
+
 		
 		Log.d(TAG, "Plugin Started");
 	}
@@ -79,6 +94,7 @@ public class Plugin extends Aware_Plugin {
 		super.onDestroy();
 
 		getContentResolver().unregisterContentObserver(termCollectorObs);
+        getContentResolver().unregisterContentObserver(lightObs);
 
 	}
 
@@ -90,7 +106,7 @@ public class Plugin extends Aware_Plugin {
     }
 
     public void createAndSendNotification(Intent intent, String term) {
-        int notifyID = 1;
+        int notifyID = notificationNumber++;
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
@@ -181,7 +197,7 @@ public class Plugin extends Aware_Plugin {
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
 
-			Log.d(TAG, "@onChange");
+			Log.d(TAG, "@onChange of Term Content");
 
 			// set cursor to first item
 			Cursor cursor = getContentResolver().query(
@@ -189,8 +205,10 @@ public class Plugin extends Aware_Plugin {
 					"timestamp" + " DESC LIMIT 1");
 			if (cursor != null && cursor.moveToFirst()) {
 
-                runQuery(cursor.getString(cursor
+                //if (situationManager.allowsQuery()){
+                    runQuery(cursor.getString(cursor
                         .getColumnIndex("term_content")));
+                //}
 			}
 
 			if (cursor != null && !cursor.isClosed()) {
@@ -198,4 +216,33 @@ public class Plugin extends Aware_Plugin {
 			}
 		}
 	}
+
+    public class LightObserver extends ContentObserver {
+        public LightObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.d(TAG, "@onChange of Light");
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    lightContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+
+                Double lux = Double.parseDouble(cursor.getString(cursor
+                        .getColumnIndex("double_light_lux")));
+                Log.d(TAG, "Light changed to " + lux);
+                situationManager.putContextValue("Light", lux);
+            }
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
 }
