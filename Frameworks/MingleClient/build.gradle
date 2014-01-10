@@ -9,19 +9,11 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:0.6.3+'
     }
+
 }
 
-apply plugin: 'android'
+apply plugin: 'android-library'
 
-dependencies {
-    compile project(':Frameworks:aware_framework_v2')
-    compile project(':Frameworks:MingleClient')
-}
-
-android.applicationVariants.all { variant ->
-    variant.processResources.manifestFile = file('AndroidManifest.xml')
-    variant.processManifest.enabled=false
-}
 
 android {
     compileSdkVersion 19
@@ -43,4 +35,8 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+}
+
+dependencies {
+    compile files('libs/json-simple-1.1.1.jar')
 }
