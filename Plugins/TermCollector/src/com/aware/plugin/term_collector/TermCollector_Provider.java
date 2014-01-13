@@ -124,7 +124,8 @@ public class TermCollector_Provider extends ContentProvider {
 	        switch(uriMatcher.match(uri)) {
 	            case TERM_COLLECTOR:
 	                long _id = database.insert(DATABASE_TABLES[0], TermCollector.TIMESTAMP, values);
-	                if (_id > 0) {
+                    Log.wtf(TAG, "Id: " + _id);
+                    if (_id > 0) {
 	                    Uri dataUri = ContentUris.withAppendedId(TermCollector.CONTENT_URI, _id);
 	                    getContext().getContentResolver().notifyChange(dataUri, null);
 	                    return dataUri;

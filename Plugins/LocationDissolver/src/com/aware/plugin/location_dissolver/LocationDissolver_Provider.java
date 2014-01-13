@@ -123,7 +123,10 @@ public class LocationDissolver_Provider extends ContentProvider {
 	        switch(uriMatcher.match(uri)) {
 	            case LOCATION_DISSOLVER:
 	                long _id = database.insert(DATABASE_TABLES[0], LocationDissolver.TIMESTAMP, values);
-	                if (_id > 0) {
+
+                    Log.wtf(TAG, "Id:" + _id);
+
+                    if (_id > 0) {
 	                    Uri dataUri = ContentUris.withAppendedId(LocationDissolver.CONTENT_URI, _id);
 	                    getContext().getContentResolver().notifyChange(dataUri, null);
 	                    return dataUri;
