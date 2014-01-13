@@ -163,15 +163,15 @@ public class Plugin extends Aware_Plugin {
         for(String token: contentTokens) {
             if(Character.isUpperCase(token.charAt(0))){
                if(token.length() > 2) {
-                   Log.d(TAG, "Accepting " + token);
+                   Log.wtf(TAG, "Accepting " + token);
                    // add TokenIndex to avoid duplicate timestamps
                    saveData(timestamp + tokenIndex, source, token);
                    tokenIndex++;
                } else {
-                   Log.d(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
+                   Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
                }
             } else {
-                Log.d(TAG, "Ignoring " + token + " as it is not uppercase");
+                Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
             }
         }
     }
