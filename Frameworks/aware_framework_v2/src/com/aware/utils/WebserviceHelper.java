@@ -23,8 +23,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
@@ -63,6 +66,19 @@ public class WebserviceHelper extends IntentService {
 		DEBUG = Aware.getSetting(getContentResolver(), Aware_Preferences.DEBUG_FLAG).equals("true");
 		
 		if( intent.getAction().equals(ACTION_AWARE_WEBSERVICE_SYNC_TABLE) ) {
+			
+			//Check if we should do this only over Wi-Fi
+			boolean wifi_only = Aware.getSetting(getContentResolver(), Aware_Preferences.WEBSERVICE_WIFI_ONLY).equals("true");
+			if( wifi_only ) {
+				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo active_network = cm.getActiveNetworkInfo();
+				if( active_network != null && active_network.getType() != ConnectivityManager.TYPE_WIFI ) {
+					if( DEBUG ) {
+						Log.i("AWARE","User not connected to Wi-Fi, skipping data sync.");
+					}
+					return;
+				}
+			}
 			
 			String DATABASE_TABLE = intent.getStringExtra(EXTRA_TABLE);
 			String TABLES_FIELDS = intent.getStringExtra(EXTRA_FIELDS);
@@ -197,14 +213,12 @@ public class WebserviceHelper extends IntentService {
     		}
 		}
 		
+		//Clear database table remotely
 		if( intent.getAction().equals(ACTION_AWARE_WEBSERVICE_CLEAR_TABLE) ) {
 			String DATABASE_TABLE = intent.getStringExtra(EXTRA_TABLE);
 			
-			//Clear database table remotely
 			ArrayList<NameValuePair> request = new ArrayList<NameValuePair>();
     		request.add(new BasicNameValuePair(Aware_Preferences.DEVICE_ID, DEVICE_ID));
-    		
-    		//Create table if doesn't exist on the remote webservice server
     		new Http().dataPOST(WEBSERVER + "/" + DATABASE_TABLE + "/clear_table", request);
 		}
 	}

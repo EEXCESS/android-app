@@ -62,7 +62,6 @@ import com.aware.providers.Magnetometer_Provider.Magnetometer_Sensor;
 import com.aware.providers.Proximity_Provider.Proximity_Sensor;
 import com.aware.providers.Rotation_Provider.Rotation_Sensor;
 import com.aware.providers.Temperature_Provider.Temperature_Sensor;
-import com.aware.utils.Encrypter;
 import com.aware.utils.Http;
 
 /**
@@ -71,13 +70,16 @@ import com.aware.utils.Http;
  * @author df
  *
  */
-@SuppressWarnings("deprecation")
 public class Aware_Preferences extends PreferenceActivity {
 
     private static final Aware framework = Aware.getService();
-    private static Context mContext = null;
-    private static SensorManager mSensorMgr = null;
-    private static SharedPreferences prefs = null;
+    private static Context mContext;
+    private static SensorManager mSensorMgr;
+    private static SharedPreferences prefs;
+    
+//    private static DrawerLayout navigationDrawer;
+//    private static ListView navigationList;
+//    private static ActionBarDrawerToggle navigationToggle;
     
     private static final int DIALOG_ERROR_ACCESSIBILITY = 1;
     private static final int DIALOG_ERROR_MISSING_PARAMETERS = 2;
@@ -160,6 +162,8 @@ public class Aware_Preferences extends PreferenceActivity {
     public static final String MQTT_QOS = "mqtt_qos";
     public static final String STATUS_WEBSERVICE = "status_webservice";
     public static final String WEBSERVICE_SERVER = "webservice_server";
+    public static final String WEBSERVICE_WIFI_ONLY = "webservice_wifi_only";
+    public static final String FREQUENCY_WEBSERVICE = "frequency_webservice";
     
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -215,8 +219,95 @@ public class Aware_Preferences extends PreferenceActivity {
         Intent startAware = new Intent(this, Aware.class);
         startService(startAware);
         
+//        setContentView(R.layout.aware_ui);
+//        
+//        navigationDrawer = (DrawerLayout) findViewById(R.id.aware_ui_main);
+//        navigationList = (ListView) findViewById(R.id.aware_navigation);
+//        navigationToggle = new ActionBarDrawerToggle( this, navigationDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+//            @Override
+//            public void onDrawerClosed(View drawerView) {
+//                super.onDrawerClosed(drawerView);
+//                getActionBar().setTitle(getTitle());
+//                invalidateOptionsMenu();
+//            }
+//            
+//            @Override
+//            public void onDrawerOpened(View drawerView) {
+//                super.onDrawerOpened(drawerView);
+//                getActionBar().setTitle(getTitle());
+//                invalidateOptionsMenu();
+//            }
+//        };
+//        
+//        navigationDrawer.setDrawerListener(navigationToggle);
+//        
+//        String[] options = {"Stream","Sensors","Plugins","Studies"};
+//        NavigationAdapter nav_adapter = new NavigationAdapter(getApplicationContext(), options);
+//        navigationList.setAdapter(nav_adapter);
+//        navigationList.setOnItemClickListener(new OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Toast.makeText(getApplicationContext(), ((TextView)((LinearLayout) view).findViewById(R.id.nav_title)).getText(), Toast.LENGTH_SHORT).show();
+//                navigationDrawer.closeDrawer(navigationList);
+//            }
+//        });
+//        
+//        getActionBar().setDisplayHomeAsUpEnabled(true);
+//        getActionBar().setHomeButtonEnabled(true);
+        
         loadPrefs();
     }
+    
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        boolean drawerOpen = navigationDrawer.isDrawerOpen(navigationList);
+//        //menu.findItem(id).setVisible(!drawerOpen); //hide action bar icons when navigation open
+//        return super.onPrepareOptionsMenu(menu);
+//    }
+//    
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//        navigationToggle.syncState();
+//    }
+//    
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        navigationToggle.onConfigurationChanged(newConfig);
+//    }
+//    
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        if( navigationToggle.onOptionsItemSelected(item)) return true;
+//        return super.onOptionsItemSelected(item);
+//    }
+//    
+//    public class NavigationAdapter extends ArrayAdapter<String> {
+//        private final String[] items;
+//        private final LayoutInflater inflater;
+//        
+//        public NavigationAdapter(Context context, String[] items) {
+//            super(context, R.layout.aware_navigation_item, items);
+//            this.items = items;
+//            this.inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+//        }
+//        
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent) {
+//            View row = inflater.inflate(R.layout.aware_navigation_item, parent, false);
+//            
+//            ImageView nav_icon = (ImageView) row.findViewById(R.id.nav_placeholder);
+//            TextView nav_title = (TextView) row.findViewById(R.id.nav_title);
+//            TextView nav_counter = (TextView) row.findViewById(R.id.nav_counter);
+//            
+//            String item = items[position];
+//            
+//            nav_title.setText(item);
+//            
+//            return row;
+//        }
+//    }
     
     private void loadPrefs() {
         addPreferencesFromResource(R.xml.aware_preferences);
@@ -706,7 +797,7 @@ public class Aware_Preferences extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 
-                Aware.setSetting(getContentResolver(),"status_battery",battery.isChecked()?"true":"false");
+                Aware.setSetting(getContentResolver(),"status_battery",battery.isChecked());
                 
                 if(battery.isChecked()) {
                     framework.startBattery();
@@ -1560,7 +1651,7 @@ public class Aware_Preferences extends PreferenceActivity {
         webScreen.setSummary( Aware.getSetting(getContentResolver(), WEBSERVICE_SERVER) );
         
     	final CheckBoxPreference webservice = (CheckBoxPreference) findPreference("status_webservice");
-        webservice.setChecked(Aware.getSetting(getContentResolver(),"status_webservice").equals("true")?true:false);
+        webservice.setChecked(Aware.getSetting(getContentResolver(),"status_webservice").equals("true"));
         webservice.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -1570,7 +1661,7 @@ public class Aware_Preferences extends PreferenceActivity {
                     webservice.setChecked(false);
                     return false;
                 } else {
-                    Aware.setSetting(getContentResolver(),"status_webservice",webservice.isChecked()?"true":"false");
+                    Aware.setSetting(getContentResolver(),"status_webservice",webservice.isChecked());
                     if( webservice.isChecked() && Aware.getSetting(getContentResolver(), WEBSERVICE_SERVER).length() > 0 ) {
                     	//Webservice server URL is complete, send broadcast
                         Intent webservice = new Intent(Aware.ACTION_AWARE_WEBSERVICE);
@@ -1587,6 +1678,30 @@ public class Aware_Preferences extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Aware.setSetting(getContentResolver(),"webservice_server", (String) newValue);
+                return true;
+            }
+        });
+        
+    	final CheckBoxPreference webservice_wifi_only = (CheckBoxPreference) findPreference("webservice_wifi_only");
+    	webservice_wifi_only.setChecked(Aware.getSetting(getContentResolver(),"webservice_wifi_only").equals("true"));
+    	webservice_wifi_only.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Aware.setSetting(getContentResolver(),"webservice_wifi_only",webservice_wifi_only.isChecked());
+                return true;
+            }
+        });
+    	
+    	final EditTextPreference frequency_webservice = (EditTextPreference) findPreference("frequency_webservice");
+    	frequency_webservice.setText(Aware.getSetting(getContentResolver(),"frequency_webservice"));
+    	frequency_webservice.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Aware.setSetting(getContentResolver(),"frequency_webservice", (String) newValue);
+                
+                Intent refresh = new Intent(Aware.ACTION_AWARE_REFRESH);
+                sendBroadcast(refresh);
+                
                 return true;
             }
         });
@@ -1611,7 +1726,7 @@ public class Aware_Preferences extends PreferenceActivity {
                     mqtt.setChecked(false);
                     return false;
                 } else {
-                    Aware.setSetting(getContentResolver(),"status_mqtt",mqtt.isChecked()?"true":"false");
+                    Aware.setSetting(getContentResolver(),"status_mqtt", mqtt.isChecked());
                     if(mqtt.isChecked()) {
                         framework.startMQTT();
                     }else {
@@ -1657,7 +1772,7 @@ public class Aware_Preferences extends PreferenceActivity {
         mqttPassword.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                Aware.setSetting(getContentResolver(),"mqtt_password", Encrypter.hashMD5((String) newValue));
+                Aware.setSetting(getContentResolver(),"mqtt_password", (String) newValue);
                 return true;
             }
         });

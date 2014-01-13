@@ -57,6 +57,7 @@ import com.aware.providers.Aware_Provider;
 import com.aware.providers.Aware_Provider.Aware_Device;
 import com.aware.providers.Aware_Provider.Aware_Plugins;
 import com.aware.providers.Aware_Provider.Aware_Settings;
+import com.aware.ui.Plugins_Manager;
 import com.aware.utils.Aware_Plugin;
 import com.aware.utils.Http;
 import com.aware.utils.WebserviceHelper;
@@ -146,6 +147,7 @@ public class Aware extends Service {
     private static AlarmManager alarmManager = null;
     private static PendingIntent repeatingIntent = null;
     private static Context awareContext = null;
+    private static PendingIntent webserviceUploadIntent = null;
     
     private static Intent awareStatusMonitor = null;
     private static Intent applicationsSrv = null;
@@ -218,6 +220,9 @@ public class Aware extends Service {
         awareStatusMonitor = new Intent(getApplicationContext(), Aware.class);
         repeatingIntent = PendingIntent.getService(getApplicationContext(), 0,  awareStatusMonitor, 0);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000, STATUS_MONITOR_INTERVAL * 1000, repeatingIntent);
+        
+        Intent synchronise = new Intent(Aware.ACTION_AWARE_WEBSERVICE);
+        webserviceUploadIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, synchronise, 0);
         
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
@@ -320,14 +325,14 @@ public class Aware extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         
-        DEBUG = Aware.getSetting(awareContext.getContentResolver(),Aware_Preferences.DEBUG_FLAG).equals("true")?true:false;
+        DEBUG = Aware.getSetting(awareContext.getContentResolver(),Aware_Preferences.DEBUG_FLAG).equals("true");
         TAG = Aware.getSetting(awareContext.getContentResolver(),Aware_Preferences.DEBUG_TAG).length()>0?Aware.getSetting(awareContext.getContentResolver(),Aware_Preferences.DEBUG_TAG):TAG;
         
         if( Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ) {
             if( Aware.DEBUG ) Log.d(TAG,"AWARE framework is active...");
             startAllServices();
             
-            Intent startFramework = new Intent(getApplicationContext(), BackgroundService.class);
+            Intent startFramework = new Intent(this, BackgroundService.class);
             startFramework.setAction(ACTION_AWARE_START_PLUGINS);
             awareContext.startService(startFramework);
             
@@ -335,11 +340,23 @@ public class Aware extends Service {
             	new Update_Check().execute();
             }
             
+            int frequency_webservice = Integer.parseInt(Aware.getSetting(getContentResolver(), Aware_Preferences.FREQUENCY_WEBSERVICE));
+            if( frequency_webservice == 0 ) {
+                if(DEBUG) {
+                    Log.d(TAG,"Data sync is disabled.");
+                }
+                alarmManager.cancel(webserviceUploadIntent);
+            }
+            if( Aware.getSetting(getContentResolver(), Aware_Preferences.STATUS_WEBSERVICE).equals("true") && frequency_webservice > 0 ) {
+                if( DEBUG ) {
+                    Log.d(TAG,"Data sync every " + frequency_webservice + " minute(s)");
+                }
+                alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + 1000, frequency_webservice * 60 * 1000, webserviceUploadIntent);
+            }
         } else {
-            Intent startFramework = new Intent(getApplicationContext(), BackgroundService.class);
+            Intent startFramework = new Intent(this, BackgroundService.class);
             startFramework.setAction(ACTION_AWARE_STOP_PLUGINS);
-            awareContext.startService(startFramework);
-            
+            startService(startFramework);
             stopAllServices();
             
             if( Aware.DEBUG ) Log.w(TAG,"AWARE framework is on hold...");
@@ -353,6 +370,8 @@ public class Aware extends Service {
         super.onDestroy();
         
         alarmManager.cancel(repeatingIntent);
+        alarmManager.cancel(webserviceUploadIntent);
+        
         awareContext.unregisterReceiver(aware_BR);
         awareContext.unregisterReceiver(storage_BR);
     }
@@ -523,11 +542,10 @@ public class Aware extends Service {
                 Cursor plugins = awareContext.getContentResolver().query(Aware_Plugins.CONTENT_URI, null, Aware_Plugins.PLUGIN_STATUS + "=" + Aware_Plugin.STATUS_PLUGIN_ON, null, null);
                 if( plugins != null && plugins.moveToFirst() ) {
                     do {
-                        Intent launch = new Intent();
-                        launch.setClassName(plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME)), plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME))+".Plugin");
-                        awareContext.startService(launch);
-                    	
-                        if( Aware.DEBUG ) Log.d(TAG,"Plugin "+ plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME)) + " is active...");
+                        String plugin_package = plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME));
+                        Intent start_plugin = new Intent( Plugins_Manager.ACTION_AWARE_ACTIVATE_PLUGIN );
+                        start_plugin.putExtra(Plugins_Manager.EXTRA_PACKAGE_NAME, plugin_package);
+                        sendBroadcast(start_plugin);
                     }while(plugins.moveToNext());
                 }
                 if( plugins!= null && ! plugins.isClosed() ) plugins.close();
@@ -537,11 +555,10 @@ public class Aware extends Service {
                 Cursor plugins = awareContext.getContentResolver().query(Aware_Plugins.CONTENT_URI, null, null, null, null);
                 if( plugins != null && plugins.moveToFirst() ) {
                     do {
-                    	Intent terminate = new Intent();
-                        terminate.setClassName(plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME)), plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME))+".Plugin");
-                        awareContext.stopService(terminate);
-                    	
-                        if( Aware.DEBUG ) Log.d(TAG,"Plugin "+ plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME)) + " is terminated...");
+                    	String plugin_package = plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME));
+                        Intent stop_plugin = new Intent( Plugins_Manager.ACTION_AWARE_DEACTIVATE_PLUGIN );
+                        stop_plugin.putExtra(Plugins_Manager.EXTRA_PACKAGE_NAME, plugin_package);
+                        sendBroadcast(stop_plugin);
                     }while(plugins.moveToNext());
                 }
                 if( plugins != null && ! plugins.isClosed() ) plugins.close();                

@@ -260,6 +260,11 @@ public class Plugins_Manager extends Activity {
 				final String pkg_author = online_pkg.getString("author");
 				final int pkg_version = online_pkg.getInt("version");
 				
+				//FIXED: clean-up of packages that are no longer installed
+				if( ! isPackageInstalled(pkg_package) ) {
+					getContentResolver().delete(Aware_Plugins.CONTENT_URI, Aware_Plugins.PLUGIN_PACKAGE_NAME + "='"+pkg_package+"'", null);
+				}
+				
 				Cursor local_pkg = getContentResolver().query(Aware_Plugins.CONTENT_URI, null, Aware_Plugins.PLUGIN_PACKAGE_NAME + "='" + pkg_package + "'", null, null);
 				if( local_pkg == null || ! local_pkg.moveToFirst() ) { //we don't have it, so add it as a possible to download option
 					
@@ -386,8 +391,15 @@ public class Plugins_Manager extends Activity {
         Cursor plugins = getContentResolver().query(Aware_Plugins.CONTENT_URI, null, null, null, null);
         if( plugins != null && plugins.moveToFirst() ) {
         	do {
-        	    if( ! is_online( plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME )) ) ) {
+        		String pkg_package = plugins.getString(plugins.getColumnIndex(Aware_Plugins.PLUGIN_PACKAGE_NAME ));
+        	    if( ! is_online( pkg_package) ) {
             		
+        	    	//FIXED: clean-up of packages that are no longer installed
+    				if( ! isPackageInstalled( pkg_package ) ) {
+    					getContentResolver().delete(Aware_Plugins.CONTENT_URI, Aware_Plugins.PLUGIN_PACKAGE_NAME + "='"+pkg_package+"'", null);
+    					continue;
+    				}
+        	    	
         	    	final View row = mInflater.inflate(R.layout.plugin_row, null);
                     final TextView name = (TextView) row.findViewById(R.id.plugin_name);
                     final TextView version = (TextView) row.findViewById(R.id.plugin_version);
@@ -503,6 +515,15 @@ public class Plugins_Manager extends Activity {
 		}
     	return 0;
     }
+    
+    private static boolean isPackageInstalled( String mPackageName ) {
+    	try{
+    		mPkgManager.getPackageInfo(mPackageName, PackageManager.GET_META_DATA);
+    	} catch (NameNotFoundException e) {
+    		return false;
+    	}
+    	return true;
+    } 
     
     /**
      * Downloads missing plugins on the background for the user
@@ -660,6 +681,11 @@ public class Plugins_Manager extends Activity {
                         if( current_status.getInt(current_status.getColumnIndex(Aware_Plugins.PLUGIN_STATUS)) == Aware_Plugin.STATUS_PLUGIN_ON ) {
                             Intent aware = new Intent(Aware.ACTION_AWARE_REFRESH);
                             context.sendBroadcast(aware);
+                            
+                            //Show plugin manager UI
+                            Intent plugin_manager = new Intent(context, Plugins_Manager.class);
+                            plugin_manager.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(plugin_manager);
                         }
                     }
                     if( current_status != null && ! current_status.isClosed() ) current_status.close();
@@ -685,6 +711,11 @@ public class Plugins_Manager extends Activity {
                 
                 Intent aware = new Intent(Aware.ACTION_AWARE_REFRESH);
                 context.sendBroadcast(aware);
+                
+                //Show plugin manager UI
+                Intent plugin_manager = new Intent(context, Plugins_Manager.class);
+                plugin_manager.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(plugin_manager);
             }
             
             if( intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) ) {

@@ -10,16 +10,16 @@ See the GNU General Public License for more details: http://www.gnu.org/licenses
 */
 package com.aware;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttDefaultFilePersistence;
-import org.eclipse.paho.client.mqttv3.MqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -138,21 +138,22 @@ public class Mqtt extends Aware_Sensor {
 	 */
 	public static final String EXTRA_MESSAGE = "message";
 	
-	private static MqttClient MQTT_CLIENT;
-	private static MqttConnectOptions MQTT_OPTIONS;
+	private static MqttClient MQTT_CLIENT = null;
+	private static MqttConnectOptions MQTT_OPTIONS = null;
 	
-	private final MqttCallback MQTT_CALLBACK = new MqttCallback() {
+	private static MqttCallback MQTT_CALLBACK = new MqttCallback() {
         @Override
-        public void messageArrived(MqttTopic topic, MqttMessage message) throws Exception {
-            ContentValues rowData = new ContentValues();
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            
+        	ContentValues rowData = new ContentValues();
             rowData.put(Mqtt_Messages.TIMESTAMP, System.currentTimeMillis());
-            rowData.put(Mqtt_Messages.DEVICE_ID, Aware.getSetting(getContentResolver(),Aware_Preferences.DEVICE_ID));
-            rowData.put(Mqtt_Messages.TOPIC, topic.getName());
+            rowData.put(Mqtt_Messages.DEVICE_ID, Aware.getSetting(mContext.getContentResolver(),Aware_Preferences.DEVICE_ID));
+            rowData.put(Mqtt_Messages.TOPIC, topic);
             rowData.put(Mqtt_Messages.MESSAGE, message.toString());
             rowData.put(Mqtt_Messages.STATUS, MQTT_MSG_RECEIVED);
             
             try {
-                getContentResolver().insert(Mqtt_Messages.CONTENT_URI, rowData);
+            	mContext.getContentResolver().insert(Mqtt_Messages.CONTENT_URI, rowData);
             }catch( SQLiteException e ) {
                 if(Aware.DEBUG) Log.d(TAG,e.getMessage());
             }catch( SQLException e ) {
@@ -160,22 +161,22 @@ public class Mqtt extends Aware_Sensor {
             }
         
             Intent mqttMsg = new Intent(ACTION_AWARE_MQTT_MSG_RECEIVED);
-            mqttMsg.putExtra(EXTRA_TOPIC, topic.getName());
+            mqttMsg.putExtra(EXTRA_TOPIC, topic);
             mqttMsg.putExtra(EXTRA_MESSAGE, message.toString());
-            sendBroadcast(mqttMsg);
+            mContext.sendBroadcast(mqttMsg);
             
-            if( topic.getName().equals(Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/broadcasts") ) {
+            if( topic.equals(Aware.getSetting(mContext.getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/broadcasts") ) {
                 Intent broadcast = new Intent(message.toString());
-                sendBroadcast(broadcast);
+                mContext.sendBroadcast(broadcast);
             }
             
-            if( topic.getName().equals(Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/esm") ) {
+            if( topic.equals(Aware.getSetting(mContext.getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/esm") ) {
                 Intent queueESM = new Intent(ESM.ACTION_AWARE_QUEUE_ESM);
                 queueESM.putExtra(ESM.EXTRA_ESM, message.toString());
-                sendBroadcast(queueESM);
+                mContext.sendBroadcast(queueESM);
             }
             
-            if( topic.getName().equals(Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/configuration") ) {
+            if( topic.equals(Aware.getSetting(mContext.getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/configuration") ) {
                 String[] settingsStr = message.toString().split(";");
                 for(String setStr : settingsStr) {
                     
@@ -185,21 +186,21 @@ public class Mqtt extends Aware_Sensor {
                     Intent settings = new Intent(Aware.ACTION_AWARE_CONFIGURATION);
                     settings.putExtra(Aware_Settings.SETTING_KEY, setting);
                     settings.putExtra(Aware_Settings.SETTING_VALUE, value);
-                    sendBroadcast(settings);
+                    mContext.sendBroadcast(settings);
                 }
             }
             
-            if( Aware.DEBUG ) Log.d(TAG,"MQTT: Topic = "+topic.getName()+ " Message = "+message.toString());
+            if( Aware.DEBUG ) Log.d(TAG,"MQTT: Topic = "+topic+ " Message = "+message.toString());
         }
         
         @Override
-        public void deliveryComplete(MqttDeliveryToken arg0) {
-            //TODO: feedback on message delivered to server
+        public void deliveryComplete(IMqttDeliveryToken arg0) {
+            if( Aware.DEBUG ) Log.d(TAG,"MQTT: Message delivered to server >> " + arg0.toString());
         }
         
         @Override
         public void connectionLost(Throwable arg0) {
-            new MQTTAsync().execute( MQTT_OPTIONS );
+            //AWARE will try again in 5 minutes automatically
         }
     };
 	
@@ -267,7 +268,7 @@ public class Mqtt extends Aware_Sensor {
                 if(topic != null && topic.length() > 0) {
                     if ( subscribe( Aware.getSetting( context.getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()+"/"+ topic ) ) {
                         
-                        Cursor subscriptions = context.getContentResolver().query(Mqtt_Subscriptions.CONTENT_URI, null, Mqtt_Subscriptions.TOPIC + " LIKE '%" + topic + "%'", null, null);
+                        Cursor subscriptions = context.getContentResolver().query(Mqtt_Subscriptions.CONTENT_URI, null, Mqtt_Subscriptions.TOPIC + " LIKE '" + topic + "'", null, null);
                         if( subscriptions == null || ! subscriptions.moveToFirst() ) {
                             
                             ContentValues rowData = new ContentValues();
@@ -294,7 +295,7 @@ public class Mqtt extends Aware_Sensor {
                 if( topic != null && topic.length() > 0 ) {
                     if( unsubscribe( Aware.getSetting( context.getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode() + "/" + topic ) ) {
                         try {
-                            context.getContentResolver().delete(Mqtt_Subscriptions.CONTENT_URI, Mqtt_Subscriptions.TOPIC+" LIKE '%"+topic+"%'", null);
+                            context.getContentResolver().delete(Mqtt_Subscriptions.CONTENT_URI, Mqtt_Subscriptions.TOPIC+" LIKE '"+topic+"'", null);
                         }catch( SQLiteException e) {
                             if( Aware.DEBUG ) Log.w(TAG, e.getMessage());
                         }catch( SQLException e) {
@@ -316,58 +317,83 @@ public class Mqtt extends Aware_Sensor {
 		DATABASE_TABLES = Mqtt_Provider.DATABASE_TABLES;
     	TABLES_FIELDS = Mqtt_Provider.TABLES_FIELDS;
     	CONTEXT_URIS = new Uri[]{ Mqtt_Messages.CONTENT_URI, Mqtt_Subscriptions.CONTENT_URI };
-				
-        MQTT_SERVER = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_SERVER );
+    }
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		if( MQTT_CLIENT != null && MQTT_CLIENT.isConnected() ) {
+            try {
+                MQTT_CLIENT.disconnect();
+                MQTT_MESSAGES_PERSISTENCE.close();
+            } catch (MqttException e) {
+                if( Aware.DEBUG ) Log.e(TAG,"Failed to disconnect from the server...");
+            } 
+	    }
+		
+		if(Aware.DEBUG) Log.d(TAG,"MQTT service terminated...");
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+	    initializeMQTT();
+        return START_STICKY;
+	}
+
+	private void initializeMQTT() {
+		TAG = Aware.getSetting(getContentResolver(), Aware_Preferences.DEBUG_TAG).length()>0?Aware.getSetting(getContentResolver(), Aware_Preferences.DEBUG_TAG):TAG;
+	    
+	    MQTT_SERVER = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_SERVER );
         MQTT_PORT = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_PORT );
         MQTT_USERNAME = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_USERNAME );
         MQTT_PASSWORD = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_PASSWORD );
         MQTT_KEEPALIVE = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_KEEP_ALIVE );
         MQTT_QoS = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_QOS);
         
+        String MQTT_URL = "tcp://"+MQTT_SERVER+":"+MQTT_PORT;
+        
+        if(Aware.DEBUG) Log.d(TAG, "MQTT service active...");
+    	
         try {
-            MQTT_MESSAGES_PERSISTENCE = new MqttDefaultFilePersistence(Environment.getExternalStorageDirectory()+"/AWARE/");
-        } catch (MqttPersistenceException e) {
-            if(Aware.DEBUG) Log.w(TAG,"MQTT will run without persistence on this client, failed to use the external storage for persistence...");
-            MQTT_MESSAGES_PERSISTENCE = null;
+        	if( MQTT_MESSAGES_PERSISTENCE != null ) {
+        		MQTT_MESSAGES_PERSISTENCE.close(); //close previous opened connection to persistence
+        	} else {
+        		MQTT_MESSAGES_PERSISTENCE = new MqttDefaultFilePersistence(Environment.getExternalStorageDirectory()+"/AWARE/");
+        		MQTT_MESSAGES_PERSISTENCE.open(String.valueOf(Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()), MQTT_URL);
+        	}        	
+        } catch ( MqttException e ) {
+        	//It's OK because we use the same client ID for all instances of the client.
         }
         
         MQTT_OPTIONS = new MqttConnectOptions();
         MQTT_OPTIONS.setCleanSession(false);
         MQTT_OPTIONS.setKeepAliveInterval(Integer.parseInt(MQTT_KEEPALIVE));
-        
         if( MQTT_USERNAME.length() > 0 ) MQTT_OPTIONS.setUserName(MQTT_USERNAME);
         if( MQTT_PASSWORD.length() > 0 ) MQTT_OPTIONS.setPassword(MQTT_PASSWORD.toCharArray());
         
-        String MQTT_URL = "tcp://"+MQTT_SERVER+":"+MQTT_PORT;
-        
-        try {
-            MQTT_CLIENT = new MqttClient(MQTT_URL, String.valueOf(Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()), MQTT_MESSAGES_PERSISTENCE);
+    	try {
+    		MQTT_CLIENT = new MqttClient(MQTT_URL, String.valueOf(Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID).hashCode()), MQTT_MESSAGES_PERSISTENCE);
             MQTT_CLIENT.setCallback(MQTT_CALLBACK);
-            
-            new MQTTAsync().execute(MQTT_OPTIONS);
-            
-            if(Aware.DEBUG) Log.d(TAG, "MQTT service created!");
-            
-        } catch (MqttException e) {
-            if( Aware.DEBUG ) Log.e(TAG,"Failed to create the MQTT client: "+e.getMessage());
-            stopSelf();
-        }
+    		
+			new MQTTAsync().execute( MQTT_OPTIONS );
+			
+		} catch (MqttException e) {
+			if( Aware.DEBUG) Log.e(TAG, e.getMessage());
+		}
 	}
-
+	
 	/**
 	 * UI Thread safe background MQTT connection attempt!
 	 * @author denzil
 	 */
 	private class MQTTAsync extends AsyncTask<MqttConnectOptions, Void, Void> {
         @Override
-	    protected void onPreExecute() {
-	        super.onPreExecute();
-	    }
-	    
-	    @Override
         protected Void doInBackground(MqttConnectOptions... params) {
             try {
-                if( ! MQTT_CLIENT.isConnected() ) MQTT_CLIENT.connect(params[0]);
+                if( MQTT_CLIENT != null && ! MQTT_CLIENT.isConnected() ) {
+                	MQTT_CLIENT.connect(params[0]);
+                }
             } catch (MqttSecurityException e) {
                 if( Aware.DEBUG ) Log.e(TAG,"Failed to create the MQTT client: "+e.getMessage());
             } catch (MqttException e) {
@@ -393,60 +419,6 @@ public class Mqtt extends Aware_Sensor {
 	    }
 	}
 	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		
-		if( MQTT_CLIENT != null && MQTT_CLIENT.isConnected() ) {
-            try {
-                MQTT_CLIENT.disconnect();
-            } catch (MqttException e) {
-                if( Aware.DEBUG ) Log.e(TAG,"Failed to disconnect from the server...");
-            } 
-	    }
-		
-		if(Aware.DEBUG) Log.d(TAG,"MQTT service terminated...");
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-	    
-	    TAG = Aware.getSetting(getContentResolver(), Aware_Preferences.DEBUG_TAG).length()>0?Aware.getSetting(getContentResolver(), Aware_Preferences.DEBUG_TAG):TAG;
-	    
-	    MQTT_SERVER = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_SERVER );
-        MQTT_PORT = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_PORT );
-        MQTT_USERNAME = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_USERNAME );
-        MQTT_PASSWORD = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_PASSWORD );
-        MQTT_KEEPALIVE = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_KEEP_ALIVE );
-        MQTT_QoS = Aware.getSetting(getContentResolver(), Aware_Preferences.MQTT_QOS);
-        
-        if(Aware.DEBUG) Log.d(TAG, "MQTT service active...");
-        
-        try {
-            MQTT_MESSAGES_PERSISTENCE = new MqttDefaultFilePersistence(Environment.getExternalStorageDirectory()+"/AWARE/");
-        } catch (MqttPersistenceException e) {
-            if(Aware.DEBUG) Log.w(TAG,"MQTT will run without persistence on this client, failed to use the external storage for persistence...");
-            MQTT_MESSAGES_PERSISTENCE = null;
-        }
-        
-        MQTT_OPTIONS = new MqttConnectOptions();
-        MQTT_OPTIONS.setCleanSession(false);
-        MQTT_OPTIONS.setKeepAliveInterval(Integer.parseInt(MQTT_KEEPALIVE));
-        
-        if( MQTT_USERNAME.length() > 0 ) MQTT_OPTIONS.setUserName(MQTT_USERNAME);
-        if( MQTT_PASSWORD.length() > 0 ) MQTT_OPTIONS.setPassword(MQTT_PASSWORD.toCharArray());
-        
-    	try {
-    		//MQTT known bug, server disconnects client every 10 minutes without calling the connectionLost callback... reconnect anyway.
-			if( MQTT_CLIENT.isConnected() ) MQTT_CLIENT.disconnect();
-			new MQTTAsync().execute( MQTT_OPTIONS );
-		} catch (MqttException e) {
-			if( Aware.DEBUG) Log.e(TAG, e.getMessage());
-		}
-        
-        return START_STICKY;
-	}
-
 	/**
 	 * Publish message to topic
 	 * @param topicName

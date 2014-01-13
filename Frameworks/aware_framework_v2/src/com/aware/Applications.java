@@ -293,6 +293,10 @@ public class Applications extends AccessibilityService {
             repeatingIntent = PendingIntent.getService(getApplicationContext(), 0, updateApps, 0);
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000, BACKGROUND_APPS_UPDATE_FREQUENCY * 1000, repeatingIntent);
         }
+        
+        //Boot-up AWARE framework
+        Intent aware = new Intent(this, Aware.class);
+        startService(aware);
     }
     
     @Override
@@ -309,6 +313,10 @@ public class Applications extends AccessibilityService {
             accessibilitySettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(accessibilitySettings);
         }
+        
+        //Boot-up AWARE framework
+        Intent aware = new Intent(this, Aware.class);
+        startService(aware);
     }
     
     @Override
