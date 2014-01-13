@@ -17,12 +17,6 @@ import com.aware.plugin.location_dissolver.LocationDissolver_Provider.LocationDi
 import com.aware.providers.Locations_Provider;
 import com.aware.utils.Aware_Plugin;
 
-import org.json.simple.JSONObject;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 import io.mingle.v1.Mingle;
 import io.mingle.v1.Response;
 
@@ -73,6 +67,7 @@ public class Plugin extends Aware_Plugin {
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
                 locationContentUri, true, locationObs);
+
         Log.d(TAG, "notificationCatcherObs registered");
 
 		
@@ -92,13 +87,17 @@ public class Plugin extends Aware_Plugin {
 	}
 
 	protected void saveData(Response res) {
-		Log.d(TAG, "@saveData(Response res)");
+		Log.wtf(TAG, "@saveData(Response res)");
 		
 		if (res != null) {
             long timestamp = System.currentTimeMillis();
 
+
+            Log.wtf(TAG, "found " + res.size() + " results");
+
             for (int i = 0; i < res.size(); i++) {
 
+                Log.wtf(TAG, "i: " + i);
 			ContentValues rowData = new ContentValues();
 
             rowData.put(LocationDissolver.DEVICE_ID, Aware.getSetting(
@@ -174,7 +173,7 @@ public class Plugin extends Aware_Plugin {
 
                     res = mingle.osmpois().getPoisNearbyOfRegexes((float)lat, (float)lon, 1f, "^POI.*");
 
-                    //PrintResponse("getPoisNearbyOfRegexes", res);
+                    PrintResponse("getPoisNearbyOfRegexes", res);
 
 
                 } catch (Exception e) {
