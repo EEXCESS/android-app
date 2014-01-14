@@ -150,6 +150,10 @@ public class Geonames {
     public float getDistanceInMeters(float lat1, float lng1, float lat2, float lng2){ return 0f;}
 
 
+    public boolean existsPopulatedPlaceWithName(String name){
+        return getCityRegex(name).size() > 0;
+    }
+
     /* V1.1
     public float[] getDistanceInMeters(float lat, float lng, String[] placeIds){
     public io.mingle.v1.Response getTimeZone(float lat, float lng){ return null;}
