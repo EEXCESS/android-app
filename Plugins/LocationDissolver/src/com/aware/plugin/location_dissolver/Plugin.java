@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 
+import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -26,6 +27,11 @@ public class Plugin extends Aware_Plugin {
 	public static final String ACTION_AWARE_LOCATIONDISSOLVER = "ACTION_AWARE_LOCATIONDISSOLVER";
 	
 	private static long previousTimestamp = 0L;
+
+    private static Location previousDissolvedLocation = null;
+
+    //minimal Distance to dissolve again
+    private static double minimalDistanceBetweenCoordinates = 200.0;
 	
 	public static Uri locationContentUri;
 	private static LocationObserver locationObs = null;
@@ -164,31 +170,48 @@ public class Plugin extends Aware_Plugin {
 
                 Log.wtf(TAG, "Lat:" + lat + " Lon:" + lon);
 
-            // dissolve them with mingle
+                Location currentLocation = new Location("");
+                currentLocation.setLatitude(lat);
+                currentLocation.setLatitude(lon);
 
-                Mingle mingle;
-                Response res = null;
-                try {
-                    mingle = new Mingle();
+                float distBetweenLocs = 0.0f;
 
-                    res = mingle.osmpois().getPoisNearbyOfRegexes((float)lat, (float)lon, 1f, "^POI.*");
-
-                    PrintResponse("getPoisNearbyOfRegexes", res);
-
-
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-
+                if (previousDissolvedLocation != null) {
+                    distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
                 }
 
+                Log.wtf(TAG, "Distance between locs " + distBetweenLocs);
 
-            // save data
+                if( previousDissolvedLocation == null || distBetweenLocs > minimalDistanceBetweenCoordinates){
 
-            saveData(res);
+                  // dissolve them with mingle
+                    Mingle mingle;
+                    Response resPOIs = null;
+                    Response resGeo = null;
+                    try {
+                        mingle = new Mingle();
 
+                        resPOIs = mingle.osmpois().getPoisNearbyOfRegexes((float)lat, (float)lon, 1f, "^POI.*");
 
+                       //TODO!
+                        resGeo = mingle.geonames().getPlacesNearbyOfClass((float) lat, (float) lon, 1f, "P");
 
+                        PrintResponse("getPoisNearbyOfRegexes", resPOIs);
+
+                        // response was not empty
+                        if(resPOIs.size() > 0) {
+                            previousDissolvedLocation = currentLocation;
+                            // save data
+                            saveData(resPOIs);
+                        } else {
+                            Log.wtf(TAG, "Mingle Query did not yield any Results");
+                        }
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+
+                    }
+                }
             }
 
             if (cursor != null && !cursor.isClosed()) {
