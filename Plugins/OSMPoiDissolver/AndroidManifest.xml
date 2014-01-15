@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aware.plugin.location_dissolver"
+    package="com.aware.plugin.osmpoi_dissolver"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -26,8 +26,8 @@
         </service>
 
         <provider
-            android:name="LocationDissolver_Provider"
-            android:authorities="com.aware.provider.plugin.location_dissolver"
+            android:name="OSMPoiDissolver_Provider"
+            android:authorities="com.aware.provider.plugin.osmpoi_dissolver"
             android:exported="true"
             android:writePermission="com.aware.WRITE_CONTEXT_DATA"
             android:readPermission="com.aware.READ_CONTEXT_DATA">

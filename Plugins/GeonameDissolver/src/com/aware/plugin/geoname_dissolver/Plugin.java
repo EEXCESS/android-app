@@ -1,4 +1,4 @@
-package com.aware.plugin.location_dissolver;
+package com.aware.plugin.geoname_dissolver;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -14,7 +14,7 @@ import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.plugin.location_dissolver.LocationDissolver_Provider.LocationDissolver;
+import com.aware.plugin.geoname_dissolver.GeonameDissolver_Provider.GeonameDissolver;
 import com.aware.providers.Locations_Provider;
 import com.aware.utils.Aware_Plugin;
 
@@ -23,8 +23,8 @@ import io.mingle.v1.Response;
 
 public class Plugin extends Aware_Plugin {
 
-	private static final String TAG = "LocationDissolver Plugin";
-	public static final String ACTION_AWARE_LOCATIONDISSOLVER = "ACTION_AWARE_LOCATIONDISSOLVER";
+	private static final String TAG = "GeonameDissolver Plugin";
+	public static final String ACTION_AWARE_GEONAMEDISSOLVER = "ACTION_AWARE_GEONAMEDISSOLVER";
 	
 	private static long previousTimestamp = 0L;
 
@@ -52,14 +52,14 @@ public class Plugin extends Aware_Plugin {
 			@Override
 			public void onContext() {
 				Log.d(TAG, "Putting extra context into intent");
-				Intent notification = new Intent(ACTION_AWARE_LOCATIONDISSOLVER);
+				Intent notification = new Intent(ACTION_AWARE_GEONAMEDISSOLVER);
 				sendBroadcast(notification);
 			}
 		};
 
-		DATABASE_TABLES = LocationDissolver_Provider.DATABASE_TABLES;
-		TABLES_FIELDS = LocationDissolver_Provider.TABLES_FIELDS;
-		CONTEXT_URIS = new Uri[] { LocationDissolver.CONTENT_URI };
+		DATABASE_TABLES = GeonameDissolver_Provider.DATABASE_TABLES;
+		TABLES_FIELDS = GeonameDissolver_Provider.TABLES_FIELDS;
+		CONTEXT_URIS = new Uri[] { GeonameDissolver.CONTENT_URI };
 
 		threads = new HandlerThread(TAG);
 		threads.start();
@@ -106,21 +106,21 @@ public class Plugin extends Aware_Plugin {
                 Log.wtf(TAG, "i: " + i);
 			ContentValues rowData = new ContentValues();
 
-            rowData.put(LocationDissolver.DEVICE_ID, Aware.getSetting(
+            rowData.put(GeonameDissolver.DEVICE_ID, Aware.getSetting(
 					getContentResolver(), Aware_Preferences.DEVICE_ID));
 
 
             // add i to produce slightly different timestamps
-            rowData.put(LocationDissolver.TIMESTAMP, timestamp + i);
+            rowData.put(GeonameDissolver.TIMESTAMP, timestamp + i);
 
-			rowData.put(LocationDissolver.NAME, res.get("result").get(i).get("name").toString());
-			rowData.put(LocationDissolver.TYPE, res.get("result").get(i).get("type").toString());
-            //rowData.put(LocationDissolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
+			rowData.put(GeonameDissolver.NAME, res.get("result").get(i).get("name").toString());
+			rowData.put(GeonameDissolver.TYPE, res.get("result").get(i).get("type").toString());
+            //rowData.put(GeonameDissolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
 
                 Log.wtf(TAG, res.get("result").get(i).get("name").toString());
 
 				Log.d(TAG, "Saving " + rowData.toString());
-				getContentResolver().insert(LocationDissolver.CONTENT_URI, rowData);
+				getContentResolver().insert(GeonameDissolver.CONTENT_URI, rowData);
 
             }
 		}
@@ -155,7 +155,7 @@ public class Plugin extends Aware_Plugin {
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
 
-			Log.d(TAG, "@onChange LocationDissolver");
+			Log.d(TAG, "@onChange GeonameDissolver");
 
 			Cursor cursor = getContentResolver().query(
 					locationContentUri, null, null, null,
@@ -174,15 +174,7 @@ public class Plugin extends Aware_Plugin {
                 currentLocation.setLatitude(lat);
                 currentLocation.setLatitude(lon);
 
-                float distBetweenLocs = 0.0f;
-
-                if (previousDissolvedLocation != null) {
-                    distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
-                }
-
-                Log.wtf(TAG, "Distance between locs " + distBetweenLocs);
-
-                if( previousDissolvedLocation == null || distBetweenLocs > minimalDistanceBetweenCoordinates){
+                if(shouldTryToDissolve(currentLocation)){
 
                   // dissolve them with mingle
                     Mingle mingle;
@@ -220,5 +212,17 @@ public class Plugin extends Aware_Plugin {
 		}
 	}
 
+    private boolean shouldTryToDissolve(Location currentLocation){
+      if (previousDissolvedLocation != null) {
+            // we have dissolved successfully in the past
+            float distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
+            Log.wtf(TAG, "Distance between locs " + distBetweenLocs);
+            return distBetweenLocs > minimalDistanceBetweenCoordinates;
+        } else {
+            // We haven't dissolved yet
+            Log.wtf(TAG, "Should try to dissolve, as it has not resolved yet.");
+            return true;
+        }
+    }
 
 }

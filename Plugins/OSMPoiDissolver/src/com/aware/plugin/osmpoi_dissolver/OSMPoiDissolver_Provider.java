@@ -1,4 +1,4 @@
-package com.aware.plugin.location_dissolver;
+package com.aware.plugin.osmpoi_dissolver;
 
 import java.util.HashMap;
 
@@ -25,25 +25,25 @@ import com.aware.utils.DatabaseHelper;
  * @since: 29 May 2013
  */
 
-public class LocationDissolver_Provider extends ContentProvider {
+public class OSMPoiDissolver_Provider extends ContentProvider {
 
-		private final String TAG = "LocationDissolver Provider";
-        public static final String PLUGIN_NAME = "plugin.location_dissolver";
+		private final String TAG = "OSMPoiDissolver Provider";
+        public static final String PLUGIN_NAME = "plugin.osmpoi_dissolver";
         public static final String AUTHORITY = "com.aware.provider."+PLUGIN_NAME;
-        public static final String MAIN_TABLE = "plugin_location_dissolver";
+        public static final String MAIN_TABLE = "plugin_osmpoi_dissolver";
         
         private static final int DATABASE_VERSION = 3;
         
-        private static final int LOCATION_DISSOLVER = 1;
-        private static final int LOCATION_DISSOLVER_ID = 2;
+        private static final int OSMPOI_DISSOLVER = 1;
+        private static final int OSMPOI_DISSOLVER_ID = 2;
         
         private static UriMatcher uriMatcher = null;
         private static HashMap<String, String> contentMap = null;        
         private static DatabaseHelper databaseHelper = null;
         private static SQLiteDatabase database = null;        
         
-        public static final class LocationDissolver implements BaseColumns {
-                private LocationDissolver() {};
+        public static final class OSMPoiDissolver implements BaseColumns {
+                private OSMPoiDissolver() {};
                 
                 public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+MAIN_TABLE); //this needs to match the table name
                 public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+PLUGIN_NAME;
@@ -65,25 +65,25 @@ public class LocationDissolver_Provider extends ContentProvider {
         };
         
         public static final String[] TABLES_FIELDS = {
-        			LocationDissolver._ID + " integer primary key autoincrement," +
-        			LocationDissolver.TIMESTAMP + " real default 0," + 
-        			LocationDissolver.DEVICE_ID + " text default ''," +
-        			LocationDissolver.NAME + " text default ''," +
-                    LocationDissolver.TYPE + " text default ''," +
-                   "UNIQUE ("+LocationDissolver.TIMESTAMP+","+LocationDissolver.DEVICE_ID+","+ LocationDissolver.NAME + ")"
+        			OSMPoiDissolver._ID + " integer primary key autoincrement," +
+        			OSMPoiDissolver.TIMESTAMP + " real default 0," + 
+        			OSMPoiDissolver.DEVICE_ID + " text default ''," +
+        			OSMPoiDissolver.NAME + " text default ''," +
+                    OSMPoiDissolver.TYPE + " text default ''," +
+                   "UNIQUE ("+OSMPoiDissolver.TIMESTAMP+","+OSMPoiDissolver.DEVICE_ID+","+ OSMPoiDissolver.NAME + ")"
         };
         
         static {
                 uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], LOCATION_DISSOLVER);
-                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", LOCATION_DISSOLVER_ID);
+                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], OSMPOI_DISSOLVER);
+                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", OSMPOI_DISSOLVER_ID);
                 
                 contentMap = new HashMap<String, String>();
-                contentMap.put(LocationDissolver._ID, LocationDissolver._ID);
-                contentMap.put(LocationDissolver.TIMESTAMP, LocationDissolver.TIMESTAMP);
-                contentMap.put(LocationDissolver.DEVICE_ID, LocationDissolver.DEVICE_ID);
-                contentMap.put(LocationDissolver.NAME, LocationDissolver.NAME);
-                contentMap.put(LocationDissolver.TYPE, LocationDissolver.TYPE);
+                contentMap.put(OSMPoiDissolver._ID, OSMPoiDissolver._ID);
+                contentMap.put(OSMPoiDissolver.TIMESTAMP, OSMPoiDissolver.TIMESTAMP);
+                contentMap.put(OSMPoiDissolver.DEVICE_ID, OSMPoiDissolver.DEVICE_ID);
+                contentMap.put(OSMPoiDissolver.NAME, OSMPoiDissolver.NAME);
+                contentMap.put(OSMPoiDissolver.TYPE, OSMPoiDissolver.TYPE);
         }
         
         @Override
@@ -92,7 +92,7 @@ public class LocationDissolver_Provider extends ContentProvider {
         
 	        int count = 0;
 	        switch (uriMatcher.match(uri)) {
-	            case LOCATION_DISSOLVER:
+	            case OSMPOI_DISSOLVER:
 	                count = database.delete(DATABASE_TABLES[0], selection, selectionArgs);
 	                break;            
 	            default:
@@ -105,10 +105,10 @@ public class LocationDissolver_Provider extends ContentProvider {
         @Override
         public String getType(Uri uri) {
                 switch (uriMatcher.match(uri)) {
-                case LOCATION_DISSOLVER:
-                    return LocationDissolver.CONTENT_TYPE;
-                case LOCATION_DISSOLVER_ID:
-                    return LocationDissolver.CONTENT_ITEM_TYPE;                
+                case OSMPOI_DISSOLVER:
+                    return OSMPoiDissolver.CONTENT_TYPE;
+                case OSMPOI_DISSOLVER_ID:
+                    return OSMPoiDissolver.CONTENT_ITEM_TYPE;                
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -121,13 +121,13 @@ public class LocationDissolver_Provider extends ContentProvider {
 	        ContentValues values = (initialValues != null) ? new ContentValues(initialValues) : new ContentValues();
 	        
 	        switch(uriMatcher.match(uri)) {
-	            case LOCATION_DISSOLVER:
-	                long _id = database.insert(DATABASE_TABLES[0], LocationDissolver.TIMESTAMP, values);
+	            case OSMPOI_DISSOLVER:
+	                long _id = database.insert(DATABASE_TABLES[0], OSMPoiDissolver.TIMESTAMP, values);
 
                     Log.wtf(TAG, "Id:" + _id);
 
                     if (_id > 0) {
-	                    Uri dataUri = ContentUris.withAppendedId(LocationDissolver.CONTENT_URI, _id);
+	                    Uri dataUri = ContentUris.withAppendedId(OSMPoiDissolver.CONTENT_URI, _id);
 	                    getContext().getContentResolver().notifyChange(dataUri, null);
 	                    return dataUri;
 	                }
@@ -152,7 +152,7 @@ public class LocationDissolver_Provider extends ContentProvider {
 	        
 	        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 	        switch (uriMatcher.match(uri)) {
-	            case LOCATION_DISSOLVER:
+	            case OSMPOI_DISSOLVER:
 	                qb.setTables(DATABASE_TABLES[0]);
 	                qb.setProjectionMap(contentMap);
 	                break;            
@@ -177,7 +177,7 @@ public class LocationDissolver_Provider extends ContentProvider {
 	        
 	                int count = 0;
 	        switch (uriMatcher.match(uri)) {
-	            case LOCATION_DISSOLVER:
+	            case OSMPOI_DISSOLVER:
 	                count = database.update(DATABASE_TABLES[0], values, selection, selectionArgs);
 	                break;            
 	            default:
