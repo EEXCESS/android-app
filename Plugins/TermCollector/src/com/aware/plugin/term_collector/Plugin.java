@@ -14,7 +14,8 @@ import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.plugin.term_collector.TermCollector_Provider.TermCollector;
+import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorTermData;
+import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorGeoData;
 import com.aware.utils.Aware_Plugin;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class Plugin extends Aware_Plugin {
 
         DATABASE_TABLES = TermCollector_Provider.DATABASE_TABLES;
         TABLES_FIELDS = TermCollector_Provider.TABLES_FIELDS;
-        CONTEXT_URIS = new Uri[]{TermCollector.CONTENT_URI};
+        CONTEXT_URIS = new Uri[]{TermCollectorTermData.CONTENT_URI, TermCollectorGeoData.CONTENT_URI};
 
         threads = new HandlerThread(TAG);
         threads.start();
@@ -141,20 +142,6 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    protected void saveData(long timestamp, String source, String content) {
-        Log.d(TAG, "Saving Data");
-
-        ContentValues rowData = new ContentValues();
-        rowData.put(TermCollector.DEVICE_ID, Aware.getSetting(
-                getContentResolver(), Aware_Preferences.DEVICE_ID));
-        rowData.put(TermCollector.TIMESTAMP, timestamp);
-        rowData.put(TermCollector.TERM_SOURCE, source);
-        rowData.put(TermCollector.TERM_CONTENT, content);
-
-        Log.d(TAG, "Saving " + rowData.toString());
-        getContentResolver().insert(TermCollector.CONTENT_URI, rowData);
-    }
-
     protected void splitAndFilterAndSaveData(long timestamp, String source, String content) {
 
         String[] contentTokens = splitContent(content);
@@ -199,18 +186,48 @@ public class Plugin extends Aware_Plugin {
         // Save Non-City-Tokens to Term-Database, increase timestamp by 1 everytime
         int tokenIndex = 0;
         for (String token : nonCityTokens) {
-                    saveData(timestamp + tokenIndex, source, token);
-                    tokenIndex++;
+            saveTermData(timestamp + tokenIndex, source, token);
+            tokenIndex++;
         }
 
 
         // Save ity-Tokens to Geo-Database, increase timestamp by 1 everytime
         tokenIndex = 0;
         for (String token : cityTokens) {
-            saveData(timestamp + tokenIndex, source, token);
+            saveGeoData(timestamp + tokenIndex, source, token);
             tokenIndex++;
         }
 
+    }
+
+
+    protected void saveTermData(long timestamp, String source, String content) {
+        Log.d(TAG, "Saving Data");
+
+        ContentValues rowData = new ContentValues();
+        rowData.put(TermCollectorTermData.DEVICE_ID, Aware.getSetting(
+                getContentResolver(), Aware_Preferences.DEVICE_ID));
+        rowData.put(TermCollectorTermData.TIMESTAMP, timestamp);
+        rowData.put(TermCollectorTermData.TERM_SOURCE, source);
+        rowData.put(TermCollectorTermData.TERM_CONTENT, content);
+
+        Log.d(TAG, "Saving " + rowData.toString());
+        getContentResolver().insert(TermCollectorTermData.CONTENT_URI, rowData);
+    }
+
+
+    protected void saveGeoData(long timestamp, String source, String content) {
+        Log.d(TAG, "Saving Data");
+
+        ContentValues rowData = new ContentValues();
+        rowData.put(TermCollectorGeoData.DEVICE_ID, Aware.getSetting(
+                getContentResolver(), Aware_Preferences.DEVICE_ID));
+        rowData.put(TermCollectorGeoData.TIMESTAMP, timestamp);
+        rowData.put(TermCollectorGeoData.TERM_SOURCE, source);
+        rowData.put(TermCollectorGeoData.TERM_CONTENT, content);
+
+        Log.d(TAG, "Saving " + rowData.toString());
+        getContentResolver().insert(TermCollectorGeoData.CONTENT_URI, rowData);
     }
 
     public class ClipboardCatcherObserver extends ContentObserver {
@@ -314,7 +331,7 @@ public class Plugin extends Aware_Plugin {
                     "timestamp" + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
-                saveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                splitAndFilterAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
                         osmpoiDissolverContentUri.toString(),
                         cursor.getString(cursor
                                 .getColumnIndex("NAME")));
