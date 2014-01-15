@@ -49,8 +49,8 @@ public class Plugin extends Aware_Plugin {
     public static Uri smsReceiverContentUri;
     private static SmsReceiverObserver smsReceiverObs = null;
 
-    public static Uri locationDissolverContentUri;
-    private static LocationDissolverObserver locationDissolverObs = null;
+    public static Uri osmpoiDissolverContentUri;
+    private static OSMPoiDissolverObserver osmpoiDissolverObs = null;
 
     /**
      * Thread manager
@@ -112,12 +112,12 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "smsReceiverObs registered");
 
 
-        locationDissolverContentUri = Uri
-                .parse("content://com.aware.provider.plugin.location_dissolver/plugin_location_dissolver");
-        locationDissolverObs = new LocationDissolverObserver(new Handler(
+        osmpoiDissolverContentUri = Uri
+                .parse("content://com.aware.provider.plugin.osmpoi_dissolver/plugin_osmpoi_dissolver");
+        osmpoiDissolverObs = new OSMPoiDissolverObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
-                locationDissolverContentUri, true, locationDissolverObs);
+                osmpoiDissolverContentUri, true, osmpoiDissolverObs);
         Log.d(TAG, "locationDissolverObs registered");
 
 
@@ -137,6 +137,7 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().unregisterContentObserver(clipboardCatcherObs);
         getContentResolver().unregisterContentObserver(notificationCatcherObs);
         getContentResolver().unregisterContentObserver(smsReceiverObs);
+        getContentResolver().unregisterContentObserver(osmpoiDissolverObs);
 
     }
 
@@ -305,8 +306,8 @@ public class Plugin extends Aware_Plugin {
     }
 
 
-    public class LocationDissolverObserver extends ContentObserver {
-        public LocationDissolverObserver(Handler handler) {
+    public class OSMPoiDissolverObserver extends ContentObserver {
+        public OSMPoiDissolverObserver(Handler handler) {
             super(handler);
         }
 
@@ -316,12 +317,12 @@ public class Plugin extends Aware_Plugin {
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
-                    locationDissolverContentUri, null, null, null,
+                    osmpoiDissolverContentUri, null, null, null,
                     "timestamp" + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
                 saveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        locationDissolverContentUri.toString(),
+                        osmpoiDissolverContentUri.toString(),
                         cursor.getString(cursor
                                 .getColumnIndex("NAME")));
             }
