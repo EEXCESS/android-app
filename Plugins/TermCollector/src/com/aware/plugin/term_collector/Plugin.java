@@ -156,33 +156,17 @@ public class Plugin extends Aware_Plugin {
     }
 
     protected void splitAndFilterAndSaveData(long timestamp, String source, String content) {
-        Log.wtf(TAG, "Splitting Content");
 
-        Log.wtf(TAG, "Content: " + content);
-        //remove all characters that are not A-Za-z
-        String[] contentTokens = content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
+        String[] contentTokens = splitContent(content);
 
         //filter Stopwords
         contentTokens = stopList.filteredArray(contentTokens);
 
-        ArrayList<String> filteredTokens = new ArrayList<String>();
-
-        // filter Lowercase tokens and tokens shorter than 3 characters
-        for (String token : contentTokens) {
-            if (Character.isUpperCase(token.charAt(0))) {
-                if (token.length() > 2) {
-                    filteredTokens.add(token);
-                } else {
-                    Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
-                }
-            } else {
-                Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
-            }
-        }
+        //filter Lowercase words and words with less than 3 Characters
+        ArrayList<String> filteredTokens = filterTokens(contentTokens);
 
 
         //classify cities
-
         ArrayList<String> cityTokens = new ArrayList<String>();
         ArrayList<String> nonCityTokens = new ArrayList<String>();
 
@@ -211,11 +195,20 @@ public class Plugin extends Aware_Plugin {
             }
         }
 
-        int tokenIndex = 0;
 
+        // Save Non-City-Tokens to Term-Database, increase timestamp by 1 everytime
+        int tokenIndex = 0;
         for (String token : nonCityTokens) {
                     saveData(timestamp + tokenIndex, source, token);
                     tokenIndex++;
+        }
+
+
+        // Save ity-Tokens to Geo-Database, increase timestamp by 1 everytime
+        tokenIndex = 0;
+        for (String token : cityTokens) {
+            saveData(timestamp + tokenIndex, source, token);
+            tokenIndex++;
         }
 
     }
@@ -331,5 +324,32 @@ public class Plugin extends Aware_Plugin {
                 cursor.close();
             }
         }
+    }
+
+    private String[] splitContent(String content) {
+        Log.wtf(TAG, "Splitting Content");
+        Log.wtf(TAG, "Content: " + content);
+
+        //remove all characters that are not A-Za-z
+        return content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
+    }
+
+    private ArrayList<String> filterTokens(String[] tokens) {
+        ArrayList<String> filteredTokens = new ArrayList<String>();
+
+        // filter Lowercase tokens and tokens shorter than 3 characters
+        for (String token : tokens) {
+            if (Character.isUpperCase(token.charAt(0))) {
+                if (token.length() > 2) {
+                    filteredTokens.add(token);
+                } else {
+                    Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
+                }
+            } else {
+                Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
+            }
+        }
+
+        return filteredTokens;
     }
 }
