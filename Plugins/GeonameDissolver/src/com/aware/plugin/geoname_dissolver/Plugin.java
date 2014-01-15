@@ -161,7 +161,6 @@ public class Plugin extends Aware_Plugin {
 					locationContentUri, null, null, null,
                     Locations_Provider.Locations_Data.TIMESTAMP + " DESC LIMIT 1");
 
-
             if (cursor != null && cursor.moveToFirst()) {
 
                 // get lat and lon
@@ -175,54 +174,57 @@ public class Plugin extends Aware_Plugin {
                 currentLocation.setLatitude(lon);
 
                 if(shouldTryToDissolve(currentLocation)){
-
-                  // dissolve them with mingle
-                    Mingle mingle;
-                    Response resPOIs = null;
-                    Response resGeo = null;
-                    try {
-                        mingle = new Mingle();
-
-                        resPOIs = mingle.osmpois().getPoisNearbyOfRegexes((float)lat, (float)lon, 1f, "^POI.*");
-
-                       //TODO!
-                        resGeo = mingle.geonames().getPlacesNearbyOfClass((float) lat, (float) lon, 1f, "P");
-
-                        PrintResponse("getPoisNearbyOfRegexes", resPOIs);
-
-                        // response was not empty
-                        if(resPOIs.size() > 0) {
-                            previousDissolvedLocation = currentLocation;
-                            // save data
-                            saveData(resPOIs);
-                        } else {
-                            Log.wtf(TAG, "Mingle Query did not yield any Results");
-                        }
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-
-                    }
+                    dissolveLocation(currentLocation);
                 }
             }
 
             if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
+                cursor.close();
+            }
+        }
+
+        private boolean shouldTryToDissolve(Location currentLocation){
+            if (previousDissolvedLocation != null) {
+                // we have dissolved successfully in the past
+                float distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
+                Log.wtf(TAG, "Distance between locs " + distBetweenLocs);
+                return distBetweenLocs > minimalDistanceBetweenCoordinates;
+            } else {
+                // We haven't dissolved yet
+                Log.wtf(TAG, "Should try to dissolve, as it has not resolved yet.");
+                return true;
+            }
+        }
+
+        private void dissolveLocation(Location currentLocation) {
+            // dissolve currentLocation with mingle
+            Mingle mingle;
+            Response resPOIs = null;
+
+            try {
+                mingle = new Mingle();
+
+                //TODO: Change to Geonames
+                resPOIs = mingle.osmpois().getPoisNearbyOfRegexes((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f, "^POI.*");
+
+                PrintResponse("getPoisNearbyOfRegexes", resPOIs);
+
+                // response was not empty
+                if(resPOIs.size() > 0) {
+                    previousDissolvedLocation = currentLocation;
+                    // save data
+                    saveData(resPOIs);
+                } else {
+                    Log.wtf(TAG, "Mingle Query did not yield any Results");
+                }
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+            }
+
+
 	}
 
-    private boolean shouldTryToDissolve(Location currentLocation){
-      if (previousDissolvedLocation != null) {
-            // we have dissolved successfully in the past
-            float distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
-            Log.wtf(TAG, "Distance between locs " + distBetweenLocs);
-            return distBetweenLocs > minimalDistanceBetweenCoordinates;
-        } else {
-            // We haven't dissolved yet
-            Log.wtf(TAG, "Should try to dissolve, as it has not resolved yet.");
-            return true;
-        }
     }
-
 }
