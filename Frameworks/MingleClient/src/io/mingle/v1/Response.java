@@ -14,7 +14,9 @@ limitations under the License.
 */
 package io.mingle.v1;
 
-import org.json.simple.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public final class Response {
     private final Object obj;
@@ -35,30 +37,44 @@ public final class Response {
     public Response get(String attribute) {
         if (obj == null)
             return this;
-
+        try{
         return new Response(((JSONObject) obj).get(attribute));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return this;
+        }
     }
 
     public Response get(int index) {
         if (obj == null)
             return this;
 
-        return new Response(((JSONArray) obj).get(index));
+        try {
+            return new Response(((JSONArray) obj).get(index));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return this;
+        }
     }
 
 
     public int size() {
         if (obj == null)
             return 0;
-        JSONArray result = (JSONArray)(((JSONObject) obj).get("result"));
+        JSONArray result = null;
+        try {
+            result = (JSONArray)(((JSONObject) obj).get("result"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (result == null)
             return 0;
 
-        return result.size();
+        return result.length();
     }
 
     public String toJSONString() {
-        return ((JSONObject) obj).toJSONString();
+        return ((JSONObject) obj).toString();
     }
 
     public String toString() {

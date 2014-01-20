@@ -65,7 +65,7 @@ public class Plugin extends Aware_Plugin {
 		// responsiveness
 
         termCollectorContentUri = Uri
-				.parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector");
+				.parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms");
         termCollectorObs = new TermCollectorObserver(new Handler(
 				threads.getLooper()));
 		getContentResolver().registerContentObserver(

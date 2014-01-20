@@ -36,7 +36,3 @@ android {
         }
     }
 }
-
-dependencies {
-    compile files('libs/json-simple-1.1.1.jar')
-}

@@ -152,6 +152,8 @@ public class Geonames {
 
     public boolean existsPopulatedPlaceWithName(String name){
         return getCityRegex(name).size() > 0;
+        //todo:Fixme
+    //    return false;
     }
 
     /* V1.1

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,14 +13,13 @@ import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorTermData;
 import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorGeoData;
+import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorTermData;
 import com.aware.utils.Aware_Plugin;
 
 import java.util.ArrayList;
 
 import io.mingle.v1.Mingle;
-import io.mingle.v1.Response;
 
 /**
  * Main Plugin for the TERM Collector
@@ -164,7 +162,7 @@ public class Plugin extends Aware_Plugin {
                 Mingle mingle;
 
                 try {
-                    mingle = new Mingle();
+                    mingle = new Mingle(getApplicationContext());
 
                     if (mingle.geonames().existsPopulatedPlaceWithName(token)) {
                         Log.wtf(TAG, token + " is a city");
@@ -356,15 +354,18 @@ public class Plugin extends Aware_Plugin {
 
         // filter Lowercase tokens and tokens shorter than 3 characters
         for (String token : tokens) {
-            if (Character.isUpperCase(token.charAt(0))) {
-                if (token.length() > 2) {
+            if (token.length() > 2) {
+                if (Character.isUpperCase(token.charAt(0))) {
+
                     filteredTokens.add(token);
                 } else {
-                    Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
+                    Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
                 }
+
             } else {
-                Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
+                Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
             }
+
         }
 
         return filteredTokens;

@@ -14,17 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import android.content.Context;
+
 public class Mingle {
 
     public static final String DATA_URL = "https://data.mingle.io/";
     private final Connection connection;
     private String premiumAPIKey;
 
-    public Mingle() throws Exception{
-        connection = new Connection(Mingle.DATA_URL);
+    public Mingle(Context context) throws Exception{
+        connection = new Connection(Mingle.DATA_URL, context);
     }
-    public Mingle(String premiumAPIKey) throws Exception{
-        this();
+
+    public Mingle(Context context, String premiumAPIKey) throws Exception{
+        this(context);
         this.premiumAPIKey = premiumAPIKey;
     }
 

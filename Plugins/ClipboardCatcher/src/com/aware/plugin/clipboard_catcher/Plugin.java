@@ -99,9 +99,9 @@ public class Plugin extends Aware_Plugin{
 		android.content.ClipboardManager clipboardManager = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 		ClipData clipData = clipboardManager.getPrimaryClip();
 
-        if (clipData != null && clipData.getItemAt(0) != null) {
+        if (clipData != null && clipData.getItemAt(0) != null && clipData.getItemAt(0).getText() !=null) {
 		    currentClipboardContent = clipData.getItemAt(0).getText().toString();
-            Log.d(TAG,"CURRENT_CLIPBOARDCONTENT is now" + clipData.getItemAt(0));
+            Log.d(TAG,"CURRENT_CLIPBOARDCONTENT is now" + currentClipboardContent);
         }
 	}
 	
