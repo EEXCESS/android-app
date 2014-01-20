@@ -1,5 +1,5 @@
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.9'
 }
 
 buildscript {
@@ -7,19 +7,19 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.3+'
+        classpath 'com.android.tools.build:gradle:0.7.0'
     }
 
 }
 
 // use android if building aware directly, android library otherwise
-if (gradle.properties.startParameter.taskNames[0] == ":Frameworks:aware_framework_v2:assembleDebug") {
-    apply plugin: 'android'
-    println 'Applying android plugin'
+//if (gradle.properties.startParameter.taskNames[0] == ":Frameworks:aware_framework_v2:assembleDebug") {
+//    apply plugin: 'android'
+//    println 'Applying android plugin'
 
-} else {
+//} else {
     apply plugin: 'android-library'
     println 'Applying android-library plugin'
-}
+//}
 
 apply from: "buildFramework.gradle"
