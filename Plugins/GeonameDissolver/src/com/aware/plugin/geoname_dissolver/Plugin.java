@@ -4,12 +4,10 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.aware.Aware;
@@ -202,7 +200,7 @@ public class Plugin extends Aware_Plugin {
             Response resPOIs = null;
 
             try {
-                mingle = new Mingle();
+                mingle = new Mingle(getApplicationContext());
 
                 //TODO: Change to Geonames
                 resPOIs = mingle.osmpois().getPoisNearbyOfRegexes((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f, "^POI.*");
