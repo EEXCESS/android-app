@@ -106,7 +106,10 @@ public class Connection {
                 String retSrc = EntityUtils.toString(responseEntity);
                 System.err.println(retSrc);
                 // parsing JSON
-                return new Response( new JSONObject(retSrc)); //Convert String to JSON Object
+                JSONObject obj = new JSONObject(retSrc);
+
+                System.err.println(obj);
+                return new Response(obj); //Convert String to JSON Object
             }
 
         } catch (Exception e) {

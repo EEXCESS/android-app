@@ -39,7 +39,6 @@ public class MingleIOHttpClient extends DefaultHttpClient {
     }
 
     private SSLSocketFactory newSslSocketFactory() {
-        System.err.println("@newSslSocketFactory");
 
         try {
             // Get an instance of the Bouncy Castle KeyStore format

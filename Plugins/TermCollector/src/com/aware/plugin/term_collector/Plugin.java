@@ -18,6 +18,8 @@ import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorTermD
 import com.aware.utils.Aware_Plugin;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import io.mingle.v1.Mingle;
 
@@ -155,31 +157,58 @@ public class Plugin extends Aware_Plugin {
         ArrayList<String> cityTokens = new ArrayList<String>();
         ArrayList<String> nonCityTokens = new ArrayList<String>();
 
-        for (String token : filteredTokens) {
-            {
-                Log.wtf(TAG, "Dissolving " + token);
-                // dissolve them with mingle
-                Mingle mingle;
+        //defines, if cities are resolved sequential or all at once (WAY FASTER!)
+        boolean sequential = false;
 
-                try {
-                    mingle = new Mingle(getApplicationContext());
+        if (!sequential) { //new, at once check
+            Set<String> cities = new HashSet<String>();
 
-                    if (mingle.geonames().existsPopulatedPlaceWithName(token)) {
-                        Log.wtf(TAG, token + " is a city");
-                        cityTokens.add(token);
-                    } else {
-                        nonCityTokens.add(token);
-                        Log.wtf(TAG, token + " is not a city");
+            // Get Cities for filteredTokens
+            try {
+                Mingle mingle = new Mingle(getApplicationContext());
+                cities = mingle.geonames().areCities(filteredTokens);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                // e.printStackTrace();
+
+            }
+
+            // Check, which tokens are in the cities list
+            for (String token : filteredTokens) {
+                if (cities.contains(token)) {
+                    Log.wtf(TAG, token + " is a city (At once)");
+                    cityTokens.add(token);
+                } else {
+                    nonCityTokens.add(token);
+                    Log.wtf(TAG, token + " is not a city (At once)");
+                }
+            }
+        } else {  // OLD, sequential check
+            for (String token : filteredTokens) {
+                {
+                    Log.wtf(TAG, "Dissolving " + token);
+                    // dissolve them with mingle
+                    Mingle mingle;
+
+                    try {
+                        mingle = new Mingle(getApplicationContext());
+
+                        if (mingle.geonames().existsPopulatedPlaceWithName(token)) {
+                            Log.wtf(TAG, token + " is a city (Sequential)");
+                            cityTokens.add(token);
+                        } else {
+                            nonCityTokens.add(token);
+                            Log.wtf(TAG, token + " is not a city (Sequential)");
+                        }
+
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+
                     }
-
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-
                 }
             }
         }
-
 
         // Save Non-City-Tokens to Term-Database, increase timestamp by 1 everytime
         int tokenIndex = 0;
@@ -189,7 +218,7 @@ public class Plugin extends Aware_Plugin {
         }
 
 
-        // Save ity-Tokens to Geo-Database, increase timestamp by 1 everytime
+        // Save City-Tokens to Geo-Database, increase timestamp by 1 everytime
         tokenIndex = 0;
         for (String token : cityTokens) {
             saveGeoData(timestamp + tokenIndex, source, token);
@@ -339,6 +368,7 @@ public class Plugin extends Aware_Plugin {
                 cursor.close();
             }
         }
+
     }
 
     private String[] splitContent(String content) {

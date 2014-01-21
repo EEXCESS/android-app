@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import android.util.Log;
-
 public class Osmpois {
 
     private Connection connection;
@@ -104,7 +102,7 @@ public class Osmpois {
         
         if(regexes.length > 1){
         	for (int i = 1; i < regexes.length; i++) {
-				sb.append("|| o.type =~ `"+ regexes[1] +"`");
+				sb.append(" || o.type =~ `"+ regexes[1] +"`");
 			
 			}
         }

@@ -14,12 +14,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class Geonames {
 
     private Connection connection;
 
     public Geonames(Connection connection) {
         this.connection = connection;
+    }
+
+
+
+    public Response getCity(String cityName){
+
+        return connection.run(
+                "[ g | g <- geonames, g.featureClass == `{1}` && g.name == \"{2}\" ]"
+                        .replace("{1}",String.valueOf("P"))
+                        .replace("{2}",String.valueOf(cityName))
+        );
     }
 
     /**
@@ -151,9 +172,51 @@ public class Geonames {
 
 
     public boolean existsPopulatedPlaceWithName(String name){
-        return getCityRegex(name).size() > 0;
-        //todo:Fixme
-    //    return false;
+        Response response = getCity(name);
+        if(response != null) {
+            return response.size() > 0;
+        } else {
+            Log.wtf("GEONAMES", "Response was NULL!");
+            return false;
+        }
+
+    }
+
+    public Set<String> areCities(List<String> names){
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("g.name == `"+ names.get(0) +"`");
+
+        if(names.size() > 1){
+            for (int i = 1; i < names.size(); i++) {
+                sb.append(" || g.name == `"+ names.get(i) +"`");
+            }
+        }
+
+        String query = "[ g.name | g <~ geonames, g.featureClass == \"P\" && ( {1} ) ]"
+                .replace("{1}", sb.toString());
+        System.out.println("Query " + query);
+
+        Response response =  connection.run(query);
+
+
+        Set<String> result = new HashSet<String>();
+
+        try {
+
+            //System.out.println("Response " + response);
+            JSONArray jsonArray = new JSONObject(response.toJSONString()).getJSONArray("result");
+
+
+        for(int i=0; i < jsonArray.length(); i++) {
+            System.out.println("Adding " + jsonArray.get(i).toString());
+            result.add(jsonArray.get(i).toString());
+        }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     /* V1.1
