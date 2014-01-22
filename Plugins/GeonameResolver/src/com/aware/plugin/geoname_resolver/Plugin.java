@@ -1,4 +1,4 @@
-package com.aware.plugin.geoname_dissolver;
+package com.aware.plugin.geoname_resolver;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.plugin.geoname_dissolver.GeonameDissolver_Provider.GeonameDissolver;
+import com.aware.plugin.geoname_resolver.GeonameResolver_Provider.GeonameResolver;
 import com.aware.providers.Locations_Provider;
 import com.aware.utils.Aware_Plugin;
 
@@ -21,8 +21,8 @@ import io.mingle.v1.Response;
 
 public class Plugin extends Aware_Plugin {
 
-	private static final String TAG = "GeonameDissolver Plugin";
-	public static final String ACTION_AWARE_GEONAMEDISSOLVER = "ACTION_AWARE_GEONAMEDISSOLVER";
+	private static final String TAG = "GeonameResolver Plugin";
+	public static final String ACTION_AWARE_GEONAMERESOLVER = "ACTION_AWARE_GEONAMERESOLVER";
 	
 	private static long previousTimestamp = 0L;
 
@@ -50,14 +50,14 @@ public class Plugin extends Aware_Plugin {
 			@Override
 			public void onContext() {
 				Log.d(TAG, "Putting extra context into intent");
-				Intent notification = new Intent(ACTION_AWARE_GEONAMEDISSOLVER);
+				Intent notification = new Intent(ACTION_AWARE_GEONAMERESOLVER);
 				sendBroadcast(notification);
 			}
 		};
 
-		DATABASE_TABLES = GeonameDissolver_Provider.DATABASE_TABLES;
-		TABLES_FIELDS = GeonameDissolver_Provider.TABLES_FIELDS;
-		CONTEXT_URIS = new Uri[] { GeonameDissolver.CONTENT_URI };
+		DATABASE_TABLES = GeonameResolver_Provider.DATABASE_TABLES;
+		TABLES_FIELDS = GeonameResolver_Provider.TABLES_FIELDS;
+		CONTEXT_URIS = new Uri[] { GeonameResolver.CONTENT_URI };
 
 		threads = new HandlerThread(TAG);
 		threads.start();
@@ -104,21 +104,21 @@ public class Plugin extends Aware_Plugin {
                 Log.wtf(TAG, "i: " + i);
 			ContentValues rowData = new ContentValues();
 
-            rowData.put(GeonameDissolver.DEVICE_ID, Aware.getSetting(
+            rowData.put(GeonameResolver.DEVICE_ID, Aware.getSetting(
 					getContentResolver(), Aware_Preferences.DEVICE_ID));
 
 
             // add i to produce slightly different timestamps
-            rowData.put(GeonameDissolver.TIMESTAMP, timestamp + i);
+            rowData.put(GeonameResolver.TIMESTAMP, timestamp + i);
 
-			rowData.put(GeonameDissolver.NAME, res.get("result").get(i).get("name").toString());
-			//rowData.put(GeonameDissolver.TYPE, res.get("result").get(i).get("type").toString());
-            //rowData.put(GeonameDissolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
+			rowData.put(GeonameResolver.NAME, res.get("result").get(i).get("name").toString());
+			//rowData.put(GeonameResolver.TYPE, res.get("result").get(i).get("type").toString());
+            //rowData.put(GeonameResolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
 
                 Log.wtf(TAG, res.get("result").get(i).get("name").toString());
 
 				Log.d(TAG, "Saving " + rowData.toString());
-				getContentResolver().insert(GeonameDissolver.CONTENT_URI, rowData);
+				getContentResolver().insert(GeonameResolver.CONTENT_URI, rowData);
 
             }
 		}
@@ -153,7 +153,7 @@ public class Plugin extends Aware_Plugin {
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
 
-			Log.d(TAG, "@onChange GeonameDissolver");
+			Log.d(TAG, "@onChange GeonameResolver");
 
 			Cursor cursor = getContentResolver().query(
 					locationContentUri, null, null, null,

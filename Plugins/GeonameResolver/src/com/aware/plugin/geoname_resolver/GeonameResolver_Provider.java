@@ -1,4 +1,4 @@
-package com.aware.plugin.geoname_dissolver;
+package com.aware.plugin.geoname_resolver;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -25,25 +25,25 @@ import java.util.HashMap;
  * @since: 29 May 2013
  */
 
-public class GeonameDissolver_Provider extends ContentProvider {
+public class GeonameResolver_Provider extends ContentProvider {
 
-		private final String TAG = "GeonameDissolver Provider";
-        public static final String PLUGIN_NAME = "plugin.geoname_dissolver";
+		private final String TAG = "GeonameResolver Provider";
+        public static final String PLUGIN_NAME = "plugin.geoname_resolver";
         public static final String AUTHORITY = "com.aware.provider."+PLUGIN_NAME;
-        public static final String MAIN_TABLE = "plugin_geoname_dissolver";
+        public static final String MAIN_TABLE = "plugin_geoname_resolver";
         
         private static final int DATABASE_VERSION = 4;
         
-        private static final int GEONAME_DISSOLVER = 1;
-        private static final int GEONAME_DISSOLVER_ID = 2;
+        private static final int GEONAME_RESOLVER = 1;
+        private static final int GEONAME_RESOLVER_ID = 2;
         
         private static UriMatcher uriMatcher = null;
         private static HashMap<String, String> contentMap = null;        
         private static DatabaseHelper databaseHelper = null;
         private static SQLiteDatabase database = null;        
         
-        public static final class GeonameDissolver implements BaseColumns {
-                private GeonameDissolver() {};
+        public static final class GeonameResolver implements BaseColumns {
+                private GeonameResolver() {};
                 
                 public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+MAIN_TABLE); //this needs to match the table name
                 public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+PLUGIN_NAME;
@@ -65,25 +65,25 @@ public class GeonameDissolver_Provider extends ContentProvider {
         };
         
         public static final String[] TABLES_FIELDS = {
-        			GeonameDissolver._ID + " integer primary key autoincrement," +
-        			GeonameDissolver.TIMESTAMP + " real default 0," + 
-        			GeonameDissolver.DEVICE_ID + " text default ''," +
-        			GeonameDissolver.NAME + " text default ''," +
-                    //GeonameDissolver.TYPE + " text default ''," +
-                   "UNIQUE ("+GeonameDissolver.TIMESTAMP+","+GeonameDissolver.DEVICE_ID+","+ GeonameDissolver.NAME + ")"
+        			GeonameResolver._ID + " integer primary key autoincrement," +
+        			GeonameResolver.TIMESTAMP + " real default 0," + 
+        			GeonameResolver.DEVICE_ID + " text default ''," +
+        			GeonameResolver.NAME + " text default ''," +
+                    //GeonameResolver.TYPE + " text default ''," +
+                   "UNIQUE ("+GeonameResolver.TIMESTAMP+","+GeonameResolver.DEVICE_ID+","+ GeonameResolver.NAME + ")"
         };
         
         static {
                 uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], GEONAME_DISSOLVER);
-                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", GEONAME_DISSOLVER_ID);
+                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], GEONAME_RESOLVER);
+                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", GEONAME_RESOLVER_ID);
                 
                 contentMap = new HashMap<String, String>();
-                contentMap.put(GeonameDissolver._ID, GeonameDissolver._ID);
-                contentMap.put(GeonameDissolver.TIMESTAMP, GeonameDissolver.TIMESTAMP);
-                contentMap.put(GeonameDissolver.DEVICE_ID, GeonameDissolver.DEVICE_ID);
-                contentMap.put(GeonameDissolver.NAME, GeonameDissolver.NAME);
-                //contentMap.put(GeonameDissolver.TYPE, GeonameDissolver.TYPE);
+                contentMap.put(GeonameResolver._ID, GeonameResolver._ID);
+                contentMap.put(GeonameResolver.TIMESTAMP, GeonameResolver.TIMESTAMP);
+                contentMap.put(GeonameResolver.DEVICE_ID, GeonameResolver.DEVICE_ID);
+                contentMap.put(GeonameResolver.NAME, GeonameResolver.NAME);
+                //contentMap.put(GeonameResolver.TYPE, GeonameResolver.TYPE);
         }
         
         @Override
@@ -92,7 +92,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
         
 	        int count = 0;
 	        switch (uriMatcher.match(uri)) {
-	            case GEONAME_DISSOLVER:
+	            case GEONAME_RESOLVER:
 	                count = database.delete(DATABASE_TABLES[0], selection, selectionArgs);
 	                break;            
 	            default:
@@ -105,10 +105,10 @@ public class GeonameDissolver_Provider extends ContentProvider {
         @Override
         public String getType(Uri uri) {
                 switch (uriMatcher.match(uri)) {
-                case GEONAME_DISSOLVER:
-                    return GeonameDissolver.CONTENT_TYPE;
-                case GEONAME_DISSOLVER_ID:
-                    return GeonameDissolver.CONTENT_ITEM_TYPE;                
+                case GEONAME_RESOLVER:
+                    return GeonameResolver.CONTENT_TYPE;
+                case GEONAME_RESOLVER_ID:
+                    return GeonameResolver.CONTENT_ITEM_TYPE;                
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -121,13 +121,13 @@ public class GeonameDissolver_Provider extends ContentProvider {
 	        ContentValues values = (initialValues != null) ? new ContentValues(initialValues) : new ContentValues();
 	        
 	        switch(uriMatcher.match(uri)) {
-	            case GEONAME_DISSOLVER:
-	                long _id = database.insert(DATABASE_TABLES[0], GeonameDissolver.TIMESTAMP, values);
+	            case GEONAME_RESOLVER:
+	                long _id = database.insert(DATABASE_TABLES[0], GeonameResolver.TIMESTAMP, values);
 
                     Log.wtf(TAG, "Id:" + _id);
 
                     if (_id > 0) {
-	                    Uri dataUri = ContentUris.withAppendedId(GeonameDissolver.CONTENT_URI, _id);
+	                    Uri dataUri = ContentUris.withAppendedId(GeonameResolver.CONTENT_URI, _id);
 	                    getContext().getContentResolver().notifyChange(dataUri, null);
 	                    return dataUri;
 	                }
@@ -152,7 +152,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
 	        
 	        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 	        switch (uriMatcher.match(uri)) {
-	            case GEONAME_DISSOLVER:
+	            case GEONAME_RESOLVER:
 	                qb.setTables(DATABASE_TABLES[0]);
 	                qb.setProjectionMap(contentMap);
 	                break;            
@@ -177,7 +177,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
 	        
 	                int count = 0;
 	        switch (uriMatcher.match(uri)) {
-	            case GEONAME_DISSOLVER:
+	            case GEONAME_RESOLVER:
 	                count = database.update(DATABASE_TABLES[0], values, selection, selectionArgs);
 	                break;            
 	            default:
