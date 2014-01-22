@@ -50,8 +50,8 @@ public class Plugin extends Aware_Plugin {
     public static Uri smsReceiverContentUri;
     private static SmsReceiverObserver smsReceiverObs = null;
 
-    public static Uri osmpoiDissolverContentUri;
-    private static OSMPoiDissolverObserver osmpoiDissolverObs = null;
+    public static Uri osmpoiResolverContentUri;
+    private static OSMPoiResolverObserver osmpoiResolverObs = null;
 
     /**
      * Thread manager
@@ -113,13 +113,13 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "smsReceiverObs registered");
 
 
-        osmpoiDissolverContentUri = Uri
-                .parse("content://com.aware.provider.plugin.osmpoi_dissolver/plugin_osmpoi_dissolver");
-        osmpoiDissolverObs = new OSMPoiDissolverObserver(new Handler(
+        osmpoiResolverContentUri = Uri
+                .parse("content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver");
+        osmpoiResolverObs = new OSMPoiResolverObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
-                osmpoiDissolverContentUri, true, osmpoiDissolverObs);
-        Log.d(TAG, "osmpoiDissolverObs registered");
+                osmpoiResolverContentUri, true, osmpoiResolverObs);
+        Log.d(TAG, "osmpoiResolverObs registered");
 
 
         Log.d(TAG, "Plugin Started");
@@ -138,7 +138,7 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().unregisterContentObserver(clipboardCatcherObs);
         getContentResolver().unregisterContentObserver(notificationCatcherObs);
         getContentResolver().unregisterContentObserver(smsReceiverObs);
-        getContentResolver().unregisterContentObserver(osmpoiDissolverObs);
+        getContentResolver().unregisterContentObserver(osmpoiResolverObs);
 
     }
 
@@ -230,8 +230,8 @@ public class Plugin extends Aware_Plugin {
         }
     }
 
-    public class OSMPoiDissolverObserver extends ContentObserver {
-        public OSMPoiDissolverObserver(Handler handler) {
+    public class OSMPoiResolverObserver extends ContentObserver {
+        public OSMPoiResolverObserver(Handler handler) {
             super(handler);
         }
 
@@ -239,11 +239,11 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.wtf(TAG, "@OSMPoiDissolverObs");
+            Log.wtf(TAG, "@OSMPoiResolverObs");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
-                    osmpoiDissolverContentUri, null, null, null,
+                    osmpoiResolverContentUri, null, null, null,
                     "timestamp" + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
@@ -252,7 +252,7 @@ public class Plugin extends Aware_Plugin {
                         .getColumnIndex("NAME"))};
 
                 classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        osmpoiDissolverContentUri.toString(), singleTokenArray);
+                        osmpoiResolverContentUri.toString(), singleTokenArray);
             }
 
             if (cursor != null && !cursor.isClosed()) {
