@@ -1,7 +1,5 @@
 package com.aware.plugin.geoname_dissolver;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,6 +16,8 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
+import java.util.HashMap;
+
 /**
  * ContentProvider for the NotificationCatcher
  * @author Christian Koehler
@@ -32,7 +32,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
         public static final String AUTHORITY = "com.aware.provider."+PLUGIN_NAME;
         public static final String MAIN_TABLE = "plugin_geoname_dissolver";
         
-        private static final int DATABASE_VERSION = 3;
+        private static final int DATABASE_VERSION = 4;
         
         private static final int GEONAME_DISSOLVER = 1;
         private static final int GEONAME_DISSOLVER_ID = 2;
@@ -53,7 +53,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
                 public static final String TIMESTAMP = "timestamp";
                 public static final String DEVICE_ID = "device_id";
                 public static final String NAME = "name";
-                public static final String TYPE = "type";
+                //public static final String TYPE = "type";
 
                 
         }
@@ -69,7 +69,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
         			GeonameDissolver.TIMESTAMP + " real default 0," + 
         			GeonameDissolver.DEVICE_ID + " text default ''," +
         			GeonameDissolver.NAME + " text default ''," +
-                    GeonameDissolver.TYPE + " text default ''," +
+                    //GeonameDissolver.TYPE + " text default ''," +
                    "UNIQUE ("+GeonameDissolver.TIMESTAMP+","+GeonameDissolver.DEVICE_ID+","+ GeonameDissolver.NAME + ")"
         };
         
@@ -83,7 +83,7 @@ public class GeonameDissolver_Provider extends ContentProvider {
                 contentMap.put(GeonameDissolver.TIMESTAMP, GeonameDissolver.TIMESTAMP);
                 contentMap.put(GeonameDissolver.DEVICE_ID, GeonameDissolver.DEVICE_ID);
                 contentMap.put(GeonameDissolver.NAME, GeonameDissolver.NAME);
-                contentMap.put(GeonameDissolver.TYPE, GeonameDissolver.TYPE);
+                //contentMap.put(GeonameDissolver.TYPE, GeonameDissolver.TYPE);
         }
         
         @Override

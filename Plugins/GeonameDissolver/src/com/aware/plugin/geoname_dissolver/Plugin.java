@@ -112,7 +112,7 @@ public class Plugin extends Aware_Plugin {
             rowData.put(GeonameDissolver.TIMESTAMP, timestamp + i);
 
 			rowData.put(GeonameDissolver.NAME, res.get("result").get(i).get("name").toString());
-			rowData.put(GeonameDissolver.TYPE, res.get("result").get(i).get("type").toString());
+			//rowData.put(GeonameDissolver.TYPE, res.get("result").get(i).get("type").toString());
             //rowData.put(GeonameDissolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
 
                 Log.wtf(TAG, res.get("result").get(i).get("name").toString());
@@ -197,21 +197,18 @@ public class Plugin extends Aware_Plugin {
         private void dissolveLocation(Location currentLocation) {
             // dissolve currentLocation with mingle
             Mingle mingle;
-            Response resPOIs = null;
+            Response resPlaces = null;
 
             try {
                 mingle = new Mingle(getApplicationContext());
-
-                //TODO: Change to Geonames
-                resPOIs = mingle.osmpois().getPoisNearbyOfRegexes((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f, "^POI.*");
-
-                PrintResponse("getPoisNearbyOfRegexes", resPOIs);
+                resPlaces = mingle.geonames().getPlacesNearby((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f);
+                PrintResponse("getPlacesNearby", resPlaces);
 
                 // response was not empty
-                if(resPOIs.size() > 0) {
+                if(resPlaces.size() > 0) {
                     previousDissolvedLocation = currentLocation;
                     // save data
-                    saveData(resPOIs);
+                    saveData(resPlaces);
                 } else {
                     Log.wtf(TAG, "Mingle Query did not yield any Results");
                 }
