@@ -1,4 +1,4 @@
-package com.aware.plugin.osmpoi_dissolver;
+package com.aware.plugin.osmpoi_resolver;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.util.Log;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.plugin.osmpoi_dissolver.OSMPoiDissolver_Provider.OSMPoiDissolver;
+import com.aware.plugin.osmpoi_resolver.OSMPoiResolver_Provider.OSMPoiResolver;
 import com.aware.providers.Locations_Provider;
 import com.aware.utils.Aware_Plugin;
 
@@ -21,8 +21,8 @@ import io.mingle.v1.Response;
 
 public class Plugin extends Aware_Plugin {
 
-	private static final String TAG = "OSMPoiDissolver Plugin";
-	public static final String ACTION_AWARE_OSMPOIDISSOLVER = "ACTION_AWARE_OSMPOIDISSOLVER";
+	private static final String TAG = "OSMPoiResolver Plugin";
+	public static final String ACTION_AWARE_OSMPOIRESOLVER = "ACTION_AWARE_OSMPOIRESOLVER";
 	
 	private static long previousTimestamp = 0L;
 
@@ -50,14 +50,14 @@ public class Plugin extends Aware_Plugin {
 			@Override
 			public void onContext() {
 				Log.d(TAG, "Putting extra context into intent");
-				Intent notification = new Intent(ACTION_AWARE_OSMPOIDISSOLVER);
+				Intent notification = new Intent(ACTION_AWARE_OSMPOIRESOLVER);
 				sendBroadcast(notification);
 			}
 		};
 
-		DATABASE_TABLES = OSMPoiDissolver_Provider.DATABASE_TABLES;
-		TABLES_FIELDS = OSMPoiDissolver_Provider.TABLES_FIELDS;
-		CONTEXT_URIS = new Uri[] { OSMPoiDissolver.CONTENT_URI };
+		DATABASE_TABLES = OSMPoiResolver_Provider.DATABASE_TABLES;
+		TABLES_FIELDS = OSMPoiResolver_Provider.TABLES_FIELDS;
+		CONTEXT_URIS = new Uri[] { OSMPoiResolver.CONTENT_URI };
 
 		threads = new HandlerThread(TAG);
 		threads.start();
@@ -104,21 +104,21 @@ public class Plugin extends Aware_Plugin {
                 Log.wtf(TAG, "i: " + i);
 			ContentValues rowData = new ContentValues();
 
-            rowData.put(OSMPoiDissolver.DEVICE_ID, Aware.getSetting(
+            rowData.put(OSMPoiResolver.DEVICE_ID, Aware.getSetting(
 					getContentResolver(), Aware_Preferences.DEVICE_ID));
 
 
             // add i to produce slightly different timestamps
-            rowData.put(OSMPoiDissolver.TIMESTAMP, timestamp + i);
+            rowData.put(OSMPoiResolver.TIMESTAMP, timestamp + i);
 
-			rowData.put(OSMPoiDissolver.NAME, res.get("result").get(i).get("name").toString());
-			rowData.put(OSMPoiDissolver.TYPE, res.get("result").get(i).get("type").toString());
-            //rowData.put(OSMPoiDissolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
+			rowData.put(OSMPoiResolver.NAME, res.get("result").get(i).get("name").toString());
+			rowData.put(OSMPoiResolver.TYPE, res.get("result").get(i).get("type").toString());
+            //rowData.put(OSMPoiResolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
 
                 Log.wtf(TAG, res.get("result").get(i).get("name").toString());
 
 				Log.d(TAG, "Saving " + rowData.toString());
-				getContentResolver().insert(OSMPoiDissolver.CONTENT_URI, rowData);
+				getContentResolver().insert(OSMPoiResolver.CONTENT_URI, rowData);
 
             }
 		}
@@ -153,7 +153,7 @@ public class Plugin extends Aware_Plugin {
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
 
-			Log.d(TAG, "@onChange OSMPoiDissolver");
+			Log.d(TAG, "@onChange OSMPoiResolver");
 
 			Cursor cursor = getContentResolver().query(
 					locationContentUri, null, null, null,

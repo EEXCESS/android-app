@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aware.plugin.osmpoi_dissolver"
+    package="com.aware.plugin.osmpoi_resolver"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -26,8 +26,8 @@
         </service>
 
         <provider
-            android:name="OSMPoiDissolver_Provider"
-            android:authorities="com.aware.provider.plugin.osmpoi_dissolver"
+            android:name="OSMPoiResolver_Provider"
+            android:authorities="com.aware.provider.plugin.osmpoi_resolver"
             android:exported="true"
             android:writePermission="com.aware.WRITE_CONTEXT_DATA"
             android:readPermission="com.aware.READ_CONTEXT_DATA">
