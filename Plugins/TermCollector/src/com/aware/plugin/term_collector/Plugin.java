@@ -142,14 +142,6 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    protected String[] splitAndFilterContent(String content) {
-
-        String[] contentTokens = splitContent(content);
-
-        //filter Stopwords
-        return stopList.filteredArray(contentTokens);
-    }
-
     public class ClipboardCatcherObserver extends ContentObserver {
         public ClipboardCatcherObserver(Handler handler) {
             super(handler);
@@ -300,7 +292,15 @@ public class Plugin extends Aware_Plugin {
         return filteredTokens;
     }
 
-    protected void classifyAndSaveData(long timestamp, String source, String[] contentTokens) {
+    private String[] splitAndFilterContent(String content) {
+
+        String[] contentTokens = splitContent(content);
+
+        //filter Stopwords
+        return stopList.filteredArray(contentTokens);
+    }
+
+    private void classifyAndSaveData(long timestamp, String source, String[] contentTokens) {
 
         //filter Lowercase words and words with less than 3 Characters
         ArrayList<String> filteredTokens = filterTokens(contentTokens);
@@ -380,7 +380,7 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    protected void saveTermData(long timestamp, String source, String content) {
+    private void saveTermData(long timestamp, String source, String content) {
         Log.d(TAG, "Saving Data");
 
         ContentValues rowData = new ContentValues();
@@ -394,7 +394,7 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().insert(TermCollectorTermData.CONTENT_URI, rowData);
     }
 
-    protected void saveGeoData(long timestamp, String source, String content) {
+    private void saveGeoData(long timestamp, String source, String content) {
         Log.d(TAG, "Saving Data");
 
         ContentValues rowData = new ContentValues();
