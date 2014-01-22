@@ -119,7 +119,7 @@ public class Plugin extends Aware_Plugin {
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
                 osmpoiDissolverContentUri, true, osmpoiDissolverObs);
-        Log.d(TAG, "locationDissolverObs registered");
+        Log.d(TAG, "osmpoiDissolverObs registered");
 
 
         Log.d(TAG, "Plugin Started");
@@ -142,12 +142,165 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    protected void splitAndFilterAndSaveData(long timestamp, String source, String content) {
+    protected String[] splitAndFilterContent(String content) {
 
         String[] contentTokens = splitContent(content);
 
         //filter Stopwords
-        contentTokens = stopList.filteredArray(contentTokens);
+        return stopList.filteredArray(contentTokens);
+    }
+
+    public class ClipboardCatcherObserver extends ContentObserver {
+        public ClipboardCatcherObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.d(TAG, "@onChange");
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    clipboardCatcherContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+
+                String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                        .getColumnIndex("CLIPBOARDCONTENT")));
+
+                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                        clipboardCatcherContentUri.toString(), tokens);
+            }
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
+
+    public class NotificationCatcherObserver extends ContentObserver {
+        public NotificationCatcherObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.d(TAG, "@onChange");
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    notificationCatcherContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+
+                String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                        .getColumnIndex("TEXT")));
+
+                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                        notificationCatcherContentUri.toString(), tokens);
+            }
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
+
+    public class SmsReceiverObserver extends ContentObserver {
+        public SmsReceiverObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    smsReceiverContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+
+                String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                        .getColumnIndex("SMSCONTENT")));
+
+                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                        smsReceiverContentUri.toString(), tokens);
+            }
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
+
+    public class OSMPoiDissolverObserver extends ContentObserver {
+        public OSMPoiDissolverObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.wtf(TAG, "@OSMPoiDissolverObs");
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    osmpoiDissolverContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+
+                // POIs come in packages of one, so we do not need to split and filter them, so we package each one in an array
+                String[] singleTokenArray = new String[]{cursor.getString(cursor
+                        .getColumnIndex("NAME"))};
+
+                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                        osmpoiDissolverContentUri.toString(), singleTokenArray);
+            }
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+    }
+
+    private String[] splitContent(String content) {
+        Log.wtf(TAG, "Splitting Content");
+        Log.wtf(TAG, "Content: " + content);
+
+        //remove all characters that are not A-Za-z
+        return content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
+    }
+
+    private ArrayList<String> filterTokens(String[] tokens) {
+        ArrayList<String> filteredTokens = new ArrayList<String>();
+
+        // filter Lowercase tokens and tokens shorter than 3 characters
+        for (String token : tokens) {
+            if (token.length() > 2) {
+                if (Character.isUpperCase(token.charAt(0))) {
+
+                    filteredTokens.add(token);
+                } else {
+                    Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
+                }
+
+            } else {
+                Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
+            }
+
+        }
+
+        return filteredTokens;
+    }
+
+    protected void classifyAndSaveData(long timestamp, String source, String[] contentTokens) {
 
         //filter Lowercase words and words with less than 3 Characters
         ArrayList<String> filteredTokens = filterTokens(contentTokens);
@@ -227,7 +380,6 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-
     protected void saveTermData(long timestamp, String source, String content) {
         Log.d(TAG, "Saving Data");
 
@@ -241,7 +393,6 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "Saving " + rowData.toString());
         getContentResolver().insert(TermCollectorTermData.CONTENT_URI, rowData);
     }
-
 
     protected void saveGeoData(long timestamp, String source, String content) {
         Log.d(TAG, "Saving Data");
@@ -257,147 +408,4 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().insert(TermCollectorGeoData.CONTENT_URI, rowData);
     }
 
-    public class ClipboardCatcherObserver extends ContentObserver {
-        public ClipboardCatcherObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-
-            Log.d(TAG, "@onChange");
-
-            // set cursor to first item
-            Cursor cursor = getContentResolver().query(
-                    clipboardCatcherContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
-            if (cursor != null && cursor.moveToFirst()) {
-
-                splitAndFilterAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        clipboardCatcherContentUri.toString(),
-                        cursor.getString(cursor
-                                .getColumnIndex("CLIPBOARDCONTENT")));
-            }
-
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-        }
-    }
-
-    public class NotificationCatcherObserver extends ContentObserver {
-        public NotificationCatcherObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-
-            Log.d(TAG, "@onChange");
-
-            // set cursor to first item
-            Cursor cursor = getContentResolver().query(
-                    notificationCatcherContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
-            if (cursor != null && cursor.moveToFirst()) {
-
-                splitAndFilterAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        notificationCatcherContentUri.toString(),
-                        cursor.getString(cursor
-                                .getColumnIndex("TEXT")));
-            }
-
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-        }
-    }
-
-    public class SmsReceiverObserver extends ContentObserver {
-        public SmsReceiverObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-
-            // set cursor to first item
-            Cursor cursor = getContentResolver().query(
-                    smsReceiverContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
-            if (cursor != null && cursor.moveToFirst()) {
-
-                splitAndFilterAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        smsReceiverContentUri.toString(),
-                        cursor.getString(cursor
-                                .getColumnIndex("SMSCONTENT")));
-            }
-
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-        }
-    }
-
-
-    public class OSMPoiDissolverObserver extends ContentObserver {
-        public OSMPoiDissolverObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
-
-            // set cursor to first item
-            Cursor cursor = getContentResolver().query(
-                    osmpoiDissolverContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
-            if (cursor != null && cursor.moveToFirst()) {
-
-                splitAndFilterAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        osmpoiDissolverContentUri.toString(),
-                        cursor.getString(cursor
-                                .getColumnIndex("NAME")));
-            }
-
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-        }
-
-    }
-
-    private String[] splitContent(String content) {
-        Log.wtf(TAG, "Splitting Content");
-        Log.wtf(TAG, "Content: " + content);
-
-        //remove all characters that are not A-Za-z
-        return content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
-    }
-
-    private ArrayList<String> filterTokens(String[] tokens) {
-        ArrayList<String> filteredTokens = new ArrayList<String>();
-
-        // filter Lowercase tokens and tokens shorter than 3 characters
-        for (String token : tokens) {
-            if (token.length() > 2) {
-                if (Character.isUpperCase(token.charAt(0))) {
-
-                    filteredTokens.add(token);
-                } else {
-                    Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
-                }
-
-            } else {
-                Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
-            }
-
-        }
-
-        return filteredTokens;
-    }
 }
