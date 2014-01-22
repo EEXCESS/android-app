@@ -1,7 +1,5 @@
 package com.aware.plugin.term_collector;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,6 +16,8 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
+import java.util.HashMap;
+
 /**
  * ContentProvider for the Term Collector
  */
@@ -27,7 +27,7 @@ public class TermCollector_Provider extends ContentProvider {
     private final String TAG = "TermCollector Provider";
     public static final String AUTHORITY = "com.aware.provider.plugin.term_collector";
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private static final int TERM_COLLECTOR_TERMS = 1;
     private static final int TERM_COLLECTOR_TERMS_ID = 2;
@@ -98,16 +98,16 @@ public class TermCollector_Provider extends ContentProvider {
                     TermCollectorTermData.TIMESTAMP + " real default 0," +
                     TermCollectorTermData.DEVICE_ID + " text default ''," +
                     TermCollectorTermData.TERM_CONTENT + " text default ''," +
-                    TermCollectorTermData.TERM_SOURCE + " text default ''," +
-                    "UNIQUE (" + TermCollectorTermData.TIMESTAMP + "," + TermCollectorTermData.DEVICE_ID + "," + TermCollectorTermData.TERM_CONTENT + ")",
+                    TermCollectorTermData.TERM_SOURCE + " text default ''",
+                    //+ "UNIQUE (" + TermCollectorTermData.TIMESTAMP + "," + TermCollectorTermData.DEVICE_ID + "," + TermCollectorTermData.TERM_CONTENT + ")",
 
             //GeoData
             TermCollectorGeoData._ID + " integer primary key autoincrement," +
                     TermCollectorGeoData.TIMESTAMP + " real default 0," +
                     TermCollectorGeoData.DEVICE_ID + " text default ''," +
                     TermCollectorGeoData.TERM_CONTENT + " text default ''," +
-                    TermCollectorGeoData.TERM_SOURCE + " text default ''," +
-                    "UNIQUE (" + TermCollectorGeoData.TIMESTAMP + "," + TermCollectorGeoData.DEVICE_ID + "," + TermCollectorGeoData.TERM_CONTENT + ")"
+                    TermCollectorGeoData.TERM_SOURCE + " text default ''"
+                    //+ "UNIQUE (" + TermCollectorGeoData.TIMESTAMP + "," + TermCollectorGeoData.DEVICE_ID + "," + TermCollectorGeoData.TERM_CONTENT + ")"
     };
 
     static {
