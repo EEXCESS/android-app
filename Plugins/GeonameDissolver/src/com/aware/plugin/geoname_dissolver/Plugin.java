@@ -169,7 +169,7 @@ public class Plugin extends Aware_Plugin {
 
                 Location currentLocation = new Location("");
                 currentLocation.setLatitude(lat);
-                currentLocation.setLatitude(lon);
+                currentLocation.setLongitude(lon);
 
                 if(shouldTryToDissolve(currentLocation)){
                     dissolveLocation(currentLocation);

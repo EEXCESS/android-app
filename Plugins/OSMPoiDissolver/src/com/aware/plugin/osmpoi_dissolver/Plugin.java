@@ -170,9 +170,10 @@ public class Plugin extends Aware_Plugin {
 
                 Location currentLocation = new Location("");
                 currentLocation.setLatitude(lat);
-                currentLocation.setLatitude(lon);
+                currentLocation.setLongitude(lon);
 
                 if(shouldTryToDissolve(currentLocation)){
+                    Log.wtf(TAG, "Calling dissolveLocation");
                     dissolveLocation(currentLocation);
                 }
             }
@@ -196,6 +197,8 @@ public class Plugin extends Aware_Plugin {
         }
 
         private void dissolveLocation(Location currentLocation) {
+            Log.wtf(TAG, "Dissolving Location");
+
             // dissolve currentLocation with mingle
             Mingle mingle;
             Response resPOIs = null;
