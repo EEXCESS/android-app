@@ -14,28 +14,12 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:text="Menu Entry"
+              android:id="@+id/menuActivityEntryText"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
-    android:orientation="horizontal"
-    android:weightSum="4"
-    >
+    android:textSize="20dp" />
 
-    <TextView android:text="Content"
-              android:id="@+id/termEntryText"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
-        android:layout_weight="1"/>
-
-    <TextView android:text="Timestamp"
-        android:id="@+id/termEntryTimestamp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
-        android:layout_weight="3"/>
-</LinearLayout>

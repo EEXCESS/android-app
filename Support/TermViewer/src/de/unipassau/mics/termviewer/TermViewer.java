@@ -17,12 +17,14 @@
 package de.unipassau.mics.termviewer;
 
 import android.app.Activity;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 
 public final class TermViewer extends Activity
@@ -30,8 +32,20 @@ public final class TermViewer extends Activity
 
     public static final String TAG = "TermViewer";
 
+    private String name = null;
+    private String uri = null;
+    private String field = null;
+
     private ListView mTermList;
-    
+
+    private TimeStampAdapter  adapter;
+
+
+    private TermViewerContentObserver termViewerContentObserver;
+    /**
+     * Thread manager
+     */
+    private static HandlerThread threads = null;
 
     /**
      * Called when the activity is first created. Responsible for initializing the UI.
@@ -42,12 +56,40 @@ public final class TermViewer extends Activity
         Log.v(TAG, "Activity State: onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.term_viewer);
- 
+
+        threads = new HandlerThread(TAG);
+        threads.start();
+
+
+        name = this.getIntent().getStringExtra("name");
+        uri = this.getIntent().getStringExtra("uri");
+        field = this.getIntent().getStringExtra("field");
+
+        getActionBar().setTitle("AWARE: " + name);
+        // Set the observers, that run in independent threads, for
+        // responsiveness
+        termViewerContentObserver= new TermViewerContentObserver(new Handler(
+                threads.getLooper()));
+
+        getContentResolver().registerContentObserver(Uri.parse(uri), true, termViewerContentObserver);
+
+        Log.d(TAG, "termViewerContentObserver registered");
+
         mTermList = (ListView) findViewById(R.id.termList);
-       
+
 
         // Populate the contact list
         populateTermList();
+    }
+
+    @Override
+    public void onDestroy() {
+
+
+        super.onDestroy();
+
+        getContentResolver().unregisterContentObserver(termViewerContentObserver);
+
     }
 
     /**
@@ -55,13 +97,13 @@ public final class TermViewer extends Activity
      */
     private void populateTermList() {
         // Build adapter with contact entries
-        Cursor cursor = getTerms();
-        String[] fields = new String[] {
-        		"term_content"
-        		};
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.term_entry, cursor,
-                fields, new int[] {R.id.termEntryText});
-        mTermList.setAdapter(adapter);
+
+                Cursor cursor = getTerms();
+
+                adapter = new TimeStampAdapter(getApplicationContext(), cursor, field);
+
+                mTermList.setAdapter(adapter);
+
     }
 
     /**
@@ -72,10 +114,10 @@ public final class TermViewer extends Activity
     private Cursor getTerms()
     {
         // Run query
-        Uri uri = Uri.parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector");
+        Uri uri = Uri.parse(this.uri);
         String[] projection = new String[] {
         		"_id",
-                "term_content",
+                field,
                 "timestamp"
         };
         String selection = "1=1";
@@ -85,4 +127,33 @@ public final class TermViewer extends Activity
         return getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
     }
 
+    public class TermViewerContentObserver extends ContentObserver {
+        public TermViewerContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.wtf(TAG, "@TermViewerContentObserver: Refreshing ListView");
+
+
+            new Thread(new Runnable(){
+
+                public void run()
+                {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            populateTermList();
+                        }
+                    });
+
+                }
+            }).start();
+        }
+
+    }
 }
+
+
