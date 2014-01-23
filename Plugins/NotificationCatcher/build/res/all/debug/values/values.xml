@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/build/exploded-bundles/CodeFrameworksAware_framework_v2Unspecified.aar/res/values/values.xml -->
+    <eat-comment />
+
+    <item name="display_aware" format="boolean" type="bool">true</item>
+    <item name="is_jelly_bean" type="bool">false</item>
+    <item name="is_not_jelly_bean" type="bool">true</item>
+    <!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/res/values/strings.xml -->
+    <eat-comment />
+
+    <string name="app_name">AWARE: NotificationCatcher</string>
+    <!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/build/exploded-bundles/CodeFrameworksAware_framework_v2Unspecified.aar/res/values/values.xml -->
+    <eat-comment />
+
+    <string name="aware_auto_update">Check for AWARE updates</string>
+    <string name="aware_auto_update_version">Installed version is ???</string>
+    <string name="aware_debug">Debug</string>
+    <string name="aware_debug_summary">Show in ADB Logcat all debug messages for plugins and AWARE</string>
+    <string name="aware_debug_tag">Logcat tag (by default: AWARE)</string>
+    <string name="aware_description">AWARE is an Android\'s framework dedicated to infer, log and share mobile context information between mobile applications. Check www.awareframework.com for details.</string>
+    <string name="aware_developer">Developer</string>
+    <string name="aware_developer_summary">Debugging settings for AWARE developers</string>
+    <string name="aware_device_id">AWARE Device ID</string>
+    <string name="aware_plugins">AWARE Plugins</string>
+    <string name="aware_sensors">AWARE Sensors</string>
+    <string name="aware_stream">AWARE Stream</string>
+    <string name="aware_studies">Studies</string>
+    <string name="drawer_close">Drawer is closed</string>
+    <string name="drawer_open">Drawer is opened</string>
+    <string name="read_permission">Allow read-only access to the Context Providers data.</string>
+    <string name="write_permission">Allow read and write access to the Context Providers data.</string>
+    <!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/res/values/styles.xml -->
+    <eat-comment />
+
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+</resources>

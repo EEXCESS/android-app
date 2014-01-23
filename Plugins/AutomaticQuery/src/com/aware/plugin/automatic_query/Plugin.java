@@ -8,14 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
-
 
 import com.aware.plugin.automatic_query.situations.SituationManager;
 import com.aware.utils.Aware_Plugin;
@@ -38,8 +35,12 @@ public class Plugin extends Aware_Plugin {
 	private static final String TAG = "AutomaticQuery Plugin";
 
     private int notificationNumber = 0;
-	public static Uri termCollectorContentUri;
-	private static TermCollectorObserver termCollectorObs = null;
+
+    public static Uri geoCollectorContentUri;
+	private static GeoCollectorObserver geoCollectorObs = null;
+
+    public static Uri termCollectorContentUri;
+    private static TermCollectorObserver termCollectorObs = null;
 
     public static Uri lightContentUri;
     private static LightObserver lightObs = null;
@@ -73,8 +74,16 @@ public class Plugin extends Aware_Plugin {
 		Log.d(TAG, "termCollectorObs registered");
 
 
-        lightContentUri = Uri
-                .parse("content://com.aware.provider.light/light");
+        geoCollectorContentUri = Uri
+                .parse("content://com.aware.provider.plugin.geo_collector/plugin_geo_collector_terms");
+        geoCollectorObs = new GeoCollectorObserver(new Handler(
+                threads.getLooper()));
+        getContentResolver().registerContentObserver(
+                geoCollectorContentUri, true, geoCollectorObs);
+        Log.d(TAG, "geoCollectorObs registered");
+
+
+        lightContentUri = Uri.parse("content://com.aware.provider.light/light");
         lightObs = new LightObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -94,6 +103,7 @@ public class Plugin extends Aware_Plugin {
 		super.onDestroy();
 
 		getContentResolver().unregisterContentObserver(termCollectorObs);
+        getContentResolver().unregisterContentObserver(geoCollectorObs);
         getContentResolver().unregisterContentObserver(lightObs);
 
 	}
@@ -216,6 +226,36 @@ public class Plugin extends Aware_Plugin {
 			}
 		}
 	}
+
+
+    public class GeoCollectorObserver extends ContentObserver {
+        public GeoCollectorObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.d(TAG, "@onChange of Geo Content");
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    geoCollectorContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+
+                //if (situationManager.allowsQuery()){
+                runQuery(cursor.getString(cursor
+                        .getColumnIndex("term_content")));
+                //}
+            }
+
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
 
     public class LightObserver extends ContentObserver {
         public LightObserver(Handler handler) {

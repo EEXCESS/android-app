@@ -189,17 +189,31 @@ public class Plugin extends Aware_Plugin {
                     "timestamp" + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
+
+                if(!isApplicationBlacklisted(cursor.getString(cursor
+                        .getColumnIndex("app_name")))) {
+                // get title and content_text
                 String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                        .getColumnIndex("TEXT")));
+                        .getColumnIndex("content_text")) + " " + cursor.getString(cursor
+                        .getColumnIndex("title")));
 
                 classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
                         notificationCatcherContentUri.toString(), tokens);
+                } else{
+                    Log.d(TAG, "Notification from Application " + cursor.getString(cursor
+                            .getColumnIndex("app_name")) + " was ignored (Cause: Blacklist)");
+                }
             }
 
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
         }
+
+        boolean isApplicationBlacklisted(String appName) {
+            return (appName.equals("com.android.phone") || appName.matches("com.aware.(.*)"));
+        }
+
     }
 
     public class SmsReceiverObserver extends ContentObserver {

@@ -33,6 +33,10 @@ android {
         targetSdkVersion 19
     }
 
+    dexOptions {
+        preDexLibraries = false
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'

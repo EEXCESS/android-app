@@ -3,8 +3,6 @@ package com.aware.plugin.automatic_query;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.aware.utils.Aware_Plugin;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -43,6 +41,7 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
                 res = europeanaClient.searchApi2(europeanaQuery, -1, 1);
             } catch (IOException e) {
                 e.printStackTrace();
+                return new EuropeanaApi2Results();
             }
 
 

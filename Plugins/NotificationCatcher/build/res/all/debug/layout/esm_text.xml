@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" android:minWidth="300dip">
+
+    <TextView
+        android:id="@+id/esm_instructions"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/esm_feedback"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textMultiLine" android:minLines="3" android:gravity="top|left">
+
+        <requestFocus />
+    </EditText>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/esm_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/esm_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="Button" />
+
+    </LinearLayout>
+
+</LinearLayout><!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Frameworks/aware_framework_v2/res/layout/esm_text.xml --><!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/build/exploded-bundles/CodeFrameworksAware_framework_v2Unspecified.aar/res/layout/esm_text.xml -->

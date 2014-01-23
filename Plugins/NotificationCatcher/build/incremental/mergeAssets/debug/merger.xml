@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="CodeFrameworksAware_framework_v2Unspecified.aar" >
+        <source path="/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/build/exploded-bundles/CodeFrameworksAware_framework_v2Unspecified.aar/assets" >
+            <file
+                name="COPYRIGHT"
+                path="/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/build/exploded-bundles/CodeFrameworksAware_framework_v2Unspecified.aar/assets/COPYRIGHT" />
+        </source>
+    </dataSet>
+    <dataSet config="main" >
+        <source path="/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/src/debug/assets" />
+    </dataSet>
+
+</merger>
