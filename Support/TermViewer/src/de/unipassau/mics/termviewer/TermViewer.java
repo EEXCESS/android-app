@@ -65,7 +65,9 @@ public final class TermViewer extends Activity
         uri = this.getIntent().getStringExtra("uri");
         field = this.getIntent().getStringExtra("field");
 
-        getActionBar().setTitle("AWARE: " + name);
+         if(name != null && getActionBar() != null) {
+            getActionBar().setTitle("AWARE: " + name);
+         }
         // Set the observers, that run in independent threads, for
         // responsiveness
         termViewerContentObserver= new TermViewerContentObserver(new Handler(
