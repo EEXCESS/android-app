@@ -53,6 +53,9 @@ public class Plugin extends Aware_Plugin {
     public static Uri osmpoiResolverContentUri;
     private static OSMPoiResolverObserver osmpoiResolverObs = null;
 
+    public static Uri uiContentContentUri;
+    private static UIContentObserver uiContentObs = null;
+
     /**
      * Thread manager
      */
@@ -122,6 +125,14 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "osmpoiResolverObs registered");
 
 
+        uiContentContentUri = Uri
+                .parse("content://com.aware.provider.plugin.ui_content/plugin_ui_content");
+        uiContentObs = new UIContentObserver(new Handler(
+                threads.getLooper()));
+        getContentResolver().registerContentObserver(
+                uiContentContentUri, true, uiContentObs);
+        Log.d(TAG, "uiContentObs registered");
+
         Log.d(TAG, "Plugin Started");
     }
 
@@ -139,7 +150,7 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().unregisterContentObserver(notificationCatcherObs);
         getContentResolver().unregisterContentObserver(smsReceiverObs);
         getContentResolver().unregisterContentObserver(osmpoiResolverObs);
-
+        getContentResolver().unregisterContentObserver(uiContentObs);
     }
 
     public class ClipboardCatcherObserver extends ContentObserver {
@@ -190,16 +201,16 @@ public class Plugin extends Aware_Plugin {
             if (cursor != null && cursor.moveToFirst()) {
 
 
-                if(!isApplicationBlacklisted(cursor.getString(cursor
+                if (!isApplicationBlacklisted(cursor.getString(cursor
                         .getColumnIndex("app_name")))) {
-                // get title and content_text
-                String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                        .getColumnIndex("content_text")) + " " + cursor.getString(cursor
-                        .getColumnIndex("title")));
+                    // get title and content_text
+                    String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                            .getColumnIndex("content_text")) + " " + cursor.getString(cursor
+                            .getColumnIndex("title")));
 
-                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        notificationCatcherContentUri.toString(), tokens);
-                } else{
+                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                            notificationCatcherContentUri.toString(), tokens);
+                } else {
                     Log.d(TAG, "Notification from Application " + cursor.getString(cursor
                             .getColumnIndex("app_name")) + " was ignored (Cause: Blacklist)");
                 }
@@ -210,9 +221,6 @@ public class Plugin extends Aware_Plugin {
             }
         }
 
-        boolean isApplicationBlacklisted(String appName) {
-            return (appName.equals("com.android.phone") || appName.matches("com.aware.(.*)"));
-        }
 
     }
 
@@ -269,6 +277,49 @@ public class Plugin extends Aware_Plugin {
                         osmpoiResolverContentUri.toString(), singleTokenArray);
             }
 
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+    }
+
+    public class UIContentObserver extends ContentObserver {
+        long lastId;
+
+        public UIContentObserver(Handler handler) {
+            super(handler);
+            lastId = -1;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.wtf(TAG, "@UIContentObs");
+
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    uiContentContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+                if (!isApplicationBlacklisted(cursor.getString(cursor
+                        .getColumnIndex("source_app")))) {
+                    if (lastId == cursor.getLong(cursor.getColumnIndex("_id"))){
+                        return;
+                    } else {
+                        lastId = cursor.getLong(cursor.getColumnIndex("_id"));
+                    }
+                    String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                            .getColumnIndex("content_text")));
+
+                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                            uiContentContentUri.toString(), tokens);
+                }  else {
+                    Log.d(TAG, "UIContent from Application " + cursor.getString(cursor
+                            .getColumnIndex("source_app")) + " was ignored (Cause: Blacklist)");
+                }
+            }
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
@@ -422,4 +473,13 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().insert(TermCollectorGeoData.CONTENT_URI, rowData);
     }
 
+    boolean isApplicationBlacklisted(String appName) {
+        return (appName.equals("com.android.phone")
+                || appName.matches("com.aware.(.*)")
+                || appName.equals("com.android.vending")
+                || appName.equals("com.google.android.talk")
+                || appName.equals("com.android.providers.downloads")
+                || appName.equals("com.google.android.googlequicksearchbox")
+        );
+    }
 }

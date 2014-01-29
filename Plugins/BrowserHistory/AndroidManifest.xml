@@ -1,0 +1,33 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aware.plugin.browser_history"
+    android:versionCode="281"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="com.aware.READ_CONTEXT_DATA"/>
+    <uses-permission android:name="com.aware.WRITE_CONTEXT_DATA" />
+    <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <service
+            android:name="Plugin"
+            android:exported="true" android:label="Browser History">
+        </service>
+
+        <provider
+            android:name="Browser_History_Provider"
+            android:authorities="com.aware.provider.plugin.browser_history"
+            android:exported="true"
+            android:writePermission="com.aware.WRITE_CONTEXT_DATA" android:readPermission="com.aware.READ_CONTEXT_DATA">
+        </provider>
+    </application>
+
+</manifest>
