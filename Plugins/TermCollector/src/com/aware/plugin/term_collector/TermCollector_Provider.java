@@ -27,16 +27,19 @@ public class TermCollector_Provider extends ContentProvider {
     private final String TAG = "TermCollector Provider";
     public static final String AUTHORITY = "com.aware.provider.plugin.term_collector";
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     private static final int TERM_COLLECTOR_TERMS = 1;
     private static final int TERM_COLLECTOR_TERMS_ID = 2;
     private static final int TERM_COLLECTOR_GEODATA = 3;
     private static final int TERM_COLLECTOR_GEODATA_ID = 4;
+    private static final int TERM_COLLECTOR_GEODATA_CACHE = 5;
+    private static final int TERM_COLLECTOR_GEODATA_CACHE_ID = 6;
 
     private static UriMatcher uriMatcher = null;
     private static HashMap<String, String> contentMapTerms = null;
     private static HashMap<String, String> contentMapGeodata = null;
+    private static HashMap<String, String> contentMapGeodataCache = null;
     private static DatabaseHelper databaseHelper = null;
     private static SQLiteDatabase database = null;
 
@@ -86,10 +89,31 @@ public class TermCollector_Provider extends ContentProvider {
         public static final String TERM_SOURCE = "term_source";
     }
 
+    public static final class TermCollectorGeoDataCache implements BaseColumns {
+        private TermCollectorGeoDataCache() {
+        }
+
+        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/plugin_term_collector_geodata_cache"); //this needs to match the table name
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.term_collector";
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.term_collector";
+
+        public static final String _ID = "_id";
+        public static final String TIMESTAMP = "timestamp";
+        /**
+         * Content of Term
+         */
+        public static final String TERM_CONTENT = "term_content";
+
+        /**
+         * Source of Term
+         */
+        public static final String IS_CITY = "is_city";
+    }
+
     public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/plugin_term_collector.db";
 
     public static final String[] DATABASE_TABLES = {
-            "plugin_term_collector_terms", "plugin_term_collector_geodata"
+            "plugin_term_collector_terms", "plugin_term_collector_geodata", "plugin_term_collector_geodata_cache"
     };
 
     public static final String[] TABLES_FIELDS = {
@@ -106,8 +130,16 @@ public class TermCollector_Provider extends ContentProvider {
                     TermCollectorGeoData.TIMESTAMP + " real default 0," +
                     TermCollectorGeoData.DEVICE_ID + " text default ''," +
                     TermCollectorGeoData.TERM_CONTENT + " text default ''," +
-                    TermCollectorGeoData.TERM_SOURCE + " text default ''"
+                    TermCollectorGeoData.TERM_SOURCE + " text default ''",
                     //+ "UNIQUE (" + TermCollectorGeoData.TIMESTAMP + "," + TermCollectorGeoData.DEVICE_ID + "," + TermCollectorGeoData.TERM_CONTENT + ")"
+
+
+            //GeoDataCache
+            TermCollectorGeoDataCache._ID + " integer primary key autoincrement," +
+                    TermCollectorGeoDataCache.TIMESTAMP + " real default 0," +
+                    TermCollectorGeoDataCache.TERM_CONTENT + " text default ''," +
+                    TermCollectorGeoDataCache.IS_CITY + " text default ''"
+            //+ "UNIQUE (" + TermCollectorGeoDataCache.TIMESTAMP + "," + TermCollectorGeoDataCache.DEVICE_ID + "," + TermCollectorGeoDataCache.TERM_CONTENT + ")"
     };
 
     static {
@@ -117,6 +149,9 @@ public class TermCollector_Provider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1], TERM_COLLECTOR_GEODATA);
         uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1] + "/#", TERM_COLLECTOR_GEODATA_ID);
+
+        uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[2], TERM_COLLECTOR_GEODATA_CACHE);
+        uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[2] + "/#", TERM_COLLECTOR_GEODATA_CACHE_ID);
 
         contentMapTerms = new HashMap<String, String>();
         contentMapTerms.put(TermCollectorTermData._ID, TermCollectorTermData._ID);
@@ -131,6 +166,12 @@ public class TermCollector_Provider extends ContentProvider {
         contentMapGeodata.put(TermCollectorGeoData.DEVICE_ID, TermCollectorGeoData.DEVICE_ID);
         contentMapGeodata.put(TermCollectorGeoData.TERM_CONTENT, TermCollectorGeoData.TERM_CONTENT);
         contentMapGeodata.put(TermCollectorGeoData.TERM_SOURCE, TermCollectorGeoData.TERM_SOURCE);
+
+        contentMapGeodataCache = new HashMap<String, String>();
+        contentMapGeodataCache.put(TermCollectorGeoDataCache._ID, TermCollectorGeoDataCache._ID);
+        contentMapGeodataCache.put(TermCollectorGeoDataCache.TIMESTAMP, TermCollectorGeoDataCache.TIMESTAMP);
+        contentMapGeodataCache.put(TermCollectorGeoDataCache.TERM_CONTENT, TermCollectorGeoDataCache.TERM_CONTENT);
+        contentMapGeodataCache.put(TermCollectorGeoDataCache.IS_CITY, TermCollectorGeoDataCache.IS_CITY);
     }
 
     @Override
@@ -144,6 +185,9 @@ public class TermCollector_Provider extends ContentProvider {
                 break;
             case TERM_COLLECTOR_GEODATA:
                 count = database.delete(DATABASE_TABLES[1], selection, selectionArgs);
+                break;
+            case TERM_COLLECTOR_GEODATA_CACHE:
+                count = database.delete(DATABASE_TABLES[2], selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -163,6 +207,10 @@ public class TermCollector_Provider extends ContentProvider {
                 return TermCollectorGeoData.CONTENT_TYPE;
             case TERM_COLLECTOR_GEODATA_ID:
                 return TermCollectorGeoData.CONTENT_ITEM_TYPE;
+            case TERM_COLLECTOR_GEODATA_CACHE:
+                return TermCollectorGeoDataCache.CONTENT_TYPE;
+            case TERM_COLLECTOR_GEODATA_CACHE_ID:
+                return TermCollectorGeoDataCache.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -190,6 +238,15 @@ public class TermCollector_Provider extends ContentProvider {
                 Log.wtf(TAG, "Id: " + _id);
                 if (_id > 0) {
                     Uri dataUri = ContentUris.withAppendedId(TermCollectorGeoData.CONTENT_URI, _id);
+                    getContext().getContentResolver().notifyChange(dataUri, null);
+                    return dataUri;
+                }
+                throw new SQLException("Failed to insert row into " + uri);
+            case TERM_COLLECTOR_GEODATA_CACHE:
+                _id = database.insert(DATABASE_TABLES[2], TermCollectorGeoDataCache.TIMESTAMP, values);
+                Log.wtf(TAG, "Id: " + _id);
+                if (_id > 0) {
+                    Uri dataUri = ContentUris.withAppendedId(TermCollectorGeoDataCache.CONTENT_URI, _id);
                     getContext().getContentResolver().notifyChange(dataUri, null);
                     return dataUri;
                 }
@@ -223,6 +280,10 @@ public class TermCollector_Provider extends ContentProvider {
                 qb.setTables(DATABASE_TABLES[1]);
                 qb.setProjectionMap(contentMapGeodata);
                 break;
+            case TERM_COLLECTOR_GEODATA_CACHE:
+                qb.setTables(DATABASE_TABLES[2]);
+                qb.setProjectionMap(contentMapGeodataCache);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -249,6 +310,9 @@ public class TermCollector_Provider extends ContentProvider {
                 break;
             case TERM_COLLECTOR_GEODATA:
                 count = database.update(DATABASE_TABLES[1], values, selection, selectionArgs);
+                break;
+            case TERM_COLLECTOR_GEODATA_CACHE:
+                count = database.update(DATABASE_TABLES[2], values, selection, selectionArgs);
                 break;
             default:
                 database.close();

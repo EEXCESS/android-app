@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,6 +15,7 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorGeoData;
+import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorGeoDataCache;
 import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorTermData;
 import com.aware.utils.Aware_Plugin;
 
@@ -374,9 +376,26 @@ public class Plugin extends Aware_Plugin {
         //classify cities
         ArrayList<String> cityTokens = new ArrayList<String>();
         ArrayList<String> nonCityTokens = new ArrayList<String>();
+        ArrayList<String> tokensToCheck = new ArrayList<String>();
 
         //defines, if cities are resolved sequential or all at once (WAY FASTER!)
         boolean sequential = false;
+
+        // check if the token is a known city/geoname from the cache
+        // if the token is in the cache, get the value and enter it into cityTokens or nonCityTokens
+        // add it to tokensToCheck otherwise
+        for(String filteredToken : filteredTokens ){
+            if(isInCache(filteredToken)){
+                if(isCityFromCache(filteredToken)){
+                    cityTokens.add(filteredToken);
+                } else {
+                    nonCityTokens.add(filteredToken);
+                }
+            } else {
+                tokensToCheck.add(filteredToken);
+            }
+        }
+
 
         if (!sequential) { //new, at once check
             Set<String> cities = new HashSet<String>();
@@ -384,7 +403,7 @@ public class Plugin extends Aware_Plugin {
             // Get Cities for filteredTokens
             try {
                 Mingle mingle = new Mingle(getApplicationContext());
-                cities = mingle.geonames().areCities(filteredTokens);
+                cities = mingle.geonames().areCities(tokensToCheck);
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 // e.printStackTrace();
@@ -392,12 +411,14 @@ public class Plugin extends Aware_Plugin {
             }
 
             // Check, which tokens are in the cities list
-            for (String token : filteredTokens) {
+            for (String token : tokensToCheck) {
                 if (cities.contains(token)) {
                     Log.wtf(TAG, token + " is a city (At once)");
                     cityTokens.add(token);
+                    saveToCache(System.currentTimeMillis(), true, token);
                 } else {
                     nonCityTokens.add(token);
+                    saveToCache(System.currentTimeMillis(), false, token);
                     Log.wtf(TAG, token + " is not a city (At once)");
                 }
             }
@@ -414,8 +435,10 @@ public class Plugin extends Aware_Plugin {
                         if (mingle.geonames().existsPopulatedPlaceWithName(token)) {
                             Log.wtf(TAG, token + " is a city (Sequential)");
                             cityTokens.add(token);
+                            saveToCache(System.currentTimeMillis(), true, token);
                         } else {
                             nonCityTokens.add(token);
+                            saveToCache(System.currentTimeMillis(), false, token);
                             Log.wtf(TAG, token + " is not a city (Sequential)");
                         }
 
@@ -481,5 +504,60 @@ public class Plugin extends Aware_Plugin {
                 || appName.equals("com.android.providers.downloads")
                 || appName.equals("com.google.android.googlequicksearchbox")
         );
+    }
+
+    private boolean isInCache(String token) {
+        Log.d(TAG, "Querying Cache for " + token);
+        Cursor c = getContentResolver().query(TermCollector_Provider.TermCollectorGeoDataCache.CONTENT_URI, null, TermCollector_Provider.TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, null);
+
+        boolean result = false;
+
+
+        if( c != null && c.moveToFirst() ){
+            result = c.getCount() > 0;}
+
+        if (c != null && !c.isClosed()) {
+            c.close();
+        }
+
+        if(result) {
+            Log.d(TAG, "Cache hit " + token);
+        } else {
+            Log.d(TAG, "Cache miss " + token);
+        }
+        return  result;
+    }
+
+    private boolean isCityFromCache(String token) {
+        Cursor c = getContentResolver().query(TermCollectorGeoDataCache.CONTENT_URI, null, TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, "timestamp" + " DESC LIMIT 1");
+        boolean result = false;
+
+        if( c != null && c.moveToFirst() ){
+            result = c.getInt(c.getColumnIndex(TermCollectorGeoDataCache.IS_CITY)) > 0;
+        }
+
+        if (c != null && !c.isClosed()) {
+            c.close();
+        }
+        return  result;
+    }
+
+    private void saveToCache(long timestamp, boolean isCity, String token) {
+        Log.d(TAG, "Saving to Cache");
+
+        ContentValues rowData = new ContentValues();
+
+        rowData.put(TermCollectorGeoDataCache.TIMESTAMP, timestamp);
+
+        if(isCity){
+            rowData.put(TermCollectorGeoDataCache.IS_CITY, 1);
+        } else {
+            rowData.put(TermCollectorGeoDataCache.IS_CITY, 0);
+        }
+
+        rowData.put(TermCollectorGeoDataCache.TERM_CONTENT, token);
+
+        Log.d(TAG, "Saving " + rowData.toString());
+        getContentResolver().insert(TermCollectorGeoDataCache.CONTENT_URI, rowData);
     }
 }
