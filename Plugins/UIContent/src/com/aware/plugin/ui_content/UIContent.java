@@ -134,7 +134,7 @@ public class UIContent extends AccessibilityService {
 
     private void saveData(String sourceApp, String text){
         // get information if text was already saved
-        Cursor c = getContentResolver().query(UIContents.CONTENT_URI, null, UIContents.TEXT + " = " + DatabaseUtils.sqlEscapeString(text), null, null);
+        Cursor c = getContentResolver().query(UIContents.CONTENT_URI, null, UIContents.TEXT + " = " + DatabaseUtils.sqlEscapeString(text), null, "timestamp" + " DESC LIMIT 1000");
         // UIContents.TEXT + " = " + DatabaseUtils.sqlEscapeString(text), null, "timestamp" + " DESC LIMIT 1000"
 
         if(c.getCount() == 0) {
