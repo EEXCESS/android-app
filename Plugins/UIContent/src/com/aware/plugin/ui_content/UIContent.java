@@ -133,7 +133,7 @@ public class UIContent extends AccessibilityService {
 
 
     private void saveData(String sourceApp, String text){
-        // get information if text was already saved in the last 1000 rows
+        // get information if text was already saved
         Cursor c = getContentResolver().query(UIContents.CONTENT_URI, null, UIContents.TEXT + " = " + DatabaseUtils.sqlEscapeString(text), null, null);
         // UIContents.TEXT + " = " + DatabaseUtils.sqlEscapeString(text), null, "timestamp" + " DESC LIMIT 1000"
 
@@ -148,6 +148,10 @@ public class UIContent extends AccessibilityService {
             getContentResolver().insert(UIContents.CONTENT_URI, rowData);
         } else {
             Log.d(TAG, "Skipping saving of " + text.substring(0, 39) + "... from app " + sourceApp + " as it is already included");
+        }
+
+        if(c != null && !c.isClosed()) {
+            c.close();
         }
     }
 }
