@@ -1,0 +1,7 @@
+# Build and Installation Manual
+
+## Build the following Modules in Android Studio
+
+## Activate the following Settings in the Aware App on your Device
+
+## Activate the following Modules in the Settings App -> Accessibility

@@ -10,6 +10,7 @@ import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.aware.Aware;
@@ -37,7 +38,8 @@ public class Plugin extends Aware_Plugin {
     private static final String TAG = "TermCollector Plugin";
     public static final String ACTION_AWARE_TERMCOLLECTOR = "ACTION_AWARE_TERMCOLLECTOR";
 
-    private static StopList stopList;
+    private static StopWords stopWords;
+    private static CommonConnectors commonConnectors;
     private ClipboardManager.OnPrimaryClipChangedListener clipboardListener;
 
     public static final String EXTRA_TERMCONTENT = "termcontent";
@@ -68,7 +70,8 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "Plugin Created");
         super.onCreate();
 
-        stopList = new StopList();
+        stopWords = new StopWords(getApplicationContext());
+        commonConnectors = new CommonConnectors(getApplicationContext());
 
         // Share the context back to the framework and other applications
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
@@ -307,7 +310,7 @@ public class Plugin extends Aware_Plugin {
             if (cursor != null && cursor.moveToFirst()) {
                 if (!isApplicationBlacklisted(cursor.getString(cursor
                         .getColumnIndex("source_app")))) {
-                    if (lastId == cursor.getLong(cursor.getColumnIndex("_id"))){
+                    if (lastId == cursor.getLong(cursor.getColumnIndex("_id"))) {
                         return;
                     } else {
                         lastId = cursor.getLong(cursor.getColumnIndex("_id"));
@@ -317,7 +320,7 @@ public class Plugin extends Aware_Plugin {
 
                     classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
                             uiContentContentUri.toString(), tokens);
-                }  else {
+                } else {
                     Log.d(TAG, "UIContent from Application " + cursor.getString(cursor
                             .getColumnIndex("source_app")) + " was ignored (Cause: Blacklist)");
                 }
@@ -329,31 +332,69 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    private String[] splitContent(String content) {
+    private String[] splitAndReformulateContent(String content) {
         Log.wtf(TAG, "Splitting Content");
         Log.wtf(TAG, "Content: " + content);
 
+        String[] tokenArray = content.split("\\s+");
         //remove all characters that are not A-Za-z
-        return content.replaceAll("[^A-Za-zÄÖÜäöü]", " ").split("\\s+");
+        ArrayList<String> resultList = new ArrayList<String>();
+
+
+        for (int i = 0; i < tokenArray.length; i++) {
+            String token = tokenArray[i];
+            if (tokenIsAllowedNoun(token)) {
+                resultList.add(token);
+                //token does not end in a punctuation mark
+                if (!token.matches("[\\p{Punct}]$")) {
+
+                    // there is still another token
+                    if (i + 1 < tokenArray.length) {
+                        //and it is an allowed Noun or a commonConnector
+                        if (tokenIsAllowedNoun(tokenArray[i + 1])) {
+                            // Add the Combination of the two to the List
+                            resultList.add(TextUtils.join(" ", new String[]{token, tokenArray[i + 1]}));
+                        } else {
+                            if (commonConnectors.isCommonConnector(tokenArray[i + 1])) {
+                                // there is yet another token
+                                if (i + 2 < tokenArray.length) {
+                                    if (tokenIsAllowedNoun(tokenArray[i + 2])) {
+                                        // Add the Combination of the three to the List
+                                        resultList.add(token + " " + tokenArray[i + 1] + " " + tokenArray[i + 2]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // there are even two more tokens
+                    if (i + 3 < tokenArray.length) {
+                        //it is a common connector with a space
+                        if (commonConnectors.isCommonConnector(tokenArray[i + 1] + " " + tokenArray[i + 2])) {
+                            if (tokenIsAllowedNoun(tokenArray[i + 3])) {
+                                resultList.add(token + " " + tokenArray[i + 1] + " " + tokenArray[i + 2] + " " + tokenArray[i+3]);
+                            }
+                        }
+
+                        //it is a common connector without a space
+                        if (commonConnectors.isCommonConnector(tokenArray[i + 1] + tokenArray[i + 2])) {
+                            if (tokenIsAllowedNoun(tokenArray[i + 3])) {
+                                resultList.add(token + " " + tokenArray[i + 1] +  tokenArray[i + 2] + " " + tokenArray[i+3]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return resultList.toArray(new String[resultList.size()]);
+
     }
 
-    private ArrayList<String> filterTokens(String[] tokens) {
+    private ArrayList<String> sanitizeTokens(String[] tokens) {
         ArrayList<String> filteredTokens = new ArrayList<String>();
 
-        // filter Lowercase tokens and tokens shorter than 3 characters
         for (String token : tokens) {
-            if (token.length() > 2) {
-                if (Character.isUpperCase(token.charAt(0))) {
-
-                    filteredTokens.add(token);
-                } else {
-                    Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase");
-                }
-
-            } else {
-                Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
-            }
-
+            filteredTokens.add(token.replaceAll("[^A-Za-zÄÖÜäöüß\\-]", " "));
         }
 
         return filteredTokens;
@@ -361,16 +402,17 @@ public class Plugin extends Aware_Plugin {
 
     private String[] splitAndFilterContent(String content) {
 
-        String[] contentTokens = splitContent(content);
+        String[] contentTokens = splitAndReformulateContent(content);
 
         //filter Stopwords
-        return stopList.filteredArray(contentTokens);
+        return stopWords.filteredArray(contentTokens);
     }
 
     private void classifyAndSaveData(long timestamp, String source, String[] contentTokens) {
 
+
         //filter Lowercase words and words with less than 3 Characters
-        ArrayList<String> filteredTokens = filterTokens(contentTokens);
+        ArrayList<String> filteredTokens = sanitizeTokens(contentTokens);
 
 
         //classify cities
@@ -384,9 +426,9 @@ public class Plugin extends Aware_Plugin {
         // check if the token is a known city/geoname from the cache
         // if the token is in the cache, get the value and enter it into cityTokens or nonCityTokens
         // add it to tokensToCheck otherwise
-        for(String filteredToken : filteredTokens ){
-            if(isInCache(filteredToken)){
-                if(isCityFromCache(filteredToken)){
+        for (String filteredToken : filteredTokens) {
+            if (isInCache(filteredToken)) {
+                if (isCityFromCache(filteredToken)) {
                     cityTokens.add(filteredToken);
                 } else {
                     nonCityTokens.add(filteredToken);
@@ -513,33 +555,34 @@ public class Plugin extends Aware_Plugin {
         boolean result = false;
 
 
-        if( c != null && c.moveToFirst() ){
-            result = c.getCount() > 0;}
+        if (c != null && c.moveToFirst()) {
+            result = c.getCount() > 0;
+        }
 
         if (c != null && !c.isClosed()) {
             c.close();
         }
 
-        if(result) {
+        if (result) {
             Log.d(TAG, "Cache hit " + token);
         } else {
             Log.d(TAG, "Cache miss " + token);
         }
-        return  result;
+        return result;
     }
 
     private boolean isCityFromCache(String token) {
         Cursor c = getContentResolver().query(TermCollectorGeoDataCache.CONTENT_URI, null, TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, "timestamp" + " DESC LIMIT 1");
         boolean result = false;
 
-        if( c != null && c.moveToFirst() ){
+        if (c != null && c.moveToFirst()) {
             result = c.getInt(c.getColumnIndex(TermCollectorGeoDataCache.IS_CITY)) > 0;
         }
 
         if (c != null && !c.isClosed()) {
             c.close();
         }
-        return  result;
+        return result;
     }
 
     private void saveToCache(long timestamp, boolean isCity, String token) {
@@ -549,7 +592,7 @@ public class Plugin extends Aware_Plugin {
 
         rowData.put(TermCollectorGeoDataCache.TIMESTAMP, timestamp);
 
-        if(isCity){
+        if (isCity) {
             rowData.put(TermCollectorGeoDataCache.IS_CITY, 1);
         } else {
             rowData.put(TermCollectorGeoDataCache.IS_CITY, 0);
@@ -559,5 +602,29 @@ public class Plugin extends Aware_Plugin {
 
         Log.d(TAG, "Saving " + rowData.toString());
         getContentResolver().insert(TermCollectorGeoDataCache.CONTENT_URI, rowData);
+    }
+
+    private boolean tokenIsAllowedNoun(String token) {
+        // filter tokens shorter than 3 characters
+        if (token.length() > 2) {
+            //only allow Uppercase tokens, which have no more Uppercase characters (avoids strange CamelCase errors like PassauTown)
+            if (Character.isUpperCase(token.charAt(0)) &&
+                   token.substring(1).equals(token.substring(1).toLowerCase())
+                    ) {
+                if (stopWords.isStopWord(token)) {
+                    Log.wtf(TAG, "Ignoring " + token + " as it is a stopword.");
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                Log.wtf(TAG, "Ignoring " + token + " as it is not uppercase.");
+                return false;
+            }
+
+        } else {
+            Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
+            return false;
+        }
     }
 }
