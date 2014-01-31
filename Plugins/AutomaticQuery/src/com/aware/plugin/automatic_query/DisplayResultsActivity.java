@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 
@@ -56,12 +55,8 @@ public class DisplayResultsActivity extends ListActivity {
         this.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> a, View
                     v, int position, long id) {
-                TextView textView = (TextView) v.findViewById(R.id.textView);
+
                 EuropeanaApi2Item item = (EuropeanaApi2Item) a.getItemAtPosition(position);
-
-                Log.wtf("OnCLickListener", item.getTitle().get(0));
-                Log.wtf("OnCLickListener", item.getEdmPreview().get(0));
-
 
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getObjectURL()));
                 startActivity(browserIntent);
