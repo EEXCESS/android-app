@@ -1,4 +1,6 @@
 ab
+heading
+link
 bei
 da
 deshalb
@@ -994,3 +996,4 @@ zwölf
 übermorgen
 übrig
 übrigens
+über
