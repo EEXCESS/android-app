@@ -26,6 +26,14 @@
         >
     </EditText>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean Data"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanData" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
