@@ -120,7 +120,7 @@ public class UIContent extends AccessibilityService {
         for(String nodeText : nodeTexts ){
              // Filter out short Descriptions to improve quality of results (Button Descriptions)
             // Also, filter Description of Links
-            if(nodeText.length() > 40 && !nodeText.endsWith("Link")){
+            if(nodeText.length() > 20 && !nodeText.endsWith("Link")){
                 saveData(sourceApp, nodeText);
             }
         }
@@ -147,7 +147,7 @@ public class UIContent extends AccessibilityService {
 
             getContentResolver().insert(UIContents.CONTENT_URI, rowData);
         } else {
-            Log.d(TAG, "Skipping saving of " + text.substring(0, 39) + "... from app " + sourceApp + " as it is already included");
+            Log.d(TAG, "Skipping saving of " + text.substring(0, 19) + "... from app " + sourceApp + " as it is already included");
         }
 
         if(c != null && !c.isClosed()) {
