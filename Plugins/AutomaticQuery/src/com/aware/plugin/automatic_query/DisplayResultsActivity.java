@@ -22,10 +22,16 @@ public class DisplayResultsActivity extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.wtf(TAG, "@OnCreate");
 
-        Intent intent = getIntent();
+        onNewIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.wtf(TAG, "@OnNewIntent");
+
         ArrayList<String> your_array_list = intent.getStringArrayListExtra("results_list");
 
         EuropeanaApi2Item[] items = new EuropeanaApi2Item[your_array_list.size()];
@@ -38,7 +44,7 @@ public class DisplayResultsActivity extends ListActivity {
             i++;
         }
 
-            // This is the array adapter, it takes the context of the activity as a first // parameter, the type of list view as a second parameter and your array as a third parameter
+        // This is the array adapter, it takes the context of the activity as a first // parameter, the type of list view as a second parameter and your array as a third parameter
         //ArrayAdapter<String> arrayAdapter =
         //        new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, your_array_list);
 

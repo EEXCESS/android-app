@@ -3,7 +3,6 @@ package com.aware.plugin.automatic_query;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -12,6 +11,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.aware.plugin.automatic_query.situations.SituationManager;
@@ -124,21 +124,13 @@ public class Plugin extends Aware_Plugin {
                         .setContentText(term);
 
 
-//// The stack builder object will contain an artificial back stack for the
-//// started Activity.
-//// This ensures that navigating backward from the Activity leads out of
-//// your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-//// Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(intent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(),notifyID,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
         mBuilder.setContentIntent(resultPendingIntent);
-
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -176,26 +168,14 @@ public class Plugin extends Aware_Plugin {
 
 
         intent.putStringArrayListExtra("results_list", your_array_list);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         //startActivity(intent);
 
-        createAndSendNotification(intent, your_array_list.size() + " new results for keywords "  + join(queryTerms, ", ") + "!");
+        createAndSendNotification(intent, your_array_list.size() + " new results for keywords "  + TextUtils.join(", ", queryTerms) + "!");
         }
 
 
-    }
-
-    private String join(String[] tokens, String delim) {
-        StringBuilder sb = new StringBuilder();
-
-        String separator = "";
-        for(String token : tokens ){
-            sb.append(token+separator);
-            separator = delim;
-        }
-
-        return sb.toString();
     }
 
 	public class TermCollectorObserver extends ContentObserver {
@@ -226,7 +206,6 @@ public class Plugin extends Aware_Plugin {
 			}
 		}
 	}
-
 
     public class GeoCollectorObserver extends ContentObserver {
         public GeoCollectorObserver(Handler handler) {
