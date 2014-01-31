@@ -20,7 +20,7 @@ public class StopWords {
         //GERMAN STOPWORDS by  Marco Götze, Steffen Geyer: http://solariz.de/649/deutsche-stopwords.htm;
         this.stopwords = new ArrayList<String>();
 
-        InputStream buildinginfo = context.getResources().openRawResource(R.raw.commonconnectors);
+        InputStream buildinginfo = context.getResources().openRawResource(R.raw.stopwords);
         DataInputStream myDIS = new DataInputStream(buildinginfo);
         String myLine;
 
@@ -44,6 +44,6 @@ public class StopWords {
     }
 
     public boolean isStopWord(String token){
-        return stopwords.contains(token);
+        return stopwords.contains(token.toLowerCase());
     }
 }
