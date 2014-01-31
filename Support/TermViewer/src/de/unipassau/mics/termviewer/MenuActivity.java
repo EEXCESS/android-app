@@ -38,7 +38,8 @@ public class MenuActivity extends Activity {
                 "GeonameResolver",
                 "OSMPoiResolver",
                 "ImageReceiver",
-                "SMSReceiver"
+                "SMSReceiver",
+                "UIContent"
         };
 
 
@@ -52,7 +53,7 @@ public class MenuActivity extends Activity {
         activityDescriptions.put("OSMPoiResolver", new ActivityDescriptor("OSMPoiResolver", "content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver", "name"));
         activityDescriptions.put("ImageReceiver", new ActivityDescriptor("ImageReceiver", "content://com.aware.provider.plugin.image_receiver/plugin_image_receiver", "_display_name"));
         activityDescriptions.put("SMSReceiver", new ActivityDescriptor("SMSReceiver", "content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver", "SMSCONTENT"));
-
+        activityDescriptions.put("UIContent", new ActivityDescriptor("UIContent", "content://com.aware.provider.plugin.ui_content/plugin_ui_content", "content_text"));
 
         mTermList.setAdapter(new ArrayAdapter<String>(this, R.layout.menu_activity_entry, activities));
 
