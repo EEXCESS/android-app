@@ -372,14 +372,14 @@ public class Plugin extends Aware_Plugin {
                         //it is a common connector with a space
                         if (commonConnectors.isCommonConnector(tokenArray[i + 1] + " " + tokenArray[i + 2])) {
                             if (tokenIsAllowedNoun(tokenArray[i + 3])) {
-                                resultList.add(token + " " + tokenArray[i + 1] + " " + tokenArray[i + 2] + " " + tokenArray[i+3]);
+                                resultList.add(token + " " + tokenArray[i + 1] + " " + tokenArray[i + 2] + " " + tokenArray[i + 3]);
                             }
                         }
 
                         //it is a common connector without a space
                         if (commonConnectors.isCommonConnector(tokenArray[i + 1] + tokenArray[i + 2])) {
                             if (tokenIsAllowedNoun(tokenArray[i + 3])) {
-                                resultList.add(token + " " + tokenArray[i + 1] +  tokenArray[i + 2] + " " + tokenArray[i+3]);
+                                resultList.add(token + " " + tokenArray[i + 1] + tokenArray[i + 2] + " " + tokenArray[i + 3]);
                             }
                         }
                     }
@@ -545,6 +545,13 @@ public class Plugin extends Aware_Plugin {
                 || appName.equals("com.google.android.talk")
                 || appName.equals("com.android.providers.downloads")
                 || appName.equals("com.google.android.googlequicksearchbox")
+                || appName.equals("com.google.android.music")
+                || appName.equals("com.google.android.play.games")
+                || appName.equals("android")
+                || appName.equals("com.android.settings")
+                || appName.equals("com.android.systemui")
+                || appName.equals("com.android.keyguard")
+
         );
     }
 
@@ -609,7 +616,7 @@ public class Plugin extends Aware_Plugin {
         if (token.length() > 2) {
             //only allow Uppercase tokens, which have no more Uppercase characters (avoids strange CamelCase errors like PassauTown)
             if (Character.isUpperCase(token.charAt(0)) &&
-                   token.substring(1).equals(token.substring(1).toLowerCase())
+                    token.substring(1).equals(token.substring(1).toLowerCase())
                     ) {
                 if (stopWords.isStopWord(token)) {
                     Log.wtf(TAG, "Ignoring " + token + " as it is a stopword.");
