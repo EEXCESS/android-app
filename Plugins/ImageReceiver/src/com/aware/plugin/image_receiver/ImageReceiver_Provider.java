@@ -1,7 +1,5 @@
 package com.aware.plugin.image_receiver;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,6 +16,8 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
+import java.util.HashMap;
+
 /**
  * ContentProvider for the NotificationCatcher
  * @author Christian Koehler
@@ -33,7 +33,7 @@ public class ImageReceiver_Provider extends ContentProvider {
         public static final String MAIN_TABLE = "plugin_image_receiver";
         
         
-        private static final int DATABASE_VERSION = 2;
+        private static final int DATABASE_VERSION = 3;
         
         private static final int IMAGE_RECEIVER = 1;
         private static final int IMAGE_RECEIVER_ID = 2;
@@ -103,8 +103,8 @@ public class ImageReceiver_Provider extends ContentProvider {
         			ImageReceiver.BUCKET_ID + " real default 0," + 
         			ImageReceiver.BUCKET_DISPLAY_NAME + " text default ''," +
         			ImageReceiver.WIDTH + " real default 0," + 
-        			ImageReceiver.HEIGHT + " real default 0," +
-                   "UNIQUE ("+ImageReceiver.TIMESTAMP+","+ImageReceiver.DEVICE_ID+")"
+        			ImageReceiver.HEIGHT + " real default 0"
+               //    "UNIQUE ("+ImageReceiver.TIMESTAMP+","+ImageReceiver.DEVICE_ID+")"
         };
         
         static {

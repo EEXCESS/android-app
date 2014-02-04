@@ -32,6 +32,13 @@
         </service>
 
         <provider android:name="UIContent_Provider" android:authorities="com.aware.provider.plugin.ui_content" android:exported="true" android:writePermission="com.aware.WRITE_CONTEXT_DATA" android:readPermission="com.aware.READ_CONTEXT_DATA"></provider>
+
+        <activity
+            android:name="Settings"
+            android:exported="true"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
+
     </application>
 
 </manifest>

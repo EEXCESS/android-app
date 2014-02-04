@@ -34,7 +34,14 @@
             android:writePermission="com.aware.WRITE_CONTEXT_DATA"
             android:readPermission="com.aware.READ_CONTEXT_DATA">
         </provider>
-   
+
+        <activity
+            android:name="Settings"
+            android:exported="true"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
+
+
     </application>
 
 </manifest>

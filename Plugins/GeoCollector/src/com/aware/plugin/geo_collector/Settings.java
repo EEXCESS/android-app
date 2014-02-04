@@ -1,4 +1,4 @@
-package com.aware.plugin.clipboard_catcher;
+package com.aware.plugin.geo_collector;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -9,14 +9,13 @@ import android.view.View;
 import android.widget.TextView;
 
 public class Settings extends Activity {
-    private final static String TAG = "ClipboardCatcher Settings";
+    private final static String TAG = "GeoCollector Settings";
     private static TextView countView = null;
-    private static Uri contentUri = ClipboardCatcher_Provider.ClipboardCatcher.CONTENT_URI;
+    private static Uri contentUri = GeoCollector_Provider.GeoCollectorTermData.CONTENT_URI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setTitle(TAG);
 
         setContentView(R.layout.debug_layout);

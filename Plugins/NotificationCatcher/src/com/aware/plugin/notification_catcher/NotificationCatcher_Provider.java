@@ -1,7 +1,5 @@
 package com.aware.plugin.notification_catcher;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,6 +16,8 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
+import java.util.HashMap;
+
 /**
  * ContentProvider for the NotificationCatcher
  * @author Christian Koehler
@@ -29,16 +29,13 @@ public class NotificationCatcher_Provider extends ContentProvider {
 
         public static final String AUTHORITY = "com.aware.provider.plugin.notification_catcher";
         
-        private static final int DATABASE_VERSION = 3;
+        private static final int DATABASE_VERSION = 4;
         
         private static final int NOTIFICATION = 1;
         private static final int NOTIFICATION_ID = 2;
-        private static final int CONTACT = 3;
-        private static final int CONTACT_ID = 4;
-        
+
         private static UriMatcher uriMatcher = null;
         private static HashMap<String, String> notificationMap = null;
-        private static HashMap<String, String> contactMap = null; 
         private static DatabaseHelper databaseHelper = null;
         private static SQLiteDatabase database = null;        
         
@@ -58,24 +55,12 @@ public class NotificationCatcher_Provider extends ContentProvider {
             public static final String APP_NAME = "app_name";
         }
         
-        public static final class Hashed_Contacts implements BaseColumns {
-        	public Hashed_Contacts() {}
-        	
-        	public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/plugin_notification_catcher_contacts"); //this needs to match the table name
-            public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.notification_catcher.contacts";
-            public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.notification_catcher.contacts";
-            
-            public static final String _ID = "_id";
-            public static final String CONTACT_HASH = "contact_hash";
-            public static final String CONTACT_ALT_HASH = "contact_alt_hash";
-            public static final String TIMESTAMP = "timestamp";
-        }
+
         
         public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/plugin_notification_catcher.db";
         
         public static final String[] DATABASE_TABLES = {
-                "plugin_notification_catcher",
-                "plugin_notification_catcher_contacts"
+                "plugin_notification_catcher"
         };
         
         public static final String[] TABLES_FIELDS = {
@@ -87,20 +72,12 @@ public class NotificationCatcher_Provider extends ContentProvider {
         		Notifications.APP_NAME + " text default ''," +
                 Notifications.CONTACT_ID + " real default 0," +
                 "UNIQUE ("+Notifications.TIMESTAMP+","+Notifications.DEVICE_ID+")",
-                
-                Hashed_Contacts._ID + " integer primary key autoincrement," +
-                Hashed_Contacts.TIMESTAMP + " real default 0," +
-                Hashed_Contacts.CONTACT_HASH + " text default ''," +
-                Hashed_Contacts.CONTACT_ALT_HASH + " text default ''," +
-                "UNIQUE (" + Hashed_Contacts.CONTACT_HASH + ")"
         };
         
         static {
                 uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
                 uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], NOTIFICATION);
                 uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", NOTIFICATION_ID);
-                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1], CONTACT);
-                uriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1]+"/#", CONTACT_ID);
                 
                 notificationMap = new HashMap<String, String>();
                 notificationMap.put(Notifications._ID, Notifications._ID);
@@ -110,12 +87,7 @@ public class NotificationCatcher_Provider extends ContentProvider {
                 notificationMap.put(Notifications.TEXT, Notifications.TEXT);
                 notificationMap.put(Notifications.APP_NAME, Notifications.APP_NAME);
                 notificationMap.put(Notifications.CONTACT_ID, Notifications.CONTACT_ID);
-                
-                contactMap = new HashMap<String, String>();
-                contactMap.put(Hashed_Contacts.TIMESTAMP, Hashed_Contacts.TIMESTAMP);
-                contactMap.put(Hashed_Contacts._ID, Hashed_Contacts._ID);                
-                contactMap.put(Hashed_Contacts.CONTACT_HASH, Hashed_Contacts.CONTACT_HASH);
-                contactMap.put(Hashed_Contacts.CONTACT_ALT_HASH, Hashed_Contacts.CONTACT_ALT_HASH);
+
         }
         
         @Override
@@ -127,9 +99,6 @@ public class NotificationCatcher_Provider extends ContentProvider {
 	            case NOTIFICATION:
 	                count = database.delete(DATABASE_TABLES[0], selection, selectionArgs);
 	                break;
-	            case CONTACT:
-	            	count = database.delete(DATABASE_TABLES[1], selection, selectionArgs);
-	            	break;
 	            default:
 	                throw new IllegalArgumentException("Unknown URI " + uri);
 	        }
@@ -144,10 +113,6 @@ public class NotificationCatcher_Provider extends ContentProvider {
                     return Notifications.CONTENT_TYPE;
                 case NOTIFICATION_ID:
                     return Notifications.CONTENT_ITEM_TYPE;
-                case CONTACT:
-                	return Hashed_Contacts.CONTENT_TYPE;
-                case CONTACT_ID:
-                	return Hashed_Contacts.CONTENT_ITEM_TYPE;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -164,14 +129,6 @@ public class NotificationCatcher_Provider extends ContentProvider {
 	                long _id = database.insert(DATABASE_TABLES[0], Notifications.TIMESTAMP, values);
 	                if (_id > 0) {
 	                    Uri dataUri = ContentUris.withAppendedId(Notifications.CONTENT_URI, _id);
-	                    getContext().getContentResolver().notifyChange(dataUri, null);
-	                    return dataUri;
-	                }
-	                throw new SQLException("Failed to insert row into " + uri);
-	            case CONTACT:
-	                long contact_id = database.insert(DATABASE_TABLES[1], Hashed_Contacts.TIMESTAMP, values);
-	                if (contact_id > 0) {
-	                    Uri dataUri = ContentUris.withAppendedId(Hashed_Contacts.CONTENT_URI, contact_id);
 	                    getContext().getContentResolver().notifyChange(dataUri, null);
 	                    return dataUri;
 	                }
@@ -202,10 +159,6 @@ public class NotificationCatcher_Provider extends ContentProvider {
 	                qb.setTables(DATABASE_TABLES[0]);
 	                qb.setProjectionMap(notificationMap);
 	                break;
-	            case CONTACT:
-	                qb.setTables(DATABASE_TABLES[1]);
-	                qb.setProjectionMap(contactMap);
-	                break;
 	            default:
 	                throw new IllegalArgumentException("Unknown URI " + uri);
 	        }
@@ -229,9 +182,6 @@ public class NotificationCatcher_Provider extends ContentProvider {
 	        switch (uriMatcher.match(uri)) {
 	            case NOTIFICATION:
 	                count = database.update(DATABASE_TABLES[0], values, selection, selectionArgs);
-	                break;
-	            case CONTACT:
-	                count = database.update(DATABASE_TABLES[1], values, selection, selectionArgs);
 	                break;
 	            default:
 	                database.close();

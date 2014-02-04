@@ -1,5 +1,9 @@
 <resources>
-
     <string name="app_name">AWARE AutomaticQuery</string>
-
+    <string name="action_search">Modify Query</string>
+    <string name="action_activate_dnd">Activate Do not Disturb</string>
+    <string name="action_deactivate_dnd">Deactivate Do not Disturb</string>
+    <string name="action_disable_location">Do not use my location</string>
+    <string name="action_enable_location">Use my location</string>
+    <string name="action_settings">Settings</string>
 </resources>

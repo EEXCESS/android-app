@@ -32,6 +32,13 @@
             android:exported="true" >
         </activity>
 
+        <activity
+            android:name="Settings"
+            android:exported="true"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
+
+
     </application>
 
 </manifest>

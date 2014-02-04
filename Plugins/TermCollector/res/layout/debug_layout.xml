@@ -5,44 +5,46 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-   
-
-    <TextView
-        android:id="@+id/TextView01"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Last content of clipboard:"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="Clean GeoData"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanGeoData" />
 
-    <EditText
-        android:id="@+id/clipboardcontent"
-        android:layout_width="match_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0.95"
-        android:ems="10"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:editable="false"
-        android:focusable="false"
-        >
-    </EditText>
+        android:text="Clean GeoDataCacheData"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanGeoDataCache" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean TermData"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanTermData" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal" >
-
        
 
         <TextView
-            android:id="@+id/countLabel"
+            android:id="@+id/geoDataCountLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:text="Number of entries:"
+            android:text="Entries (geoData):"
             android:textAppearance="?android:attr/textAppearanceLarge" />
  		<TextView
-            android:id="@+id/count"
+            android:id="@+id/geodatacount"
             android:layout_width="93dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -51,6 +53,56 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:gravity="center"
             />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" >
+
+    <TextView
+            android:id="@+id/geoDataCacheCountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Entries (geoDataCache):"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/geodatacachecount"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:gravity="center"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" >
+
+    <TextView
+            android:id="@+id/termDataCountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Entries (TermData):"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/termdatacount"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:gravity="center"
+            />
+        
     </RelativeLayout>
 
 </LinearLayout>

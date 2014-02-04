@@ -10,7 +10,7 @@
     <!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/res/values/strings.xml -->
     <eat-comment />
 
-    <string name="app_name">AWARE: NotificationCatcher</string>
+    <string name="app_name">AWARE NotificationCatcher</string>
     <!-- From: file:/Users/wmb/Dropbox/Studium/Masterarbeit/Code/Plugins/NotificationCatcher/build/exploded-bundles/CodeFrameworksAware_framework_v2Unspecified.aar/res/values/values.xml -->
     <eat-comment />
 

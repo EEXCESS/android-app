@@ -5,26 +5,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-   
 
-    <TextView
-        android:id="@+id/TextView01"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Last content of clipboard:"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <EditText
-        android:id="@+id/clipboardcontent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.95"
-        android:ems="10"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:editable="false"
-        android:focusable="false"
-        >
-    </EditText>
+        android:text="Clean Data"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanData" />
 
     <RelativeLayout
         android:layout_width="match_parent"
