@@ -1,5 +1,10 @@
 package com.aware.plugin.automatic_query.situations;
 
+import android.content.Context;
+
+import com.aware.Aware;
+import com.aware.plugin.automatic_query.Settings;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,10 +21,15 @@ public class SituationManager {
     private ArrayList<Situation> triggerSituations;
 
     private HashMap<String, Object> contextMap;
+    private Context context;
 
-    public SituationManager(){
+    private SituationManager(){};
+
+    public SituationManager(Context context){
+        this.context = context;
        this.blockerSituations = new ArrayList<Situation>();
-       blockerSituations.add(new DarknessSituation());
+       //blockerSituations.add(new DarknessSituation());
+        blockerSituations.add(new DoNotDisturbSituation());
 
        this.triggerSituations = new ArrayList<Situation>();
        this.contextMap = new HashMap<String, Object>();
@@ -27,8 +37,12 @@ public class SituationManager {
 
     public boolean allowsQuery(){
 
+        // fill contextMap with values from Settings
+        fillContextMap();
+
         if (assessTriggerSituations()) {
             // a Trigger Situation explicitly triggered
+            System.out.println("A Trigger has fired");
             return true;
         } else {
             // return the opposite of the blocker state
@@ -64,4 +78,23 @@ public class SituationManager {
         // no Trigger returned true
         return false;
     }
+
+    private void fillContextMap(){
+        contextMap.put(Settings.AWARE_END_OF_DND, new Long(getEndOfDND()));
+    }
+
+
+    private long getEndOfDND(){
+        String endOfDNDString = Aware.getSetting(context.getContentResolver(), Settings.AWARE_END_OF_DND);
+        if(endOfDNDString != null) {
+            try {
+                return Long.parseLong(endOfDNDString);
+            } catch (NumberFormatException e) {
+                return 0L;
+            }
+        } else {
+            return 0L;
+        }
+    }
+
 }
