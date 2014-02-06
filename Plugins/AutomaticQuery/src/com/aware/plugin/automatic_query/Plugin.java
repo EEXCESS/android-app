@@ -1,26 +1,14 @@
 package com.aware.plugin.automatic_query;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.aware.plugin.automatic_query.situations.SituationManager;
 import com.aware.utils.Aware_Plugin;
-
-import java.util.ArrayList;
-
-import eu.europeana.api.client.EuropeanaApi2Item;
-import eu.europeana.api.client.EuropeanaApi2Results;
 
 /**
  * A Tool, that listens to the TermCollector, does Europeana Queries and sends out a Notification
@@ -33,6 +21,14 @@ import eu.europeana.api.client.EuropeanaApi2Results;
 public class Plugin extends Aware_Plugin {
 
 	private static final String TAG = "AutomaticQuery Plugin";
+
+    public int getNotificationNumber() {
+        return notificationNumber;
+    }
+
+    public void setNotificationNumber(int notificationNumber) {
+        this.notificationNumber = notificationNumber;
+    }
 
     private int notificationNumber = 0;
 
@@ -57,7 +53,7 @@ public class Plugin extends Aware_Plugin {
 		Log.d(TAG, "Plugin Created");
 		super.onCreate();
 
-        situationManager = new SituationManager();
+        situationManager = new SituationManager(getApplicationContext());
 
 		threads = new HandlerThread(TAG);
 		threads.start();
@@ -115,69 +111,6 @@ public class Plugin extends Aware_Plugin {
 
     }
 
-    public void createAndSendNotification(Intent intent, String term) {
-        int notifyID = notificationNumber++;
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("A new query was run")
-                        .setContentText(term);
-
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(),notifyID,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-
-
-
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // notifyID allows you to update the notification later on.
-        Notification note = mBuilder.build();
-        note.defaults |= Notification.DEFAULT_VIBRATE;
-        note.defaults |= Notification.DEFAULT_SOUND;
-        note.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        mNotificationManager.notify(notifyID, note);
-
-    }
-
-    public void postResultsFromQuery(EuropeanaApi2Results results, String[] queryTerms) {
-
-        Intent intent = new Intent(this, DisplayResultsActivity.class);
-
-        // Instanciating an array list (you don't need to do this, you already have yours)
-        ArrayList<String> your_array_list = new ArrayList<String>();
-
-        // Only react to non-empty resultsets
-        if(results.getAllItems().size() > 0) {
-        for (EuropeanaApi2Item item : results.getAllItems()) {
-
-//            Log.wtf(TAG,"**** " + (count++ + 1));
-//            Log.wtf(TAG,"Title: " + item.getTitle());
-            your_array_list.add(item.toJSON());
-//            Log.wtf(TAG,"Europeana URL: " + item.getObjectURL());
-//            Log.wtf(TAG,"Type: " + item.getType());
-//            Log.wtf(TAG,"Creator(s): " + item.getDcCreator());
-//            Log.wtf(TAG,"Thumbnail(s): " + item.getEdmPreview());
-//            Log.wtf(TAG,"Data provider: "
-//                    + item.getDataProvider());
-        }
-
-
-        intent.putStringArrayListExtra("results_list", your_array_list);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-        //startActivity(intent);
-
-        createAndSendNotification(intent, your_array_list.size() + " new results for keywords "  + TextUtils.join(", ", queryTerms) + "!");
-        }
-
-
-    }
-
 	public class TermCollectorObserver extends ContentObserver {
 		public TermCollectorObserver(Handler handler) {
 			super(handler);
@@ -195,10 +128,10 @@ public class Plugin extends Aware_Plugin {
 					"timestamp" + " DESC LIMIT 1");
 			if (cursor != null && cursor.moveToFirst()) {
 
-                //if (situationManager.allowsQuery()){
+                if (situationManager.allowsQuery()){
                     runQuery(cursor.getString(cursor
                         .getColumnIndex("term_content")));
-                //}
+                }
 			}
 
 			if (cursor != null && !cursor.isClosed()) {
@@ -224,10 +157,13 @@ public class Plugin extends Aware_Plugin {
                     "timestamp" + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
-                //if (situationManager.allowsQuery()){
-                runQuery(cursor.getString(cursor
+                if (situationManager.allowsQuery()){
+                    Log.d(TAG, "Query allowed");
+                    runQuery(cursor.getString(cursor
                         .getColumnIndex("term_content")));
-                //}
+                } {
+                    Log.d(TAG, "Query dissallowed");
+                }
             }
 
             if (cursor != null && !cursor.isClosed()) {

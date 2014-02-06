@@ -6,12 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.aware.Aware;
@@ -20,16 +24,42 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import eu.europeana.api.client.EuropeanaApi2Item;
+import eu.europeana.api.client.EuropeanaApi2Results;
 
 public class DisplayResultsActivity extends ListActivity {
 
     public static final String TAG = "DisplayResultsActivity";
-
+    boolean flag_loading = false;
+    private String[] terms = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.wtf(TAG, "@OnCreate");
+
+        ListView list = this.getListView();
+
+        list.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+
+            }
+
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+
+                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
+                {
+                    if(flag_loading == false)
+                    {
+                        flag_loading = true;
+
+                        loadMoreItems(totalItemCount);
+                    }
+                }
+            }
+        });
 
         onNewIntent(getIntent());
     }
@@ -63,6 +93,7 @@ public class DisplayResultsActivity extends ListActivity {
         switch (item.getItemId()) {
             case R.id.action_search:
                 //show a prefilled toast with the query
+                showPrefilledQuery();
                 return true;
             case R.id.action_activate_dnd:
                 showDNDDialog();
@@ -90,6 +121,8 @@ public class DisplayResultsActivity extends ListActivity {
         Log.wtf(TAG, "@OnNewIntent");
 
         ArrayList<String> your_array_list = intent.getStringArrayListExtra("results_list");
+
+        terms = intent.getStringArrayExtra("queryTerms");
 
         EuropeanaApi2Item[] items = new EuropeanaApi2Item[your_array_list.size()];
 
@@ -202,5 +235,44 @@ public class DisplayResultsActivity extends ListActivity {
             return true;
         }
     }
+
+    public void showPrefilledQuery(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Modify Query");
+        alert.setMessage("Modify the query to better fit your needs.");
+
+// Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Search", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String value = input.getText().toString();
+                // Do something with value!
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
+
+    }
+
+    private void loadMoreItems(int offset) {
+        Log.d(TAG, "@LoadMoreItems with offset " + offset);
+        new ExecuteSearchTask(this).execute(terms);
+        flag_loading = false;
+    }
+
+    public void postResultsFromQuery(EuropeanaApi2Results results, String[] queryTerms) {
+        Log.d(TAG, "loaded more results for " + TextUtils.join(" ", queryTerms));
+    }
+
+
 
 }
