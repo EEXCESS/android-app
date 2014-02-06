@@ -30,6 +30,7 @@ public class EuropeanaQuery implements EuropeanaQueryInterface {
     private String country;
     private String language;
     private String whatTerms;
+    private String whereTerms;
     
 
     /**
@@ -247,6 +248,9 @@ public class EuropeanaQuery implements EuropeanaQueryInterface {
         
         if(this.whatTerms != null)
         	this.addSearchField(buf, "what", this.whatTerms, false, false);
+
+        if(this.whereTerms != null)
+            this.addSearchField(buf, "where", this.whereTerms, false, false);
         
         return buf.toString();
     }
@@ -340,4 +344,13 @@ public class EuropeanaQuery implements EuropeanaQueryInterface {
 	public String getWhatTerms() {
 		return whatTerms;
 	}
+
+
+    public void setWhereTerms(String whereTerms) {
+        this.whereTerms = whereTerms;
+    }
+
+    public String getWhereTerms() {
+        return whereTerms;
+    }
 }
