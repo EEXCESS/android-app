@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,12 +17,14 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aware.Aware;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import eu.europeana.api.client.EuropeanaApi2Item;
 import eu.europeana.api.client.EuropeanaApi2Results;
@@ -30,7 +33,12 @@ public class DisplayResultsActivity extends ListActivity {
 
     public static final String TAG = "DisplayResultsActivity";
     boolean flag_loading = false;
+    boolean flag_all_loaded = false;
     private String[] terms = null;
+
+    private TextView loadingView = null;
+
+    private ArrayList<EuropeanaApi2Item> items;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +57,11 @@ public class DisplayResultsActivity extends ListActivity {
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
 
-                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
-                {
-                    if(flag_loading == false)
-                    {
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+                    if (flag_all_loaded == false && flag_loading == false) {
+                        Log.d(TAG, "@61");
                         flag_loading = true;
+                        getListView().addFooterView(loadingView);
 
                         loadMoreItems(totalItemCount);
                     }
@@ -65,81 +73,40 @@ public class DisplayResultsActivity extends ListActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_activity_actions, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        //show the right button for deactivating or activating DND
-        boolean deactivateVisible = System.currentTimeMillis() < getEndOfDND();
-        menu.findItem(R.id.action_activate_dnd).setVisible(!deactivateVisible);
-        menu.findItem(R.id.action_deactivate_dnd).setVisible(deactivateVisible);
-
-        //show the right button for enabling or disabling Location
-        boolean useLocationEnabled = getUseLocation();
-        menu.findItem(R.id.action_enable_location).setVisible(!useLocationEnabled);
-        menu.findItem(R.id.action_disable_location).setVisible(useLocationEnabled);
-
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                //show a prefilled toast with the query
-                showPrefilledQuery();
-                return true;
-            case R.id.action_activate_dnd:
-                showDNDDialog();
-                return true;
-            case R.id.action_deactivate_dnd:
-                setEndOfDND(System.currentTimeMillis());
-                createAndSendToast("Do not disturb disabled.");
-                return true;
-            case R.id.action_disable_location:
-                setUseLocation(false);
-                createAndSendToast("Use of location disabled.");
-                return true;
-            case R.id.action_enable_location:
-                setUseLocation(true);
-                createAndSendToast("Use of location enabled.");
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.wtf(TAG, "@OnNewIntent");
 
-        ArrayList<String> your_array_list = intent.getStringArrayListExtra("results_list");
+        loadingView = new TextView(this);
+        loadingView.setText("Loading ...");
+        loadingView.setGravity(Gravity.CENTER);
 
+        flag_all_loaded = false;
+        flag_loading = false;
+        items = new ArrayList<EuropeanaApi2Item>();
         terms = intent.getStringArrayExtra("queryTerms");
+        ArrayList<String> resultList = intent.getStringArrayListExtra("results_list");
 
-        EuropeanaApi2Item[] items = new EuropeanaApi2Item[your_array_list.size()];
+        checkIfAllItemsAreLoaded(resultList.size(), intent.getLongExtra("totalNumberOfResults", 0));
+
+        Toast.makeText(getApplicationContext(),
+                "Showing " + intent.getLongExtra("totalNumberOfResults", 0) + " results for query " + TextUtils.join(" ", terms), Toast.LENGTH_LONG).show();
+
+
+
+        Log.d(TAG, "Terms:" + TextUtils.join(" ", terms));
+
+        items = new ArrayList<EuropeanaApi2Item>();
 
         Gson gson = new Gson();
         int i = 0;
 
-        for (String json : your_array_list) {
-            items[i] = gson.fromJson(json, EuropeanaApi2Item.class);
+        for (String json : resultList) {
+            items.add(gson.fromJson(json, EuropeanaApi2Item.class));
             i++;
         }
 
-        // This is the array adapter, it takes the context of the activity as a first // parameter, the type of list view as a second parameter and your array as a third parameter
-        //ArrayAdapter<String> arrayAdapter =
-        //        new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, your_array_list);
-
-
-        EuropeanaApi2ResultAdapter adapter = new EuropeanaApi2ResultAdapter(this, R.layout.row, items);
+        EuropeanaApi2ResultAdapter adapter = new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()]));
 
         this.getListView().setAdapter(adapter);
 
@@ -244,12 +211,15 @@ public class DisplayResultsActivity extends ListActivity {
 
 // Set an EditText view to get user input
         final EditText input = new EditText(this);
+        input.setText(TextUtils.join(" ", terms));
         alert.setView(input);
+
 
         alert.setPositiveButton("Search", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String value = input.getText().toString();
                 // Do something with value!
+                new ExecuteSearchTask(getApplication()).execute(new String[]{"0", value});
             }
         });
 
@@ -265,14 +235,103 @@ public class DisplayResultsActivity extends ListActivity {
 
     private void loadMoreItems(int offset) {
         Log.d(TAG, "@LoadMoreItems with offset " + offset);
-        new ExecuteSearchTask(this).execute(terms);
-        flag_loading = false;
+
+        String[] offsetArray = new String[]{new Integer(offset).toString()};
+        String[] params = Arrays.copyOf(offsetArray, offsetArray.length + terms.length);
+        System.arraycopy(terms, 0, params, offsetArray.length, terms.length);
+
+        new ExecuteSearchTask(this).execute(params);
+
     }
 
     public void postResultsFromQuery(EuropeanaApi2Results results, String[] queryTerms) {
         Log.d(TAG, "loaded more results for " + TextUtils.join(" ", queryTerms));
+        if(items == null){
+            items = new ArrayList<EuropeanaApi2Item>();
+        }
+
+        if (results.getAllItems() != null){
+            items.addAll(results.getAllItems());
+        }
+
+
+        this.getListView().setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
+
+        // jump to newest entry
+        this.getListView().setSelection(items.size() - results.getItemsCount());
+
+        getListView().removeFooterView(loadingView);
+
+        // All Results have been loaded
+        Log.d(TAG, "items size: " + items.size() + " total size:" + results.getTotalResults());
+
+        checkIfAllItemsAreLoaded(items.size(), results.getTotalResults());
+
+        flag_loading = false;
     }
 
+    private void checkIfAllItemsAreLoaded(int numberOfLoadedItems, long numberOfItemsTotal){
+        // gte because, well, i guess some bug
+
+        Log.d(TAG, "NLI:" + numberOfLoadedItems + " NOIT: " + numberOfItemsTotal);
+
+        if(numberOfLoadedItems >= numberOfItemsTotal) {
+            flag_all_loaded = true;
+        }
 
 
+}
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity_actions, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        //show the right button for deactivating or activating DND
+        boolean deactivateVisible = System.currentTimeMillis() < getEndOfDND();
+        menu.findItem(R.id.action_activate_dnd).setVisible(!deactivateVisible);
+        menu.findItem(R.id.action_deactivate_dnd).setVisible(deactivateVisible);
+
+        //show the right button for enabling or disabling Location
+        boolean useLocationEnabled = getUseLocation();
+        menu.findItem(R.id.action_enable_location).setVisible(!useLocationEnabled);
+        menu.findItem(R.id.action_disable_location).setVisible(useLocationEnabled);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                //show a prefilled toast with the query
+                showPrefilledQuery();
+                return true;
+            case R.id.action_activate_dnd:
+                showDNDDialog();
+                return true;
+            case R.id.action_deactivate_dnd:
+                setEndOfDND(System.currentTimeMillis());
+                createAndSendToast("Do not disturb disabled.");
+                return true;
+            case R.id.action_disable_location:
+                setUseLocation(false);
+                createAndSendToast("Use of location disabled.");
+                return true;
+            case R.id.action_enable_location:
+                setUseLocation(true);
+                createAndSendToast("Use of location enabled.");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

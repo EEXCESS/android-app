@@ -107,7 +107,7 @@ public class Plugin extends Aware_Plugin {
 	protected void runQuery(String term) {
 		Log.d(TAG, "Running Query for term " + term);
 
-        new ExecuteSearchTask(this).execute(term);
+        new ExecuteSearchTask(this).execute(new String[]{"0", term});
 
     }
 

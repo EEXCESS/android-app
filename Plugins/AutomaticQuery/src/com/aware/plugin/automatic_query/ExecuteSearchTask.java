@@ -14,6 +14,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import eu.europeana.api.client.Api2Query;
 import eu.europeana.api.client.EuropeanaApi2Client;
@@ -33,23 +34,24 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
     public ExecuteSearchTask(ContextWrapper wrapper) {
         this.wrapperRef = wrapper;
     }
-
-        protected EuropeanaApi2Results doInBackground(String... terms) {
+        //params[0] contains offset as String, rest is searchterms
+        protected EuropeanaApi2Results doInBackground(String... params) {
             //create the query object
             Api2Query europeanaQuery = new Api2Query();
-            queryTerms = terms;
-//            europeanaQuery.setCreator("picasso");
-//            europeanaQuery.setType(EuropeanaComplexQuery.TYPE.IMAGE);
-//            europeanaQuery.setNotProvider("Hispana");
 
-            europeanaQuery.setGeneralTerms(terms[0]);
+
+            queryTerms = Arrays.copyOfRange(params, 1, params.length);
+            int offset = Integer.parseInt(params[0]);
+
+            europeanaQuery.setGeneralTerms(queryTerms[0]);
+
 
 
             //perform search
             EuropeanaApi2Client europeanaClient = new EuropeanaApi2Client();
             EuropeanaApi2Results res = null;
             try {
-                res = europeanaClient.searchApi2(europeanaQuery, -1, 1);
+                res = europeanaClient.searchApi2(europeanaQuery, -1, offset);
             } catch (IOException e) {
                 e.printStackTrace();
                 return new EuropeanaApi2Results();
@@ -72,9 +74,10 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
         protected void onPostExecute(EuropeanaApi2Results result) {
             if(wrapperRef.getClass() == DisplayResultsActivity.class){
-
+                Log.d(TAG, "First case");
                 ((DisplayResultsActivity) wrapperRef).postResultsFromQuery(result, queryTerms);
             } else{
+                Log.d(TAG, "Second case");
                 postResultsFromQuery(result, queryTerms);
             }
         }
@@ -91,30 +94,26 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         // Only react to non-empty resultsets
         if(results.getAllItems().size() > 0) {
             for (EuropeanaApi2Item item : results.getAllItems()) {
-
-//            Log.wtf(TAG,"**** " + (count++ + 1));
-//            Log.wtf(TAG,"Title: " + item.getTitle());
                 your_array_list.add(item.toJSON());
-//            Log.wtf(TAG,"Europeana URL: " + item.getObjectURL());
-//            Log.wtf(TAG,"Type: " + item.getType());
-//            Log.wtf(TAG,"Creator(s): " + item.getDcCreator());
-//            Log.wtf(TAG,"Thumbnail(s): " + item.getEdmPreview());
-//            Log.wtf(TAG,"Data provider: "
-//                    + item.getDataProvider());
             }
 
+            intent.putExtra("totalNumberOfResults", results.getTotalResults());
             intent.putExtra("queryTerms", queryTerms);
             intent.putStringArrayListExtra("results_list", your_array_list);
 
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 
             int notificationNumber = 0;
 
             if(wrapperRef.getClass() == Plugin.class){
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 notificationNumber = ((Plugin) wrapperRef).getNotificationNumber();
                 ((Plugin) wrapperRef).setNotificationNumber(notificationNumber+1);
-                createAndSendNotification(intent, your_array_list.size() + " new results for keywords "  + TextUtils.join(", ", queryTerms) + "!", notificationNumber);
+                createAndSendNotification(intent, results.getTotalResults() + " results for keywords "  + TextUtils.join(", ", queryTerms) + "!", notificationNumber);
+            } else {
+                // SearchTask was started from DisplayResultsAdapter
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                wrapperRef.startActivity(intent);
             }
         }
 
