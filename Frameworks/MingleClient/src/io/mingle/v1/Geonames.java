@@ -193,7 +193,7 @@ public class Geonames {
             }
         }
 
-        String query = "[ g.name | g <~ geonames, g.featureClass == \"P\" && ( {1} ) ]"
+        String query = "[ g.name | g <~ geonames, g.population > 1000 && g.featureClass == \"P\" && ( {1} ) ]"
                 .replace("{1}", sb.toString());
         System.out.println("Query " + query);
 
