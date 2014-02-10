@@ -6,9 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,7 +24,6 @@ import com.aware.Aware;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import eu.europeana.api.client.EuropeanaApi2Item;
 import eu.europeana.api.client.EuropeanaApi2Results;
@@ -34,7 +33,9 @@ public class DisplayResultsActivity extends ListActivity {
     public static final String TAG = "DisplayResultsActivity";
     boolean flag_loading = false;
     boolean flag_all_loaded = false;
-    private String[] terms = null;
+    private String what = "";
+    private String where = "";
+
 
     private TextView loadingView = null;
 
@@ -84,17 +85,20 @@ public class DisplayResultsActivity extends ListActivity {
         flag_all_loaded = false;
         flag_loading = false;
         items = new ArrayList<EuropeanaApi2Item>();
-        terms = intent.getStringArrayExtra("queryTerms");
+
+        what = intent.getStringExtra("what");
+        where = intent.getStringExtra("where");
+
         ArrayList<String> resultList = intent.getStringArrayListExtra("results_list");
 
         checkIfAllItemsAreLoaded(resultList.size(), intent.getLongExtra("totalNumberOfResults", 0));
 
         Toast.makeText(getApplicationContext(),
-                "Showing " + intent.getLongExtra("totalNumberOfResults", 0) + " results for query " + TextUtils.join(" ", terms), Toast.LENGTH_LONG).show();
+                "Showing " + intent.getLongExtra("totalNumberOfResults", 0) + " results for query where = " + where + " what = " +  what , Toast.LENGTH_LONG).show();
 
 
 
-        Log.d(TAG, "Terms:" + TextUtils.join(" ", terms));
+        Log.d(TAG, "Where = " + where + " What = " + what);
 
         items = new ArrayList<EuropeanaApi2Item>();
 
@@ -210,16 +214,26 @@ public class DisplayResultsActivity extends ListActivity {
         alert.setMessage("Modify the query to better fit your needs.");
 
 // Set an EditText view to get user input
-        final EditText input = new EditText(this);
-        input.setText(TextUtils.join(" ", terms));
-        alert.setView(input);
 
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
+
+
+        final EditText whatField = (EditText) textEntryView.findViewById(R.id.what_edit);
+        whatField.setText(what);
+
+        final EditText whereField = (EditText) textEntryView.findViewById(R.id.where_edit);
+        whereField.setText(where);
+
+        alert.setView(textEntryView);
 
         alert.setPositiveButton("Search", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String value = input.getText().toString();
+                String where = whereField.getText().toString();
+                String what = whatField.getText().toString();
+ 
                 // Do something with value!
-                new ExecuteSearchTask(getApplication()).execute(new String[]{"0", value});
+                new ExecuteSearchTask(getApplication()).execute(new String[]{"0", where, what});
             }
         });
 
@@ -236,16 +250,12 @@ public class DisplayResultsActivity extends ListActivity {
     private void loadMoreItems(int offset) {
         Log.d(TAG, "@LoadMoreItems with offset " + offset);
 
-        String[] offsetArray = new String[]{new Integer(offset).toString()};
-        String[] params = Arrays.copyOf(offsetArray, offsetArray.length + terms.length);
-        System.arraycopy(terms, 0, params, offsetArray.length, terms.length);
-
-        new ExecuteSearchTask(this).execute(params);
+        new ExecuteSearchTask(this).execute(new String[]{new Integer(offset).toString(), where, what});
 
     }
 
-    public void postResultsFromQuery(EuropeanaApi2Results results, String[] queryTerms) {
-        Log.d(TAG, "loaded more results for " + TextUtils.join(" ", queryTerms));
+    public void postResultsFromQuery(EuropeanaApi2Results results,  String where, String what) {
+        Log.d(TAG, "loaded more results for where " + where + " what " + what);
         if(items == null){
             items = new ArrayList<EuropeanaApi2Item>();
         }

@@ -8,13 +8,11 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import eu.europeana.api.client.Api2Query;
 import eu.europeana.api.client.EuropeanaApi2Client;
@@ -27,7 +25,8 @@ import eu.europeana.api.client.EuropeanaApi2Results;
 public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Results> {
 
     private String TAG = "ExecuteSearchTask";
-    private String[] queryTerms;
+    private String where = "";
+    private String what = "";
 
     private ContextWrapper wrapperRef;
 
@@ -39,13 +38,12 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
             //create the query object
             Api2Query europeanaQuery = new Api2Query();
 
-
-            queryTerms = Arrays.copyOfRange(params, 1, params.length);
             int offset = Integer.parseInt(params[0]);
+            where = params[1];
+            what = params[2];
 
-            europeanaQuery.setGeneralTerms(queryTerms[0]);
-
-
+            europeanaQuery.setWhatTerms(what);
+            europeanaQuery.setWhereTerms(where);
 
             //perform search
             EuropeanaApi2Client europeanaClient = new EuropeanaApi2Client();
@@ -74,15 +72,15 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
         protected void onPostExecute(EuropeanaApi2Results result) {
             if(wrapperRef.getClass() == DisplayResultsActivity.class){
-                Log.d(TAG, "First case");
-                ((DisplayResultsActivity) wrapperRef).postResultsFromQuery(result, queryTerms);
+                Log.d(TAG, "First case, " + where + " " + what);
+                ((DisplayResultsActivity) wrapperRef).postResultsFromQuery(result, where, what);
             } else{
-                Log.d(TAG, "Second case");
-                postResultsFromQuery(result, queryTerms);
+                Log.d(TAG, "Second case, " + where + " " + what);
+                postResultsFromQuery(result, where, what);
             }
         }
 
-    public void postResultsFromQuery(EuropeanaApi2Results results, String[] queryTerms) {
+    public void postResultsFromQuery(EuropeanaApi2Results results, String where, String what) {
 
         Intent intent = new Intent(wrapperRef.getApplicationContext(), DisplayResultsActivity.class);
 
@@ -98,7 +96,8 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
             }
 
             intent.putExtra("totalNumberOfResults", results.getTotalResults());
-            intent.putExtra("queryTerms", queryTerms);
+            intent.putExtra("what", what);
+            intent.putExtra("where", where);
             intent.putStringArrayListExtra("results_list", your_array_list);
 
 
@@ -109,7 +108,7 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 notificationNumber = ((Plugin) wrapperRef).getNotificationNumber();
                 ((Plugin) wrapperRef).setNotificationNumber(notificationNumber+1);
-                createAndSendNotification(intent, results.getTotalResults() + " results for keywords "  + TextUtils.join(", ", queryTerms) + "!", notificationNumber);
+                createAndSendNotification(intent, results.getTotalResults() + " results for  where = " + where + " what = "  + what , notificationNumber);
             } else {
                 // SearchTask was started from DisplayResultsAdapter
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

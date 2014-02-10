@@ -7,20 +7,25 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.aware.plugin.automatic_query.querymanagement.QueryManager;
+import com.aware.plugin.automatic_query.querymanagement.QueryObject;
+import com.aware.plugin.automatic_query.querymanagement.WhatObject;
+import com.aware.plugin.automatic_query.querymanagement.WhereObject;
 import com.aware.plugin.automatic_query.situations.SituationManager;
 import com.aware.utils.Aware_Plugin;
 
 /**
  * A Tool, that listens to the TermCollector, does Europeana Queries and sends out a Notification
- * 
+ *
  * @author Wolfgang Lutz
  * @email: wolfgang@lutz-wiesent.de
- * 
  */
 
 public class Plugin extends Aware_Plugin {
 
-	private static final String TAG = "AutomaticQuery Plugin";
+    private static final String TAG = "AutomaticQuery Plugin";
+    private static String what = "";
+    private static String where = "";
 
     public int getNotificationNumber() {
         return notificationNumber;
@@ -33,7 +38,7 @@ public class Plugin extends Aware_Plugin {
     private int notificationNumber = 0;
 
     public static Uri geoCollectorContentUri;
-	private static GeoCollectorObserver geoCollectorObs = null;
+    private static GeoCollectorObserver geoCollectorObs = null;
 
     public static Uri termCollectorContentUri;
     private static TermCollectorObserver termCollectorObs = null;
@@ -43,31 +48,35 @@ public class Plugin extends Aware_Plugin {
 
     private SituationManager situationManager;
 
-	/**
-	 * Thread manager
-	 */
-	private static HandlerThread threads = null;
+    private QueryManager queryManager;
 
-	@Override
-	public void onCreate() {
-		Log.d(TAG, "Plugin Created");
-		super.onCreate();
+    /**
+     * Thread manager
+     */
+    private static HandlerThread threads = null;
+
+    @Override
+    public void onCreate() {
+        Log.d(TAG, "Plugin Created");
+        super.onCreate();
 
         situationManager = new SituationManager(getApplicationContext());
 
-		threads = new HandlerThread(TAG);
-		threads.start();
+        queryManager = new QueryManager();
 
-		// Set the observers, that run in independent threads, for
-		// responsiveness
+        threads = new HandlerThread(TAG);
+        threads.start();
+
+        // Set the observers, that run in independent threads, for
+        // responsiveness
 
         termCollectorContentUri = Uri
-				.parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms");
+                .parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms");
         termCollectorObs = new TermCollectorObserver(new Handler(
-				threads.getLooper()));
-		getContentResolver().registerContentObserver(
+                threads.getLooper()));
+        getContentResolver().registerContentObserver(
                 termCollectorContentUri, true, termCollectorObs);
-		Log.d(TAG, "termCollectorObs registered");
+        Log.d(TAG, "termCollectorObs registered");
 
 
         geoCollectorContentUri = Uri
@@ -87,58 +96,60 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "lightObs registered");
 
 
-		
-		Log.d(TAG, "Plugin Started");
-	}
+        Log.d(TAG, "Plugin Started");
+    }
 
-	@Override
-	public void onDestroy() {
+    @Override
+    public void onDestroy() {
 
-		Log.d(TAG, "Plugin is destroyed");
+        Log.d(TAG, "Plugin is destroyed");
 
-		super.onDestroy();
+        super.onDestroy();
 
-		getContentResolver().unregisterContentObserver(termCollectorObs);
+        getContentResolver().unregisterContentObserver(termCollectorObs);
         getContentResolver().unregisterContentObserver(geoCollectorObs);
         getContentResolver().unregisterContentObserver(lightObs);
 
-	}
-
-	protected void runQuery(String term) {
-		Log.d(TAG, "Running Query for term " + term);
-
-        new ExecuteSearchTask(this).execute(new String[]{"0", term});
-
     }
 
-	public class TermCollectorObserver extends ContentObserver {
-		public TermCollectorObserver(Handler handler) {
-			super(handler);
-		}
+    protected void maybeRunQuery() {
+        QueryObject queryObject = queryManager.getNextQueryObject();
+        if (queryObject != null && situationManager.allowsQuery()) {
+            Log.d(TAG, "Running Query with where =  " + queryObject.getWhereObject().getValue() + " what = " + queryObject.getWhatObject().getValue()
+             + " and Affinity of " + queryObject.getAffinity());
+            new ExecuteSearchTask(this).execute(new String[]{"0", queryObject.getWhereObject().getValue(), queryObject.getWhatObject().getValue()});
+        }
+    }
 
-		@Override
-		public void onChange(boolean selfChange) {
-			super.onChange(selfChange);
+    public class TermCollectorObserver extends ContentObserver {
+        public TermCollectorObserver(Handler handler) {
+            super(handler);
+        }
 
-			Log.d(TAG, "@onChange of Term Content");
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
 
-			// set cursor to first item
-			Cursor cursor = getContentResolver().query(
-					termCollectorContentUri, null, null, null,
-					"timestamp" + " DESC LIMIT 1");
-			if (cursor != null && cursor.moveToFirst()) {
+            Log.d(TAG, "@onChange of Term Content");
 
-                if (situationManager.allowsQuery()){
-                    runQuery(cursor.getString(cursor
-                        .getColumnIndex("term_content")));
-                }
-			}
+            // set cursor to first item
+            Cursor cursor = getContentResolver().query(
+                    termCollectorContentUri, null, null, null,
+                    "timestamp" + " DESC LIMIT 1");
+            if (cursor != null && cursor.moveToFirst()) {
+                String localWhat = cursor.getString(cursor.getColumnIndex("term_content"));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
+                String localSource = cursor.getString(cursor.getColumnIndex("term_source"));
 
-			if (cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-		}
-	}
+                queryManager.addWhatObject(new WhatObject(localTimestamp, localSource, localWhat));
+
+                maybeRunQuery();
+            }
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+    }
 
     public class GeoCollectorObserver extends ContentObserver {
         public GeoCollectorObserver(Handler handler) {
@@ -156,14 +167,14 @@ public class Plugin extends Aware_Plugin {
                     geoCollectorContentUri, null, null, null,
                     "timestamp" + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
+                String localWhere = cursor.getString(cursor
+                        .getColumnIndex("term_content"));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
+                String localSource = cursor.getString(cursor.getColumnIndex("term_source"));
 
-                if (situationManager.allowsQuery()){
-                    Log.d(TAG, "Query allowed");
-                    runQuery(cursor.getString(cursor
-                        .getColumnIndex("term_content")));
-                } {
-                    Log.d(TAG, "Query dissallowed");
-                }
+                queryManager.addWhereObject(new WhereObject(localTimestamp, localSource, localWhere));
+
+                maybeRunQuery();
             }
 
             if (cursor != null && !cursor.isClosed()) {
