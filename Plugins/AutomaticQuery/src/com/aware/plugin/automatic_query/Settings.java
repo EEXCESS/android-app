@@ -10,6 +10,7 @@ public class Settings extends Activity {
 
     public static final String AWARE_END_OF_DND = "AWARE_END_OF_DND";
     public static final String AWARE_USE_LOCATION = "AWARE_USE_LOCATION";
+    public static final String AWARE_LAST_SUCCESSFUL_QUERY = "AWARE_LAST_SUCCESSFUL_QUERY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

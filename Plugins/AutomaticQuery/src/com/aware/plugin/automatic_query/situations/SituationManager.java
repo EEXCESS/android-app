@@ -30,6 +30,7 @@ public class SituationManager {
        this.blockerSituations = new ArrayList<Situation>();
        //blockerSituations.add(new DarknessSituation());
         blockerSituations.add(new DoNotDisturbSituation());
+        blockerSituations.add(new MinimumTimeSinceLastSuccessfulQuerySituation());
 
        this.triggerSituations = new ArrayList<Situation>();
        this.contextMap = new HashMap<String, Object>();
@@ -81,6 +82,7 @@ public class SituationManager {
 
     private void fillContextMap(){
         contextMap.put(Settings.AWARE_END_OF_DND, new Long(getEndOfDND()));
+        contextMap.put(Settings.AWARE_LAST_SUCCESSFUL_QUERY, new Long(getTimeOfLastSuccessfulQuery()));
     }
 
 
@@ -89,6 +91,19 @@ public class SituationManager {
         if(endOfDNDString != null) {
             try {
                 return Long.parseLong(endOfDNDString);
+            } catch (NumberFormatException e) {
+                return 0L;
+            }
+        } else {
+            return 0L;
+        }
+    }
+
+    private long getTimeOfLastSuccessfulQuery(){
+        String timeOfLastSuccessfulQueryString = Aware.getSetting(context.getContentResolver(), Settings.AWARE_LAST_SUCCESSFUL_QUERY);
+        if(timeOfLastSuccessfulQueryString != null) {
+            try {
+                return Long.parseLong(timeOfLastSuccessfulQueryString);
             } catch (NumberFormatException e) {
                 return 0L;
             }

@@ -3,6 +3,8 @@ package com.aware.plugin.automatic_query.querymanagement;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -12,6 +14,8 @@ public class QueryManager {
    private ArrayList<QueryObject> queryList;
     private WhatManager whatManager;
     private WhereManager whereManager;
+
+    static QueryObjectImportanceComparator queryObjectImportanceComparator =  new QueryObjectImportanceComparator();
 
     public QueryManager(){
         queryList = new ArrayList<QueryObject>();
@@ -31,13 +35,15 @@ public class QueryManager {
     }
 
     public void addWhatObject(WhatObject toAdd){
-        Log.d(this.getClass().toString(), "@addWhatObject");
+        Log.d(this.getClass().toString(), "@addWhatObject: " + toAdd.getValue());
         whatManager.add(toAdd);
+        createQuerysFromList(toAdd, whereManager.getWhereObjects());
     }
 
     public void addWhereObject(WhereObject toAdd){
-        Log.d(this.getClass().toString(), "@addWhereObject");
+        Log.d(this.getClass().toString(), "@addWhereObject: " + toAdd.getValue());
         whereManager.add(toAdd);
+        createQuerysFromList(toAdd, whatManager.getWhatObjects());
     }
 
     private void cleanUp(){
@@ -49,34 +55,67 @@ public class QueryManager {
 
 
     private void cleanupQueryList(){
+        Long time = System.currentTimeMillis();
 
+            int wearOffTime = 60000;
+            // this collects the objects to remove
+            List<QueryObject> objectsToRemove = new ArrayList<QueryObject>();
+
+            // get all objects which are outdated
+            for(QueryObject queryObject: queryList){
+                if(time - queryObject.getTimestamp() > wearOffTime) {
+                    objectsToRemove.add(queryObject);
+                }
+            }
+            Log.d(this.getClass().toString(), "Removing Objects: " + objectsToRemove);
+
+            // remove them
+            queryList.removeAll(objectsToRemove);
     }
 
     public QueryObject getNextQueryObject(){
         Log.d(this.getClass().toString(), "@getNextQueryObject");
         cleanUp();
+
+        Collections.sort(queryList, queryObjectImportanceComparator);
+
+        Log.d(this.getClass().toString(), "QueryObjects:" + queryList);
         Log.d(this.getClass().toString(), whatManager.toString());
         Log.d(this.getClass().toString(), whereManager.toString());
 
-        List<WhatObject> whatObjects = whatManager.getWhatObjects();
-        List<WhereObject> whereObjects= whereManager.getWhereObjects();
-
-        WhatObject whatObject;
-        WhereObject whereObject;
-
-        if(whatObjects.isEmpty()) {
-            whatObject = new WhatObject(0, "", "");
+        if(!queryList.isEmpty()){
+            QueryObject result = queryList.get(0);
+            queryList.remove(result);
+            return result;
         } else {
-            whatObject = whatObjects.get(0);
+            return null;
+        }
+    }
+
+
+    private void createQuerysFromList(WhatObject whatObject, List<WhereObject> whereObjects){
+        queryList.add(new QueryObject(whatObject, new WhereObject(0,"","")));
+        for(WhereObject whereObject: whereObjects){
+            queryList.add(new QueryObject(whatObject, whereObject));
+        }
+    }
+
+    private void createQuerysFromList(WhereObject whereObject, List<WhatObject> whatObjects){
+        queryList.add(new QueryObject(new WhatObject(0,"",""), whereObject));
+        for(WhatObject whatObject: whatObjects){
+            queryList.add(new QueryObject(whatObject, whereObject));
         }
 
-        if(whereObjects.isEmpty()) {
-            whereObject = new WhereObject(0, "", "");
-        } else {
-            whereObject = whereObjects.get(0);
+    }
+
+    private static class QueryObjectImportanceComparator implements Comparator<QueryObject> {
+        public int compare(QueryObject qo1, QueryObject qo2) {
+            double imp1 = qo1.getImportance();
+            double imp2 = qo2.getImportance();
+
+            if (imp1 > imp2) return -1;
+            if (imp1 < imp2) return 1;
+            return 0;
         }
-
-        return new QueryObject(whatObject, whereObject);
-
     }
 }

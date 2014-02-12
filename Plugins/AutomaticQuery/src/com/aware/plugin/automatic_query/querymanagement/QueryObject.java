@@ -18,6 +18,7 @@ public class QueryObject {
         this.affinity = computeAffinity(whatObject, whereObject);
     }
 
+    //  the affinity does not change over time
     private double computeAffinity(WhatObject whatObject, WhereObject whereObject){
         // we start with an affinity of 0.5
         double localAffinity = 0.5;
@@ -45,7 +46,7 @@ public class QueryObject {
     }
 
     public double getImportance(){
-        return 0.0f;
+        return what.getImportance() + where.getImportance() + affinity;
     }
 
     public double getTimestamp(){
@@ -59,5 +60,10 @@ public class QueryObject {
 
     public WhereObject getWhereObject(){
         return where;
+    }
+
+    @Override
+    public String toString() {
+        return where.toString() + " " + what.toString() + " Importance: " + this.getImportance();
     }
 }

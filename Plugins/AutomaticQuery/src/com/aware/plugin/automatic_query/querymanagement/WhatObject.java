@@ -7,6 +7,7 @@ public class WhatObject implements Comparable<WhatObject>{
     private long timestamp;
     private String source;
     private String value;
+    private double importance;
 
     private WhatObject(){}
 
@@ -14,6 +15,11 @@ public class WhatObject implements Comparable<WhatObject>{
         this.timestamp = timestamp;
         this.source = source;
         this.value = value;
+        double importance = value.length() * 0.01f;
+        if(value.contains(" ")){
+            importance += 0.05f;
+        }
+        this.importance = importance;
     }
 
     public String getValue() {
@@ -29,7 +35,7 @@ public class WhatObject implements Comparable<WhatObject>{
     }
 
     public double getImportance(){
-        return 0.0f;
+        return importance;
     }
 
     public double getNovelty(){

@@ -54,6 +54,8 @@ public class Plugin extends Aware_Plugin {
      * Thread manager
      */
     private static HandlerThread threads = null;
+    private Handler handler = new Handler();
+
 
     @Override
     public void onCreate() {
@@ -97,6 +99,8 @@ public class Plugin extends Aware_Plugin {
 
 
         Log.d(TAG, "Plugin Started");
+
+        runnable.run();
     }
 
     @Override
@@ -109,15 +113,22 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().unregisterContentObserver(termCollectorObs);
         getContentResolver().unregisterContentObserver(geoCollectorObs);
         getContentResolver().unregisterContentObserver(lightObs);
+        handler.removeCallbacks(runnable);
 
     }
 
     protected void maybeRunQuery() {
-        QueryObject queryObject = queryManager.getNextQueryObject();
-        if (queryObject != null && situationManager.allowsQuery()) {
-            Log.d(TAG, "Running Query with where =  " + queryObject.getWhereObject().getValue() + " what = " + queryObject.getWhatObject().getValue()
-             + " and Affinity of " + queryObject.getAffinity());
-            new ExecuteSearchTask(this).execute(new String[]{"0", queryObject.getWhereObject().getValue(), queryObject.getWhatObject().getValue()});
+        if (situationManager.allowsQuery()) {
+            QueryObject queryObject = queryManager.getNextQueryObject();
+            if (queryObject != null) {
+                Log.d(TAG, "Running Query with where =  " + queryObject.getWhereObject().getValue() + " what = " + queryObject.getWhatObject().getValue()
+                        + " and Affinity of " + queryObject.getAffinity());
+                new ExecuteSearchTask(this).execute(new String[]{"0", queryObject.getWhereObject().getValue(), queryObject.getWhatObject().getValue()});
+            } else {
+                Log.d(TAG, "No QueryObject available");
+            }
+        } else {
+            Log.d(TAG, "Query not allowed at the moment");
         }
     }
 
@@ -143,7 +154,7 @@ public class Plugin extends Aware_Plugin {
 
                 queryManager.addWhatObject(new WhatObject(localTimestamp, localSource, localWhat));
 
-                maybeRunQuery();
+                //maybeRunQuery();
             }
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
@@ -174,7 +185,7 @@ public class Plugin extends Aware_Plugin {
 
                 queryManager.addWhereObject(new WhereObject(localTimestamp, localSource, localWhere));
 
-                maybeRunQuery();
+                //maybeRunQuery();
             }
 
             if (cursor != null && !cursor.isClosed()) {
@@ -211,4 +222,17 @@ public class Plugin extends Aware_Plugin {
             }
         }
     }
+
+
+    private Runnable runnable = new Runnable()
+    {
+
+        public void run()
+        {
+            // running query
+            maybeRunQuery();
+
+            handler.postDelayed(this, 1000);
+        }
+    };
 }

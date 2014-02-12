@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.aware.Aware;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -89,8 +91,8 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         // Instanciating an array list (you don't need to do this, you already have yours)
         ArrayList<String> your_array_list = new ArrayList<String>();
 
-        // Only react to non-empty resultsets
-        if(results.getAllItems().size() > 0) {
+        // Only react to more than 5 objects
+        if(results.getAllItems().size() > 5) {
             for (EuropeanaApi2Item item : results.getAllItems()) {
                 your_array_list.add(item.toJSON());
             }
@@ -145,6 +147,10 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         note.flags |= Notification.FLAG_AUTO_CANCEL;
 
         mNotificationManager.notify(notifyID, note);
+        setTimeOfLastSuccessfulQuery(System.currentTimeMillis());
+    }
 
+    public void setTimeOfLastSuccessfulQuery(Long endTime){
+        Aware.setSetting(wrapperRef.getContentResolver(), Settings.AWARE_LAST_SUCCESSFUL_QUERY, endTime);
     }
  }
