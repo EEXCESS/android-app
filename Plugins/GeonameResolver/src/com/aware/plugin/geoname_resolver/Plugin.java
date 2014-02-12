@@ -201,7 +201,7 @@ public class Plugin extends Aware_Plugin {
 
             try {
                 mingle = new Mingle(getApplicationContext());
-                resPlaces = mingle.geonames().getPlacesNearby((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f);
+                resPlaces = mingle.geonames().getPlacesNearbyOfClass((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f, "P");
                 PrintResponse("getPlacesNearby", resPlaces);
 
                 // response was not empty
