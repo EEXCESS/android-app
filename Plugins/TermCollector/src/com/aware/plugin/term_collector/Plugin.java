@@ -40,6 +40,7 @@ public class Plugin extends Aware_Plugin {
 
     private static StopWords stopWords;
     private static CommonConnectors commonConnectors;
+    private static BlacklistedApps blacklistedApps;
     private ClipboardManager.OnPrimaryClipChangedListener clipboardListener;
 
     public static final String EXTRA_TERMCONTENT = "termcontent";
@@ -72,6 +73,7 @@ public class Plugin extends Aware_Plugin {
 
         stopWords = new StopWords(getApplicationContext());
         commonConnectors = new CommonConnectors(getApplicationContext());
+        blacklistedApps = new BlacklistedApps(getApplicationContext());
 
         // Share the context back to the framework and other applications
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
@@ -268,6 +270,8 @@ public class Plugin extends Aware_Plugin {
 
             Log.wtf(TAG, "@OSMPoiResolverObs");
 
+            // run only, if use of location is allowed
+            if  (getUseLocation()){
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     osmpoiResolverContentUri, null, null, null,
@@ -284,6 +288,7 @@ public class Plugin extends Aware_Plugin {
 
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
+                }
             }
         }
 
@@ -429,8 +434,11 @@ public class Plugin extends Aware_Plugin {
         for (String filteredToken : filteredTokens) {
             if (isInCache(filteredToken)) {
                 if (isCityFromCache(filteredToken)) {
+                    // Add City to both Lists, to use in What and When field
+                    nonCityTokens.add(filteredToken);
                     cityTokens.add(filteredToken);
                 } else {
+                    // Use it only in WhatField
                     nonCityTokens.add(filteredToken);
                 }
             } else {
@@ -456,6 +464,8 @@ public class Plugin extends Aware_Plugin {
             for (String token : tokensToCheck) {
                 if (cities.contains(token)) {
                     Log.wtf(TAG, token + " is a city (At once)");
+                    // Add City to both Lists, to use in What and When field
+                    nonCityTokens.add(token);
                     cityTokens.add(token);
                     saveToCache(System.currentTimeMillis(), true, token);
                 } else {
@@ -476,6 +486,7 @@ public class Plugin extends Aware_Plugin {
 
                         if (mingle.geonames().existsPopulatedPlaceWithName(token)) {
                             Log.wtf(TAG, token + " is a city (Sequential)");
+                            nonCityTokens.add(token);
                             cityTokens.add(token);
                             saveToCache(System.currentTimeMillis(), true, token);
                         } else {
@@ -539,20 +550,7 @@ public class Plugin extends Aware_Plugin {
     }
 
     boolean isApplicationBlacklisted(String appName) {
-        return (appName.equals("com.android.phone")
-                || appName.matches("com.aware.(.*)")
-                || appName.equals("com.android.vending")
-                || appName.equals("com.google.android.talk")
-                || appName.equals("com.android.providers.downloads")
-                || appName.equals("com.google.android.googlequicksearchbox")
-                || appName.equals("com.google.android.music")
-                || appName.equals("com.google.android.play.games")
-                || appName.equals("android")
-                || appName.equals("com.android.settings")
-                || appName.equals("com.android.systemui")
-                || appName.equals("com.android.keyguard")
-
-        );
+            return blacklistedApps.isBlacklistedApp(appName);
     }
 
     private boolean isInCache(String token) {
@@ -632,6 +630,19 @@ public class Plugin extends Aware_Plugin {
         } else {
             Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
             return false;
+        }
+    }
+
+    public boolean getUseLocation(){
+        String useLocationString = Aware.getSetting(getContentResolver(), "AWARE_USE_LOCATION");
+        if(useLocationString != null) {
+            try {
+                return Boolean.parseBoolean(useLocationString);
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        } else {
+            return true;
         }
     }
 }
