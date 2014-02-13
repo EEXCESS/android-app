@@ -100,10 +100,10 @@ public class Connection {
 // Execute the GET call and obtain the response
         try{
         HttpResponse getResponse = client.execute(post);
-        HttpEntity responseEntity = getResponse.getEntity();
 
+        HttpEntity responseEntity = getResponse.getEntity();
             if (responseEntity != null) {
-                String retSrc = EntityUtils.toString(responseEntity);
+                String retSrc = EntityUtils.toString(responseEntity, HTTP.UTF_8);
                 System.err.println(retSrc);
                 // parsing JSON
                 JSONObject obj = new JSONObject(retSrc);
