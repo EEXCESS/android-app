@@ -113,10 +113,12 @@ public class Plugin extends Aware_Plugin {
 
             Log.wtf(TAG, "@TermCollectorGeoTermObserver");
 
+
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     termCollectorGeoTermContentUri, null, null, null,
                     "timestamp" + " DESC LIMIT 1");
+
             if (cursor != null && cursor.moveToFirst()) {
 
                 saveGeoData(cursor.getLong(cursor.getColumnIndex("timestamp")),
@@ -142,6 +144,8 @@ public class Plugin extends Aware_Plugin {
 
             Log.wtf(TAG, "@GeonameResolverObs");
 
+            // run only, if use of location is allowed
+            if  (getUseLocation()){
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     geonameResolverContentUri, null, null, null,
@@ -155,6 +159,7 @@ public class Plugin extends Aware_Plugin {
 
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
+            }
             }
         }
 
@@ -172,6 +177,19 @@ public class Plugin extends Aware_Plugin {
 
         Log.d(TAG, "Saving " + rowData.toString());
         getContentResolver().insert(GeoCollectorTermData.CONTENT_URI, rowData);
+    }
+
+    public boolean getUseLocation(){
+        String useLocationString = Aware.getSetting(getContentResolver(), "AWARE_USE_LOCATION");
+        if(useLocationString != null) {
+            try {
+                return Boolean.parseBoolean(useLocationString);
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
 }
