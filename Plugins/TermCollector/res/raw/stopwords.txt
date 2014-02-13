@@ -360,7 +360,6 @@ bezüglich
 bietet
 bisher
 bislang
-bis
 bleiben
 blieb
 bloss
@@ -618,7 +617,6 @@ jähriges
 kam
 kannst
 kaum
-keines
 keinerlei
 keineswegs
 klar
@@ -871,7 +869,6 @@ unmöglichen
 unmöglicher
 unnötig
 unsem
-unser
 unsere
 unserem
 unseren
@@ -922,7 +919,6 @@ vorher
 vorne
 vorüber
 völlig
-während
 wachen
 waere
 warum
@@ -996,7 +992,6 @@ zwölf
 übermorgen
 übrig
 übrigens
-über
 navigationsleiste
 google
 personenbenachrichtigungen
@@ -1026,16 +1021,13 @@ minuten
 anstehender
 anstehender alarm
 alarm
-nächste
 nächste weckzeit
-weckzeit
 weckzeit
 schlummern
 lesezeichen
 kontakt
 podcasts
 player
-google
 google play
 kostenloser
 kostenloser download
@@ -1047,7 +1039,6 @@ nachricht
 notizen
 willkommen
 infos
-info
 app
 apps
 dienst
@@ -1055,3 +1046,40 @@ dienste
 favorit
 favoriten
 the
+city
+stadt
+aktiv
+april
+august
+data
+date
+dezember
+dollar
+februar
+foto
+from
+hide
+home
+januar
+juli
+juni
+mai
+märz
+monat
+monate
+namen
+november
+oktober
+open
+photo
+play
+price
+read
+reader
+select
+september
+start
+stelle
+tab
+that
+this

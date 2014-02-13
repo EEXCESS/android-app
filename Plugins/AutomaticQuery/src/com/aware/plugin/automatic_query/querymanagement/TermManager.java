@@ -7,12 +7,12 @@ import java.util.List;
 /**
  * Created by wmb on 10.02.14.
  */
-public class WhatManager {
+public class TermManager {
     private HashMap<String, Integer> maxStorageMap;
     private HashMap<String, Long> noveltyWearOffTimeMap;
     private HashMap<String, ArrayList<WhatObject>> objectListMap;
 
-    public WhatManager(){
+    public TermManager(){
         maxStorageMap = new HashMap<String, Integer>();
         noveltyWearOffTimeMap = new HashMap<String, Long>();
         objectListMap = new HashMap<String, ArrayList<WhatObject>>();
