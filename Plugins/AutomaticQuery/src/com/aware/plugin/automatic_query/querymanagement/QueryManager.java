@@ -11,42 +11,42 @@ import java.util.List;
  * Created by wmb on 10.02.14.
  */
 public class QueryManager {
-   private ArrayList<QueryObject> queryList;
-    private WhatManager whatManager;
-    private WhereManager whereManager;
+    private ArrayList<QueryObject> queryList;
+    private TermManager whatManager;
+    private TermManager whereManager;
 
-    static QueryObjectImportanceComparator queryObjectImportanceComparator =  new QueryObjectImportanceComparator();
+    static QueryObjectImportanceComparator queryObjectImportanceComparator = new QueryObjectImportanceComparator();
 
-    public QueryManager(){
+    public QueryManager() {
         queryList = new ArrayList<QueryObject>();
 
         Log.d(this.getClass().toString(), "@registering WhatManagerPlugins");
-        whatManager = new WhatManager();
-        whatManager.registerPlugin("content://com.aware.provider.plugin.ui_content/plugin_ui_content", 5, 5*60*1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.clipboard_catcher/plugin_clipboard_catcher", 5, 5*60*1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver", 5, 5*60*1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.notification_catcher/plugin_notification_catcher", 5, 5*60*1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver", 5, 5*60*1000);
+        whatManager = new TermManager("WhatManager");
+        whatManager.registerPlugin("content://com.aware.provider.plugin.ui_content/plugin_ui_content", 5, 5 * 60 * 1000);
+        whatManager.registerPlugin("content://com.aware.provider.plugin.clipboard_catcher/plugin_clipboard_catcher", 5, 5 * 60 * 1000);
+        whatManager.registerPlugin("content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver", 5, 5 * 60 * 1000);
+        whatManager.registerPlugin("content://com.aware.provider.plugin.notification_catcher/plugin_notification_catcher", 5, 5 * 60 * 1000);
+        whatManager.registerPlugin("content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver", 5, 5 * 60 * 1000);
 
         Log.d(this.getClass().toString(), "@registering WhereManagerPlugins");
-        whereManager = new WhereManager();
-        whereManager.registerPlugin("content://com.aware.provider.plugin.term_collector/plugin_term_collector_geodata", 7, 5*60*1000);
-        whereManager.registerPlugin("content://com.aware.provider.plugin.geoname_resolver/plugin_geoname_resolver", 7, 15*60*1000);
+        whereManager = new TermManager("WhereManager");
+        whereManager.registerPlugin("content://com.aware.provider.plugin.term_collector/plugin_term_collector_geodata", 7, 5 * 60 * 1000);
+        whereManager.registerPlugin("content://com.aware.provider.plugin.geoname_resolver/plugin_geoname_resolver", 7, 15 * 60 * 1000);
     }
 
-    public void addWhatObject(WhatObject toAdd){
+    public void addWhatObject(WhatObject toAdd) {
         Log.d(this.getClass().toString(), "@addWhatObject: " + toAdd.getValue());
         whatManager.add(toAdd);
-        createQuerysFromList(toAdd, whereManager.getWhereObjects());
+        createQuerysFromList(toAdd, whereManager.getTermObjects());
     }
 
-    public void addWhereObject(WhereObject toAdd){
+    public void addWhereObject(WhereObject toAdd) {
         Log.d(this.getClass().toString(), "@addWhereObject: " + toAdd.getValue());
         whereManager.add(toAdd);
-        createQuerysFromList(toAdd, whatManager.getWhatObjects());
+        createQuerysFromList(toAdd, whatManager.getTermObjects());
     }
 
-    private void cleanUp(){
+    private void cleanUp() {
         Log.d(this.getClass().toString(), "@cleanUp");
         cleanupQueryList();
         whatManager.cleanUp();
@@ -54,26 +54,26 @@ public class QueryManager {
     }
 
 
-    private void cleanupQueryList(){
+    private void cleanupQueryList() {
         Long time = System.currentTimeMillis();
 
-            int wearOffTime = 60000;
-            // this collects the objects to remove
-            List<QueryObject> objectsToRemove = new ArrayList<QueryObject>();
+        int wearOffTime = 60000;
+        // this collects the objects to remove
+        List<QueryObject> objectsToRemove = new ArrayList<QueryObject>();
 
-            // get all objects which are outdated
-            for(QueryObject queryObject: queryList){
-                if(time - queryObject.getTimestamp() > wearOffTime) {
-                    objectsToRemove.add(queryObject);
-                }
+        // get all objects which are outdated
+        for (QueryObject queryObject : queryList) {
+            if (time - queryObject.getTimestamp() > wearOffTime) {
+                objectsToRemove.add(queryObject);
             }
-            Log.d(this.getClass().toString(), "Removing Objects: " + objectsToRemove);
+        }
+        Log.d(this.getClass().toString(), "Removing Objects: " + objectsToRemove);
 
-            // remove them
-            queryList.removeAll(objectsToRemove);
+        // remove them
+        queryList.removeAll(objectsToRemove);
     }
 
-    public QueryObject getNextQueryObject(){
+    public QueryObject getNextQueryObject() {
         Log.d(this.getClass().toString(), "@getNextQueryObject");
         cleanUp();
 
@@ -83,7 +83,7 @@ public class QueryManager {
         Log.d(this.getClass().toString(), whatManager.toString());
         Log.d(this.getClass().toString(), whereManager.toString());
 
-        if(!queryList.isEmpty()){
+        if (!queryList.isEmpty()) {
             QueryObject result = queryList.get(0);
             queryList.remove(result);
             return result;
@@ -92,20 +92,19 @@ public class QueryManager {
         }
     }
 
-
-    private void createQuerysFromList(WhatObject whatObject, List<WhereObject> whereObjects){
-        queryList.add(new QueryObject(whatObject, new WhereObject(0,"","")));
-        for(WhereObject whereObject: whereObjects){
-            queryList.add(new QueryObject(whatObject, whereObject));
+    // Assumes to get a WhereObject and a List of WhatObjects OR the other way round!
+    private void createQuerysFromList(TermObject singleObject, List<TermObject> objectList) {
+        if (singleObject.getClass().toString().equals(WhatObject.class.toString())) {
+            queryList.add(new QueryObject((WhatObject) singleObject, new WhereObject(0, "", "")));
+            for (TermObject whereObject : objectList) {
+                queryList.add(new QueryObject((WhatObject) singleObject, (WhereObject) whereObject));
+            }
+        } else {
+            queryList.add(new QueryObject(new WhatObject(0, "", ""), (WhereObject) singleObject));
+            for (TermObject whatObject : objectList) {
+                queryList.add(new QueryObject((WhatObject) whatObject, (WhereObject) singleObject));
+            }
         }
-    }
-
-    private void createQuerysFromList(WhereObject whereObject, List<WhatObject> whatObjects){
-        queryList.add(new QueryObject(new WhatObject(0,"",""), whereObject));
-        for(WhatObject whatObject: whatObjects){
-            queryList.add(new QueryObject(whatObject, whereObject));
-        }
-
     }
 
     private static class QueryObjectImportanceComparator implements Comparator<QueryObject> {

@@ -70,7 +70,10 @@ public class DisplayResultsActivity extends ListActivity {
             }
         });
 
-        onNewIntent(getIntent());
+        Intent myIntent = getIntent();
+        if(myIntent != null) {
+            onNewIntent(getIntent());
+        }
     }
 
     @Override
@@ -91,6 +94,7 @@ public class DisplayResultsActivity extends ListActivity {
 
         ArrayList<String> resultList = intent.getStringArrayListExtra("results_list");
 
+        if (resultList != null) {
         checkIfAllItemsAreLoaded(resultList.size(), intent.getLongExtra("totalNumberOfResults", 0));
 
         Toast.makeText(getApplicationContext(),
@@ -124,6 +128,7 @@ public class DisplayResultsActivity extends ListActivity {
                 startActivity(browserIntent);
             }
         });
+        }
 
     }
 

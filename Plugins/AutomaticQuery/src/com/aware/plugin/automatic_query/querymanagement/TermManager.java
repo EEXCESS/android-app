@@ -10,25 +10,29 @@ import java.util.List;
 public class TermManager {
     private HashMap<String, Integer> maxStorageMap;
     private HashMap<String, Long> noveltyWearOffTimeMap;
-    private HashMap<String, ArrayList<WhatObject>> objectListMap;
+    private HashMap<String, ArrayList<TermObject>> objectListMap;
+    private String name;
 
-    public TermManager(){
+    private TermManager(){}
+
+    public TermManager(String name){
+        this.name = name;
         maxStorageMap = new HashMap<String, Integer>();
         noveltyWearOffTimeMap = new HashMap<String, Long>();
-        objectListMap = new HashMap<String, ArrayList<WhatObject>>();
+        objectListMap = new HashMap<String, ArrayList<TermObject>>();
     }
 
     public void registerPlugin(String pluginName, int maxStorage, long noveltyWearOffTime){
-        objectListMap.put(pluginName, new ArrayList<WhatObject>());
+        objectListMap.put(pluginName, new ArrayList<TermObject>());
         maxStorageMap.put(pluginName, maxStorage);
         noveltyWearOffTimeMap.put(pluginName, noveltyWearOffTime);
     }
 
-    public void add(WhatObject toAdd){
+    public void add(TermObject toAdd){
         cleanUp();
         String key = toAdd.getSource();
 
-        List<WhatObject> addList = objectListMap.get(key);
+        List<TermObject> addList = objectListMap.get(key);
 
         if(!addList.contains(toAdd)){
         // List is full
@@ -42,7 +46,7 @@ public class TermManager {
         }
     }
 
-    public void remove(WhatObject toRemove){
+    public void remove(TermObject toRemove){
         objectListMap.get(toRemove.getSource()).remove(toRemove);
     }
 
@@ -54,12 +58,12 @@ public class TermManager {
             Long wearOffTime = noveltyWearOffTimeMap.get(key);
 
             // this collects the objects to remove
-            List<WhatObject> objectsToRemove = new ArrayList<WhatObject>();
+            List<TermObject> objectsToRemove = new ArrayList<TermObject>();
 
             // get all objects which are outdated
-            for(WhatObject whatObject: objectListMap.get(key)){
-                if(time - whatObject.getTimestamp() > wearOffTime) {
-                    objectsToRemove.add(whatObject);
+            for(TermObject termObject: objectListMap.get(key)){
+                if(time - termObject.getTimestamp() > wearOffTime) {
+                    objectsToRemove.add(termObject);
                 }
             }
 
@@ -68,19 +72,19 @@ public class TermManager {
         }
     }
 
-    public List<WhatObject> getWhatObjects(){
-        List<WhatObject> whatObjects = new ArrayList<WhatObject>();
+    public List<TermObject> getTermObjects(){
+        List<TermObject> termObjects = new ArrayList<TermObject>();
 
         for(String key: objectListMap.keySet()){
-            whatObjects.addAll(objectListMap.get(key));
+            termObjects.addAll(objectListMap.get(key));
         }
 
-        return whatObjects;
+        return termObjects;
     }
 
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Whatmanager:\n");
+        sb.append(name+":\n");
         for(String key: objectListMap.keySet()){
             sb.append(objectListMap.get(key).toString()  + "\n");
         }
