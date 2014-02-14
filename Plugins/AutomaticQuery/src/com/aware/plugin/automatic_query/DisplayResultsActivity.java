@@ -35,7 +35,7 @@ public class DisplayResultsActivity extends ListActivity {
     boolean flag_all_loaded = false;
     private String what = "";
     private String where = "";
-    private int maxNumberOfMessages = "5";
+
 
 
     private TextView loadingView = null;

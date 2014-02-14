@@ -30,69 +30,71 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
     private String where = "";
     private String what = "";
 
+    private int maxNumberOfMessages = 5;
+
     private ContextWrapper wrapperRef;
 
     public ExecuteSearchTask(ContextWrapper wrapper) {
         this.wrapperRef = wrapper;
     }
-        //params[0] contains offset as String, rest is searchterms
-        protected EuropeanaApi2Results doInBackground(String... params) {
-            //create the query object
-            Api2Query europeanaQuery = new Api2Query();
 
-            int offset = Integer.parseInt(params[0]);
-            where = params[1];
-            what = params[2];
+    //params[0] contains offset as String, rest is searchterms
+    protected EuropeanaApi2Results doInBackground(String... params) {
+        //create the query object
+        Api2Query europeanaQuery = new Api2Query();
 
-            europeanaQuery.setWhatTerms(what);
-            europeanaQuery.setWhereTerms(where);
+        int offset = Integer.parseInt(params[0]);
+        where = params[1];
+        what = params[2];
 
-            //perform search
-            EuropeanaApi2Client europeanaClient = new EuropeanaApi2Client();
-            EuropeanaApi2Results res = null;
-            try {
-                res = europeanaClient.searchApi2(europeanaQuery, -1, offset);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new EuropeanaApi2Results();
-            }
+        europeanaQuery.setWhatTerms(what);
+        europeanaQuery.setWhereTerms(where);
 
-
-            //print out search results
-            Log.wtf(TAG, "Query: " + europeanaQuery.getSearchTerms());
-
-            try {
-                Log.wtf(TAG,"Query url: " + europeanaQuery.getQueryUrl(europeanaClient));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
-            Log.wtf(TAG,"Results: " + res.getItemCount() + " / " + res.getTotalResults());
-
-            return res;
+        //perform search
+        EuropeanaApi2Client europeanaClient = new EuropeanaApi2Client();
+        EuropeanaApi2Results res = null;
+        try {
+            res = europeanaClient.searchApi2(europeanaQuery, -1, offset);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new EuropeanaApi2Results();
         }
 
-        protected void onPostExecute(EuropeanaApi2Results result) {
-            if(wrapperRef.getClass() == DisplayResultsActivity.class){
-                Log.d(TAG, "First case, " + where + " " + what);
-                ((DisplayResultsActivity) wrapperRef).postResultsFromQuery(result, where, what);
-            } else{
-                Log.d(TAG, "Second case, " + where + " " + what);
-                postResultsFromQuery(result, where, what);
-            }
+
+        //print out search results
+        Log.wtf(TAG, "Query: " + europeanaQuery.getSearchTerms());
+
+        try {
+            Log.wtf(TAG, "Query url: " + europeanaQuery.getQueryUrl(europeanaClient));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
+
+        Log.wtf(TAG, "Results: " + res.getItemCount() + " / " + res.getTotalResults());
+
+        return res;
+    }
+
+    protected void onPostExecute(EuropeanaApi2Results result) {
+        if (wrapperRef.getClass() == DisplayResultsActivity.class) {
+            Log.d(TAG, "First case, " + where + " " + what);
+            ((DisplayResultsActivity) wrapperRef).postResultsFromQuery(result, where, what);
+        } else {
+            Log.d(TAG, "Second case, " + where + " " + what);
+            postResultsFromQuery(result, where, what);
+        }
+    }
 
     public void postResultsFromQuery(EuropeanaApi2Results results, String where, String what) {
 
         Intent intent = new Intent(wrapperRef.getApplicationContext(), DisplayResultsActivity.class);
 
 
-
         // Instanciating an array list (you don't need to do this, you already have yours)
         ArrayList<String> your_array_list = new ArrayList<String>();
 
         // Only react to more than 5 objects
-        if(results.getAllItems().size() > 5) {
+        if (results.getAllItems().size() > 5) {
             for (EuropeanaApi2Item item : results.getAllItems()) {
                 your_array_list.add(item.toJSON());
             }
@@ -103,14 +105,26 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
             intent.putStringArrayListExtra("results_list", your_array_list);
 
 
-
             int notificationNumber = 0;
 
-            if(wrapperRef.getClass() == Plugin.class){
+            if (wrapperRef.getClass() == Plugin.class) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                notificationNumber = ((Plugin) wrapperRef).getNotificationNumber();
-                ((Plugin) wrapperRef).setNotificationNumber(notificationNumber+1);
-                createAndSendNotification(intent, results.getTotalResults() + " results for  where = " + where + " what = "  + what , notificationNumber);
+
+                // Apply modulo on notification number
+
+                notificationNumber = ((Plugin) wrapperRef).getNotificationNumber() % maxNumberOfMessages;
+                ((Plugin) wrapperRef).setNotificationNumber(notificationNumber + 1);
+                String msgText;
+
+                if (what.equals("")) {
+                    msgText = " results in " + where;
+                } else if (where.equals("")) {
+                    msgText = " results for " + what;
+                } else {
+                    msgText = " results in " + where + " for "  + what;
+                }
+
+                createAndSendNotification(intent, results.getTotalResults() + msgText, notificationNumber);
             } else {
                 // SearchTask was started from DisplayResultsAdapter
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -126,14 +140,13 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(wrapperRef.getApplicationContext())
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("A new query was run")
+                        .setContentTitle("New Europeana results")
                         .setContentText(term);
 
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(wrapperRef.getApplicationContext(),notifyID,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(wrapperRef.getApplicationContext(), notifyID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         mBuilder.setContentIntent(resultPendingIntent);
@@ -150,7 +163,7 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         setTimeOfLastSuccessfulQuery(System.currentTimeMillis());
     }
 
-    public void setTimeOfLastSuccessfulQuery(Long endTime){
+    public void setTimeOfLastSuccessfulQuery(Long endTime) {
         Aware.setSetting(wrapperRef.getContentResolver(), Settings.AWARE_LAST_SUCCESSFUL_QUERY, endTime);
     }
- }
+}
