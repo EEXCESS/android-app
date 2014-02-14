@@ -35,6 +35,7 @@ public class DisplayResultsActivity extends ListActivity {
     boolean flag_all_loaded = false;
     private String what = "";
     private String where = "";
+    private int maxNumberOfMessages = "5";
 
 
     private TextView loadingView = null;
@@ -95,6 +96,11 @@ public class DisplayResultsActivity extends ListActivity {
         ArrayList<String> resultList = intent.getStringArrayListExtra("results_list");
 
         if (resultList != null) {
+
+        // set Time, the user has clicked the result.
+        // used to temporarily disable the UIContent Plugin
+        setLastTimeUserClickedResult(System.currentTimeMillis());
+
         checkIfAllItemsAreLoaded(resultList.size(), intent.getLongExtra("totalNumberOfResults", 0));
 
         Toast.makeText(getApplicationContext(),
@@ -176,6 +182,11 @@ public class DisplayResultsActivity extends ListActivity {
         builder.setNegativeButton("Cancel", null);
         builder.create().show();
 
+    }
+
+
+    public void setLastTimeUserClickedResult(Long time){
+        Aware.setSetting(getContentResolver(), Settings.AWARE_LAST_TIME_USER_CLICKED_RESULTITEM, time);
     }
 
     public void setEndOfDND(Long endTime){
@@ -294,10 +305,7 @@ public class DisplayResultsActivity extends ListActivity {
             flag_all_loaded = true;
         }
 
-
 }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

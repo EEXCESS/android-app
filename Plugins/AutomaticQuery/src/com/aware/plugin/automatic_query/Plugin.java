@@ -24,8 +24,6 @@ import com.aware.utils.Aware_Plugin;
 public class Plugin extends Aware_Plugin {
 
     private static final String TAG = "AutomaticQuery Plugin";
-    private static String what = "";
-    private static String where = "";
 
     public int getNotificationNumber() {
         return notificationNumber;
@@ -49,6 +47,11 @@ public class Plugin extends Aware_Plugin {
     private SituationManager situationManager;
 
     private QueryManager queryManager;
+
+    private boolean isRunnableRunning = false;
+
+    private int runNumber;
+
 
     /**
      * Thread manager
@@ -100,7 +103,7 @@ public class Plugin extends Aware_Plugin {
 
         Log.d(TAG, "Plugin Started");
 
-        runnable.run();
+
     }
 
     @Override
@@ -154,7 +157,7 @@ public class Plugin extends Aware_Plugin {
 
                 queryManager.addWhatObject(new WhatObject(localTimestamp, localSource, localWhat));
 
-                //maybeRunQuery();
+                maybeStartRunnable();
             }
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
@@ -185,7 +188,7 @@ public class Plugin extends Aware_Plugin {
 
                 queryManager.addWhereObject(new WhereObject(localTimestamp, localSource, localWhere));
 
-                //maybeRunQuery();
+                maybeStartRunnable();
             }
 
             if (cursor != null && !cursor.isClosed()) {
@@ -230,9 +233,28 @@ public class Plugin extends Aware_Plugin {
         public void run()
         {
             // running query
+            runNumber = runNumber + 1;
             maybeRunQuery();
-
-            handler.postDelayed(this, 1000);
+            Log.d(TAG, "Runnumber " + runNumber);
+            if(runNumber < 150) {
+                handler.postDelayed(this, 1000);
+            } else {
+                isRunnableRunning = false;
+            }
         }
     };
+
+
+    private void maybeStartRunnable(){
+        // always reset runnumber when this is called, i.e. when context arrived
+        Log.d(TAG, "@maybeStartRunnable");
+
+        runNumber = 0;
+
+        if(!isRunnableRunning){
+            isRunnableRunning = true;
+            runnable.run();
+        }
+
+    }
 }
