@@ -1,7 +1,5 @@
 package com.aware.plugin.automatic_query.querymanagement;
 
-import android.util.Log;
-
 /**
  * Created by wmb on 10.02.14.
  */
@@ -26,7 +24,7 @@ public class QueryObject {
         long deltaTimestamp = Math.abs(whatObject.getTimestamp() - whereObject.getTimestamp());
         // Best Affinity is for a Difference of 0, worst for a Difference of 300.000 (Five Minutes)
         // Values up to 150.000 count as bonus (max + 0.25), value above 150.000 as malus (max - 0.25). Values above 300.000 count as 300.000
-        Log.d(this.getClass().toString(), "deltaTimestamp" + deltaTimestamp);
+        //Log.d(this.getClass().toString(), "deltaTimestamp" + deltaTimestamp);
         if (deltaTimestamp > 300000) {deltaTimestamp = 300000;}
 
         double modifier = Math.cos(((double) 300000) / Math.PI) * 0.25;

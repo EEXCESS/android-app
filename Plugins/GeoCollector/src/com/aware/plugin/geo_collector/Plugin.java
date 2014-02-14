@@ -111,7 +111,7 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.wtf(TAG, "@TermCollectorGeoTermObserver");
+            Log.wtf(TAG, "@onChange (TermCollectorGeoTermObserver)");
 
 
             // set cursor to first item
@@ -142,7 +142,7 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.wtf(TAG, "@GeonameResolverObs");
+            Log.wtf(TAG, "@onChange (GeonameResolverObserver)");
 
             // run only, if use of location is allowed
             if  (getUseLocation()){
@@ -166,7 +166,7 @@ public class Plugin extends Aware_Plugin {
     }
 
     private void saveGeoData(long timestamp, String source, String content) {
-        Log.d(TAG, "Saving Data");
+        //Log.d(TAG, "Saving Data");
 
         ContentValues rowData = new ContentValues();
         rowData.put(GeoCollectorTermData.DEVICE_ID, Aware.getSetting(

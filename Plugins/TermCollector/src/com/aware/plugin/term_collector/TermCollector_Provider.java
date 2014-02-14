@@ -226,7 +226,7 @@ public class TermCollector_Provider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case TERM_COLLECTOR_TERMS:
                 _id = database.insert(DATABASE_TABLES[0], TermCollectorTermData.TIMESTAMP, values);
-                Log.wtf(TAG, "Id: " + _id);
+                //Log.wtf(TAG, "Id: " + _id);
                 if (_id > 0) {
                     Uri dataUri = ContentUris.withAppendedId(TermCollectorTermData.CONTENT_URI, _id);
                     getContext().getContentResolver().notifyChange(dataUri, null);
@@ -235,7 +235,7 @@ public class TermCollector_Provider extends ContentProvider {
                 throw new SQLException("Failed to insert row into " + uri);
             case TERM_COLLECTOR_GEODATA:
                 _id = database.insert(DATABASE_TABLES[1], TermCollectorGeoData.TIMESTAMP, values);
-                Log.wtf(TAG, "Id: " + _id);
+                //Log.wtf(TAG, "Id: " + _id);
                 if (_id > 0) {
                     Uri dataUri = ContentUris.withAppendedId(TermCollectorGeoData.CONTENT_URI, _id);
                     getContext().getContentResolver().notifyChange(dataUri, null);

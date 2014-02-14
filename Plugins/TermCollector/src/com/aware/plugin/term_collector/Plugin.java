@@ -1,8 +1,6 @@
 package com.aware.plugin.term_collector;
 
-import android.content.ClipboardManager;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -41,7 +39,6 @@ public class Plugin extends Aware_Plugin {
     private static StopWords stopWords;
     private static CommonConnectors commonConnectors;
     private static BlacklistedApps blacklistedApps;
-    private ClipboardManager.OnPrimaryClipChangedListener clipboardListener;
 
     public static final String EXTRA_TERMCONTENT = "termcontent";
     public static String lastTermContent = "";
@@ -150,9 +147,6 @@ public class Plugin extends Aware_Plugin {
 
         super.onDestroy();
 
-        android.content.ClipboardManager clipboardManager = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboardManager.removePrimaryClipChangedListener(clipboardListener);
-
         getContentResolver().unregisterContentObserver(clipboardCatcherObs);
         getContentResolver().unregisterContentObserver(notificationCatcherObs);
         getContentResolver().unregisterContentObserver(smsReceiverObs);
@@ -169,7 +163,7 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.d(TAG, "@onChange");
+            Log.d(TAG, "@onChange (ClipboardCatcherObserver)");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
@@ -199,7 +193,7 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.d(TAG, "@onChange");
+            Log.d(TAG, "@onChange (NotificationCatcherObserver)");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
@@ -338,8 +332,7 @@ public class Plugin extends Aware_Plugin {
     }
 
     private String[] splitAndReformulateContent(String content) {
-        Log.wtf(TAG, "Splitting Content");
-        Log.wtf(TAG, "Content: " + content);
+        Log.wtf(TAG, "Splitting Content: " + content);
 
         String[] tokenArray = content.split("\\s+");
         //remove all characters that are not A-Za-z
@@ -522,7 +515,6 @@ public class Plugin extends Aware_Plugin {
     }
 
     private void saveTermData(long timestamp, String source, String content) {
-        Log.d(TAG, "Saving Data");
 
         ContentValues rowData = new ContentValues();
         rowData.put(TermCollectorTermData.DEVICE_ID, Aware.getSetting(
@@ -536,7 +528,6 @@ public class Plugin extends Aware_Plugin {
     }
 
     private void saveGeoData(long timestamp, String source, String content) {
-        Log.d(TAG, "Saving Data");
 
         ContentValues rowData = new ContentValues();
         rowData.put(TermCollectorGeoData.DEVICE_ID, Aware.getSetting(
@@ -554,7 +545,6 @@ public class Plugin extends Aware_Plugin {
     }
 
     private boolean isInCache(String token) {
-        Log.d(TAG, "Querying Cache for " + token);
         Cursor c = getContentResolver().query(TermCollector_Provider.TermCollectorGeoDataCache.CONTENT_URI, null, TermCollector_Provider.TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, null);
 
         boolean result = false;

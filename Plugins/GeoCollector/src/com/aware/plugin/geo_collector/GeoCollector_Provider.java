@@ -132,7 +132,7 @@ public class GeoCollector_Provider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case GEO_COLLECTOR_TERMS:
                 _id = database.insert(DATABASE_TABLES[0], GeoCollectorTermData.TIMESTAMP, values);
-                Log.wtf(TAG, "Id: " + _id);
+                //Log.wtf(TAG, "Id: " + _id);
                 if (_id > 0) {
                     Uri dataUri = ContentUris.withAppendedId(GeoCollectorTermData.CONTENT_URI, _id);
                     getContext().getContentResolver().notifyChange(dataUri, null);
