@@ -3,22 +3,20 @@ package com.aware.plugin.automatic_query.querymanagement;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by wmb on 10.02.14.
  */
 public class QueryManager {
-    private ArrayList<QueryObject> queryList;
+    private ConcurrentSkipListSet<QueryObject> queryList;
     private TermManager whatManager;
     private TermManager whereManager;
 
-    static QueryObjectImportanceComparator queryObjectImportanceComparator = new QueryObjectImportanceComparator();
-
     public QueryManager() {
-        queryList = new ArrayList<QueryObject>();
+        queryList = new ConcurrentSkipListSet<QueryObject>(new QueryObjectImportanceComparator());
 
         Log.d(this.getClass().toString(), "@registering WhatManagerPlugins");
         whatManager = new TermManager("WhatManager");
@@ -70,22 +68,22 @@ public class QueryManager {
         Log.d(this.getClass().toString(), "Removing Objects: " + objectsToRemove);
 
         // remove them
-        queryList.removeAll(objectsToRemove);
+        for(QueryObject objectToRemove: objectsToRemove){
+            queryList.remove(objectToRemove);
+        }
     }
 
     public QueryObject getNextQueryObject() {
         Log.d(this.getClass().toString(), "@getNextQueryObject");
         cleanUp();
 
-        Collections.sort(queryList, queryObjectImportanceComparator);
-
         Log.d(this.getClass().toString(), "QueryObjects:" + queryList);
         Log.d(this.getClass().toString(), whatManager.toString());
         Log.d(this.getClass().toString(), whereManager.toString());
 
         if (!queryList.isEmpty()) {
-            QueryObject result = queryList.get(0);
-            queryList.remove(result);
+            // get and remove highest Object
+            QueryObject result = queryList.pollFirst();
             return result;
         } else {
             return null;

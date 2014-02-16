@@ -155,15 +155,51 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
         // notifyID allows you to update the notification later on.
         Notification note = mBuilder.build();
-        note.defaults |= Notification.DEFAULT_VIBRATE;
-        note.defaults |= Notification.DEFAULT_SOUND;
+
+
+        if(getNotificationUsesVibration()){
+            note.defaults |= Notification.DEFAULT_VIBRATE;
+        }
+
+        if(getNotificationUsesSound()){
+            note.defaults |= Notification.DEFAULT_SOUND;
+        }
+
         note.flags |= Notification.FLAG_AUTO_CANCEL;
 
         mNotificationManager.notify(notifyID, note);
+
         setTimeOfLastSuccessfulQuery(System.currentTimeMillis());
     }
 
     public void setTimeOfLastSuccessfulQuery(Long endTime) {
         Aware.setSetting(wrapperRef.getContentResolver(), Settings.AWARE_LAST_SUCCESSFUL_QUERY, endTime);
+    }
+
+
+    public boolean getNotificationUsesSound(){
+        String useSoundString = Aware.getSetting(wrapperRef.getContentResolver(), Settings.AWARE_QUERY_NOTIFICATION_SOUND);
+        if(useSoundString != null) {
+            try {
+                return Boolean.parseBoolean(useSoundString);
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public boolean getNotificationUsesVibration(){
+        String useVibrationString = Aware.getSetting(wrapperRef.getContentResolver(), Settings.AWARE_QUERY_NOTIFICATION_VIBRATE);
+        if(useVibrationString != null) {
+            try {
+                return Boolean.parseBoolean(useVibrationString);
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 }
