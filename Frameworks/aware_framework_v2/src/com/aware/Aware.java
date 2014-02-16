@@ -340,19 +340,19 @@ public class Aware extends Service {
             	new Update_Check().execute();
             }
             
-            int frequency_webservice = Integer.parseInt(Aware.getSetting(getContentResolver(), Aware_Preferences.FREQUENCY_WEBSERVICE));
-            if( frequency_webservice == 0 ) {
-                if(DEBUG) {
-                    Log.d(TAG,"Data sync is disabled.");
-                }
-                alarmManager.cancel(webserviceUploadIntent);
-            }
-            if( Aware.getSetting(getContentResolver(), Aware_Preferences.STATUS_WEBSERVICE).equals("true") && frequency_webservice > 0 ) {
-                if( DEBUG ) {
-                    Log.d(TAG,"Data sync every " + frequency_webservice + " minute(s)");
-                }
-                alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + 1000, frequency_webservice * 60 * 1000, webserviceUploadIntent);
-            }
+//            int frequency_webservice = Integer.parseInt(Aware.getSetting(getContentResolver(), Aware_Preferences.FREQUENCY_WEBSERVICE));
+//            if( frequency_webservice == 0 ) {
+//                if(DEBUG) {
+//                    Log.d(TAG,"Data sync is disabled.");
+//                }
+//                alarmManager.cancel(webserviceUploadIntent);
+//            }
+//            if( Aware.getSetting(getContentResolver(), Aware_Preferences.STATUS_WEBSERVICE).equals("true") && frequency_webservice > 0 ) {
+//                if( DEBUG ) {
+//                    Log.d(TAG,"Data sync every " + frequency_webservice + " minute(s)");
+//                }
+//                alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + 1000, frequency_webservice * 60 * 1000, webserviceUploadIntent);
+//            }
         } else {
             Intent startFramework = new Intent(this, BackgroundService.class);
             startFramework.setAction(ACTION_AWARE_STOP_PLUGINS);
