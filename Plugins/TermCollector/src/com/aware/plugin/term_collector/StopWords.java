@@ -6,19 +6,17 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Created by wmb on 08.01.14.
  */
 public class StopWords {
-    private List<String> stopwords;
+    private HashSet<String> stopwords;
 
     public StopWords(Context context){
-        this.stopwords = new ArrayList<String>();
-
         //GERMAN STOPWORDS by  Marco Götze, Steffen Geyer: http://solariz.de/649/deutsche-stopwords.htm;
-        this.stopwords = new ArrayList<String>();
+        this.stopwords = new HashSet<String>();
 
         InputStream buildinginfo = context.getResources().openRawResource(R.raw.stopwords);
         DataInputStream myDIS = new DataInputStream(buildinginfo);
