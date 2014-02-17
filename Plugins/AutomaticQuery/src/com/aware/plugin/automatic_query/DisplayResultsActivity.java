@@ -1,9 +1,10 @@
 package com.aware.plugin.automatic_query;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +30,11 @@ import java.util.ArrayList;
 import eu.europeana.api.client.EuropeanaApi2Item;
 import eu.europeana.api.client.EuropeanaApi2Results;
 
-public class DisplayResultsActivity extends ListActivity {
+public class DisplayResultsActivity extends Activity {
+
+    private ListView m_listview;
+    private GridView m_gridview;
+
 
     public static final String TAG = "DisplayResultsActivity";
     boolean flag_loading = false;
@@ -47,9 +53,26 @@ public class DisplayResultsActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         Log.wtf(TAG, "@OnCreate");
 
-        ListView list = this.getListView();
+        int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
-        list.setOnScrollListener(new AbsListView.OnScrollListener() {
+        Log.wtf(TAG, "@Screensize: " + screenSize);
+
+        switch(screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                setContentView(R.layout.main);
+                m_gridview = (GridView) findViewById(R.id.id_grid_view);
+                Log.wtf(TAG, "@View: " + m_gridview);
+                Log.wtf(TAG, "@ViewClass: " + m_gridview.getClass().toString());
+                break;
+            default:
+                m_listview = (ListView) findViewById(R.id.id_list_view);
+                Log.wtf(TAG, "@View: " + m_listview);
+                Log.wtf(TAG, "@ViewClass: " + m_listview.getClass().toString());
+        }
+
+
+        AbsListView.OnScrollListener scrollListener = new AbsListView.OnScrollListener() {
 
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -63,13 +86,32 @@ public class DisplayResultsActivity extends ListActivity {
                     if (flag_all_loaded == false && flag_loading == false) {
                         Log.d(TAG, "@61");
                         flag_loading = true;
-                        getListView().addFooterView(loadingView);
+
+
+                        int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+                        switch(screenSize) {
+                            case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+                            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                                break;
+                            default:
+                                m_listview.addFooterView(loadingView);
+                        }
 
                         loadMoreItems(totalItemCount);
                     }
                 }
             }
-        });
+        };
+
+
+        switch(screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                m_gridview.setOnScrollListener(scrollListener);
+                break;
+            default:
+                m_listview.setOnScrollListener(scrollListener);
+        }
 
         Intent myIntent = getIntent();
         if(myIntent != null) {
@@ -95,7 +137,8 @@ public class DisplayResultsActivity extends ListActivity {
 
         ArrayList<String> resultList = intent.getStringArrayListExtra("results_list");
 
-        if (resultList != null) {
+        if (
+                resultList != null) {
 
         // set Time, the user has clicked the result.
         // used to temporarily disable the UIContent Plugin
@@ -122,18 +165,33 @@ public class DisplayResultsActivity extends ListActivity {
 
         EuropeanaApi2ResultAdapter adapter = new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()]));
 
-        this.getListView().setAdapter(adapter);
 
-        this.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> a, View
-                    v, int position, long id) {
+            AdapterView.OnItemClickListener onClickListener = new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> a, View
+                        v, int position, long id) {
 
-                EuropeanaApi2Item item = (EuropeanaApi2Item) a.getItemAtPosition(position);
+                    EuropeanaApi2Item item = (EuropeanaApi2Item) a.getItemAtPosition(position);
 
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getObjectURL()));
-                startActivity(browserIntent);
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getObjectURL()));
+                    startActivity(browserIntent);
+                }
+            };
+
+
+            int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+
+            switch(screenSize) {
+                case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+                case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                    m_gridview.setAdapter(adapter);
+                    m_gridview.setOnItemClickListener(onClickListener);
+                    break;
+                default:
+                    m_listview.setAdapter(adapter);
+                    m_listview.setOnItemClickListener(onClickListener);
             }
-        });
+
+
         }
 
     }
@@ -281,12 +339,28 @@ public class DisplayResultsActivity extends ListActivity {
         }
 
 
-        this.getListView().setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
 
-        // jump to newest entry
-        this.getListView().setSelection(items.size() - results.getItemsCount());
 
-        getListView().removeFooterView(loadingView);
+        int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+
+        switch(screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                m_gridview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
+                // jump to newest entry
+                m_gridview.setSelection(items.size() - results.getItemsCount());
+                //m_gridview.remove(loadingView);
+                break;
+            default:
+                m_listview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
+                // jump to newest entry
+                m_listview.setSelection(items.size() - results.getItemsCount());
+                m_listview.removeFooterView(loadingView);
+        }
+
+
+
+
 
         // All Results have been loaded
         Log.d(TAG, "items size: " + items.size() + " total size:" + results.getTotalResults());
