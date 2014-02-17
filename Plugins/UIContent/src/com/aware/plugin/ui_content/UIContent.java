@@ -44,8 +44,8 @@ public class UIContent extends AccessibilityService {
                 //Log.d(TAG, "TYPE_VIEW_LONG_CLICKED");
                 break;
             case (AccessibilityEvent.TYPE_VIEW_SELECTED):
-               // Log.d(TAG, "TYPE_VIEW_SELECTED");
-               // Log.d(TAG, "Source: " + event.getSource());
+                // Log.d(TAG, "TYPE_VIEW_SELECTED");
+                // Log.d(TAG, "Source: " + event.getSource());
 
                 break;
             case (AccessibilityEvent.TYPE_VIEW_FOCUSED):
@@ -79,7 +79,7 @@ public class UIContent extends AccessibilityService {
 
                 // Only process this, if at least 15 seconds have gone by, since the user clicked on a result in the Display Activity
                 // This should prevent use of content on the europeana page most of the time
-                if((getLastTimeUserClickedResult() + 15000) < System.currentTimeMillis()) {
+                if ((getLastTimeUserClickedResult() + 15000) < System.currentTimeMillis()) {
                     getUIContentFromNode(event.getSource());
                 } else {
                     Log.d(TAG, "Ignoring UIContent, as Europeana Results have been clicked recently." + getLastTimeUserClickedResult() + 15000 + " / " + System.currentTimeMillis());
@@ -159,11 +159,22 @@ public class UIContent extends AccessibilityService {
             }
         }
 
+        boolean isEuropeana = false;
+
         for (String nodeText : nodeTexts) {
-            // Filter out short Descriptions to improve quality of results (Button Descriptions)
-            // Also, filter Description of Links
-            if (nodeText.length() > 20 && !nodeText.endsWith("Link")) {
-                saveData(sourceApp, nodeText);
+            if (nodeText.toLowerCase().contains("europeana")) {
+                isEuropeana = false;
+            }
+        }
+
+        // Filter, if some of the text contains europeana
+        if (!isEuropeana) {
+            for (String nodeText : nodeTexts) {
+                // Filter out short Descriptions to improve quality of results (Button Descriptions)
+                // Also, filter Description of Links
+                if (nodeText.length() > 20 && !nodeText.endsWith("Link")) {
+                    saveData(sourceApp, nodeText);
+                }
             }
         }
     }
@@ -197,11 +208,11 @@ public class UIContent extends AccessibilityService {
         }
     }
 
-    public long getLastTimeUserClickedResult(){
+    public long getLastTimeUserClickedResult() {
         String lastTimeString = Aware.getSetting(getContentResolver(), "AWARE_LAST_TIME_USER_CLICKED_RESULTITEM");
-        if(lastTimeString  != null) {
+        if (lastTimeString != null) {
             try {
-                return Long.parseLong(lastTimeString );
+                return Long.parseLong(lastTimeString);
             } catch (NumberFormatException e) {
                 return 0L;
             }
