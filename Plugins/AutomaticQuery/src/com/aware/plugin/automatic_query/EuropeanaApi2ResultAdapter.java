@@ -33,7 +33,6 @@ public class EuropeanaApi2ResultAdapter extends ArrayAdapter<EuropeanaApi2Item> 
     }
 
 
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -45,31 +44,19 @@ public class EuropeanaApi2ResultAdapter extends ArrayAdapter<EuropeanaApi2Item> 
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
         TextView textView = (TextView) rowView.findViewById(R.id.textView);
 
-        if(Ids[position] != null) {
-            if(Ids[position].getTitle() != null && Ids[position].getTitle().size() > 0){
-            textView.setText(Ids[position].getTitle().get(0));
+        if (Ids[position] != null) {
+            if (Ids[position].getTitle() != null && Ids[position].getTitle().size() > 0) {
+                textView.setText(Ids[position].getTitle().get(0));
             }
 
             if (Ids[position].getEdmPreview() != null && Ids[position].getEdmPreview().size() > 0) {
                 new DownloadImageTask(imageView)
-                .execute(Ids[position].getEdmPreview().get(0));
+                        .execute(Ids[position].getEdmPreview().get(0));
             }
         } else {
             System.out.println("Ids[position] is null for position " + position);
         }
 
-        // get input stream
-//        InputStream ims = null;
-//        try {
-//            ims = context.getAssets().open(imageFile);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        // load image as Drawable
-        //Drawable d = Drawable.createFromStream(ims, null);
-        // set image to ImageView
-        //imageView.setImageDrawable(d);
         return rowView;
 
     }

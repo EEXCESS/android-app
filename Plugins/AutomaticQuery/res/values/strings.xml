@@ -1,9 +1,25 @@
 <resources>
-    <string name="app_name">AWARE AutomaticQuery</string>
+    <string name="app_name">EEXCESS AutomaticQuery</string>
     <string name="action_search">Modify Query</string>
     <string name="action_activate_dnd">Activate Do not Disturb</string>
     <string name="action_deactivate_dnd">Deactivate Do not Disturb</string>
     <string name="action_disable_location">Do not use my location</string>
     <string name="action_enable_location">Use my location</string>
     <string name="action_settings">Settings</string>
+
+    <plurals name="numberOfResultsAvailable">
+        <item quantity="one">One result found</item>
+        <item quantity="other">%d results found</item>
+    </plurals>
+
+
+    <plurals name="toastText">
+        <item quantity="one">Showing one result</item>
+        <item quantity="other">Showing %d results</item>
+    </plurals>
+
+    <string name="result_for">for</string>
+    <string name="result_in">in</string>
+
+    <string name="notification_title">New Europeana results</string>
 </resources>

@@ -23,7 +23,7 @@ public class BlacklistedApps {
 
        //now loop through and check if we have input, if so append it to list
         try{
-            while((myLine=myDIS.readLine())!=null) apps.add(myLine);
+            while((myLine=myDIS.readLine())!=null) apps.add(myLine.trim());
         } catch(IOException e){
             e.printStackTrace();
         }

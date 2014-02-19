@@ -2,11 +2,11 @@ package com.aware.plugin.automatic_query.situations;
 
 import android.content.Context;
 
-import com.aware.Aware;
-import com.aware.plugin.automatic_query.Settings;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
 
 
 /**
@@ -23,20 +23,22 @@ public class SituationManager {
     private HashMap<String, Object> contextMap;
     private Context context;
 
-    private SituationManager(){};
+    private SituationManager() {
+    }
 
-    public SituationManager(Context context){
+
+    public SituationManager(Context context) {
         this.context = context;
-       this.blockerSituations = new ArrayList<Situation>();
-       //blockerSituations.add(new DarknessSituation());
+        this.blockerSituations = new ArrayList<Situation>();
+        //blockerSituations.add(new DarknessSituation());
         blockerSituations.add(new DoNotDisturbSituation());
         blockerSituations.add(new MinimumTimeSinceLastSuccessfulQuerySituation());
 
-       this.triggerSituations = new ArrayList<Situation>();
-       this.contextMap = new HashMap<String, Object>();
+        this.triggerSituations = new ArrayList<Situation>();
+        this.contextMap = new HashMap<String, Object>();
     }
 
-    public boolean allowsQuery(){
+    public boolean allowsQuery() {
 
         // fill contextMap with values from Settings
         fillContextMap();
@@ -57,7 +59,7 @@ public class SituationManager {
 
     private boolean assesBlockerSituations() {
 
-        for(Situation blocker : blockerSituations ){
+        for (Situation blocker : blockerSituations) {
             if (blocker.assess(contextMap)) {
                 // one blocker returned true
                 return true;
@@ -69,7 +71,7 @@ public class SituationManager {
     }
 
     private boolean assessTriggerSituations() {
-        for(Situation blocker : triggerSituations ){
+        for (Situation blocker : triggerSituations) {
             if (blocker.assess(contextMap)) {
                 // one Trigger returned true
                 return true;
@@ -80,36 +82,9 @@ public class SituationManager {
         return false;
     }
 
-    private void fillContextMap(){
-        contextMap.put(Settings.AWARE_END_OF_DND, new Long(getEndOfDND()));
-        contextMap.put(Settings.AWARE_LAST_SUCCESSFUL_QUERY, new Long(getTimeOfLastSuccessfulQuery()));
-    }
-
-
-    private long getEndOfDND(){
-        String endOfDNDString = Aware.getSetting(context.getContentResolver(), Settings.AWARE_END_OF_DND);
-        if(endOfDNDString != null) {
-            try {
-                return Long.parseLong(endOfDNDString);
-            } catch (NumberFormatException e) {
-                return 0L;
-            }
-        } else {
-            return 0L;
-        }
-    }
-
-    private long getTimeOfLastSuccessfulQuery(){
-        String timeOfLastSuccessfulQueryString = Aware.getSetting(context.getContentResolver(), Settings.AWARE_LAST_SUCCESSFUL_QUERY);
-        if(timeOfLastSuccessfulQueryString != null) {
-            try {
-                return Long.parseLong(timeOfLastSuccessfulQueryString);
-            } catch (NumberFormatException e) {
-                return 0L;
-            }
-        } else {
-            return 0L;
-        }
+    private void fillContextMap() {
+        contextMap.put(ContextophelesConstants.SETTINGS_AQ_END_OF_DND, CommonSettings.getEndOfDoNotDisturb(context.getContentResolver()));
+        contextMap.put(ContextophelesConstants.INFO_AQ_LAST_SUCCESSFUL_QUERY, CommonSettings.getTimeOfLastSuccessfulQuery(context.getContentResolver()));
     }
 
 }

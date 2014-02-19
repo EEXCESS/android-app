@@ -1,15 +1,23 @@
 package com.aware.plugin.geoname_resolver;
 
 import android.app.Activity;
-import android.database.Cursor;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
 
 public class Settings extends Activity {
-    private final static String TAG = "GeonameResolver Settings";
+    private final static String TAG = ContextophelesConstants.TAG_GEONAME_RESOLVER + " Settings";
     private static TextView countView = null;
     private static Uri contentUri = GeonameResolver_Provider.GeonameResolver.CONTENT_URI;
 
@@ -19,39 +27,192 @@ public class Settings extends Activity {
 
         setTitle(TAG);
         setContentView(R.layout.debug_layout);
-        
+
         countView = (TextView) findViewById(R.id.count);
-        
+
         updateCount();
+
+        // Set On/off for fake Location
+
+        ((ToggleButton)findViewById(R.id.useFakeLocationButton)).setChecked(CommonSettings.getUseFakeLocation(getContentResolver()));
+
+        // Set Value for Latitude
+
+        ((EditText)findViewById(R.id.fakeLatitudeValue)).setText("" + CommonSettings.getFakeLatitude(getContentResolver()));
+        ((EditText)findViewById(R.id.fakeLatitudeValue)).addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                CommonSettings.setFakeLatitudeFromString(getContentResolver(), s.toString());
+                if(CommonSettings.getUseFakeLocation(getContentResolver())){
+                    notifyForLocationChange();
+                }
+            }
+
+        });
+
+
+
+        // Set Value for Longitude
+
+        ((EditText)findViewById(R.id.fakeLongitudeValue)).setText("" + CommonSettings.getFakeLongitude(getContentResolver()));
+        ((EditText)findViewById(R.id.fakeLongitudeValue)).addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                CommonSettings.setFakeLongitudeFromString(getContentResolver(), s.toString());
+                if(CommonSettings.getUseFakeLocation(getContentResolver())){
+                    notifyForLocationChange();
+                }
+            }
+
+        });
+
+
+        // Set Status of Slider
+        ((SeekBar)findViewById(R.id.seekBar)).setProgress(CommonSettings.getGeonameDistanceSeekBarProgress(getContentResolver()));
+        ((SeekBar)findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                CommonSettings.setGeonameDistanceSeekBarProgress(getContentResolver(), i);
+                CommonSettings.setGeonameDistance(getContentResolver(), i * 0.1f);
+                ((EditText)findViewById(R.id.distanceValue)).setText("" + CommonSettings.getGeonameDistance(getContentResolver()));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+        });
+
+
+        // Set Vaue of Distance
+        ((EditText)findViewById(R.id.distanceValue)).setText("" + CommonSettings.getGeonameDistance(getContentResolver()));
+        ((EditText)findViewById(R.id.distanceValue)).addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                CommonSettings.setGeonameDistanceFromString(getContentResolver(), s.toString());
+                double distance = CommonSettings.getGeonameDistance(getContentResolver());
+                CommonSettings.setGeonameDistanceSeekBarProgress(getContentResolver(), (int) Math.round(distance / 0.1f));
+                ((SeekBar)findViewById(R.id.seekBar)).setProgress(CommonSettings.getGeonameDistanceSeekBarProgress(getContentResolver()));
+            }
+
+        });
     }
-    
+
     protected void onResume() {
         super.onResume();
-    	updateCount();
+        updateCount();
     }
-    
+
     @Override
     protected void onDestroy() {
-    	super.onDestroy();
+        super.onDestroy();
     }
-    
+
     public void updateCount() {
-    	Cursor countCursor = getContentResolver().query(contentUri,
-                new String[] {"count(*) AS count"},
-                null,
-                null,
-                null);
-
-        countCursor.moveToFirst();
-        int count = countCursor.getInt(0);
-
-        countView.setText("" + count);
+        countView.setText("" + CommonSettings.getCountForUri(getContentResolver(), contentUri));
     }
 
-    public void cleanData(View view){
-        Log.d(TAG, "Trying to delete all Data.");
-        getContentResolver().delete(contentUri, " 1 = 1 ", null);
-        Log.d(TAG, "Deletion done.");
+    public void cleanData(View view) {
+        CommonSettings.cleanDataForUri(getContentResolver(), contentUri);
         updateCount();
+    }
+
+
+    public void onSwitchClicked(View view) {
+        // Is the view now checked?
+        boolean checked = ((ToggleButton) view).isChecked();
+
+        // Check which checkbox was clicked
+        switch (view.getId()) {
+            case R.id.useFakeLocationButton:
+                CommonSettings.setUseFakeLocation(getContentResolver(), checked);
+                if(CommonSettings.getUseFakeLocation(getContentResolver())){
+                    notifyForLocationChange();
+                }
+                break;
+        }
+    }
+
+    public void onChooseClicked(View view) {
+        showFakeLocationDialog();
+    }
+
+    public void showFakeLocationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Choose the location to fake");
+        final CharSequence[] items = new CharSequence[]{"Rome", "Berlin", "Regensburg", "Passau", "London"};
+        builder.setItems(items,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                // Rome
+                                setLatitudeAndLongitudeInSettingsAndMenu(41.9000, 12.5000);
+                                break;
+                            case 1:
+                                // Berlin
+                                setLatitudeAndLongitudeInSettingsAndMenu(52.5167, 13.3833);
+                                break;
+                            case 2:
+                                // Regensburg
+                                setLatitudeAndLongitudeInSettingsAndMenu(49.015, 12.09556);
+                                break;
+                            case 3:
+                                // Passau
+                                setLatitudeAndLongitudeInSettingsAndMenu(48.5667, 13.4667);
+                                break;
+                            case 4:
+                                // London
+                                setLatitudeAndLongitudeInSettingsAndMenu(51.5072, 0.1275);
+                                break;
+                        }
+                    }
+                });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.create().show();
+
+    }
+
+    private void setLatitudeAndLongitudeInSettingsAndMenu(double latitude, double longitude){
+        CommonSettings.setFakeLatitude(getContentResolver(), latitude);
+        CommonSettings.setFakeLongitude(getContentResolver(), longitude);
+        ((EditText)findViewById(R.id.fakeLatitudeValue)).setText("" + CommonSettings.getFakeLatitude(getContentResolver()));
+        ((EditText)findViewById(R.id.fakeLongitudeValue)).setText("" + CommonSettings.getFakeLongitude(getContentResolver()));
+        if(CommonSettings.getUseFakeLocation(getContentResolver())){
+            notifyForLocationChange();
+        }
+    }
+
+
+    private void notifyForLocationChange(){
+        getContentResolver().notifyChange(Uri.parse(ContextophelesConstants.LOCATION_URI), null);
     }
 }

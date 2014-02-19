@@ -14,6 +14,8 @@ import com.aware.plugin.automatic_query.querymanagement.WhereObject;
 import com.aware.plugin.automatic_query.situations.SituationManager;
 import com.aware.utils.Aware_Plugin;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * A Tool, that listens to the TermCollector, does Europeana Queries and sends out a Notification
  *
@@ -23,7 +25,35 @@ import com.aware.utils.Aware_Plugin;
 
 public class Plugin extends Aware_Plugin {
 
-    private static final String TAG = "AutomaticQuery Plugin";
+    private final static String TAG = ContextophelesConstants.TAG_AUTOMATIC_QUERY + " Plugin";
+    public static Uri geoCollectorContentUri;
+    public static Uri termCollectorContentUri;
+    public static Uri lightContentUri;
+    private static GeoCollectorObserver geoCollectorObs = null;
+    private static TermCollectorObserver termCollectorObs = null;
+    private static LightObserver lightObs = null;
+    private static HandlerThread threads = null;
+    private int notificationNumber = 0;
+    private SituationManager situationManager;
+    private QueryManager queryManager;
+    private boolean isRunnableRunning = false;
+    private int runNumber;
+    private Runnable runnable = new Runnable() {
+
+        public void run() {
+            // running query
+            runNumber = runNumber + 1;
+            maybeRunQuery();
+
+            if (runNumber < ContextophelesConstants.AQ_PLUGIN_MAX_NUMBER_OF_EMPTY_RUNS_BEFORE_SLEEP) {
+                handler.postDelayed(this, ContextophelesConstants.AQ_PLUGIN_TIME_TO_WAIT_BETWEEN_RUNS);
+            } else {
+                isRunnableRunning = false;
+            }
+        }
+    };
+
+    private Handler handler = new Handler();
 
     public int getNotificationNumber() {
         return notificationNumber;
@@ -33,36 +63,9 @@ public class Plugin extends Aware_Plugin {
         this.notificationNumber = notificationNumber;
     }
 
-    private int notificationNumber = 0;
-
-    public static Uri geoCollectorContentUri;
-    private static GeoCollectorObserver geoCollectorObs = null;
-
-    public static Uri termCollectorContentUri;
-    private static TermCollectorObserver termCollectorObs = null;
-
-    public static Uri lightContentUri;
-    private static LightObserver lightObs = null;
-
-    private SituationManager situationManager;
-
-    private QueryManager queryManager;
-
-    private boolean isRunnableRunning = false;
-
-    private int runNumber;
-
-
-    /**
-     * Thread manager
-     */
-    private static HandlerThread threads = null;
-    private Handler handler = new Handler();
-
-
     @Override
     public void onCreate() {
-        Log.d(TAG, "Plugin Created");
+        Log.d(TAG, "Creating Plugin");
         super.onCreate();
 
         situationManager = new SituationManager(getApplicationContext());
@@ -75,8 +78,7 @@ public class Plugin extends Aware_Plugin {
         // Set the observers, that run in independent threads, for
         // responsiveness
 
-        termCollectorContentUri = Uri
-                .parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms");
+        termCollectorContentUri = Uri.parse(ContextophelesConstants.TERM_COLLECTOR_TERM_URI);
         termCollectorObs = new TermCollectorObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -85,7 +87,7 @@ public class Plugin extends Aware_Plugin {
 
 
         geoCollectorContentUri = Uri
-                .parse("content://com.aware.provider.plugin.geo_collector/plugin_geo_collector_terms");
+                .parse(ContextophelesConstants.GEO_COLLECTOR_TERM_URI);
         geoCollectorObs = new GeoCollectorObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -93,46 +95,55 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "geoCollectorObs registered");
 
 
-        lightContentUri = Uri.parse("content://com.aware.provider.light/light");
+        lightContentUri = Uri.parse(ContextophelesConstants.LIGHT_URI);
         lightObs = new LightObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
                 lightContentUri, true, lightObs);
         Log.d(TAG, "lightObs registered");
 
-
         Log.d(TAG, "Plugin Started");
-
-
     }
 
     @Override
     public void onDestroy() {
-
-        Log.d(TAG, "Plugin is destroyed");
-
+        Log.d(TAG, "Destroying Plugin");
         super.onDestroy();
 
         getContentResolver().unregisterContentObserver(termCollectorObs);
         getContentResolver().unregisterContentObserver(geoCollectorObs);
         getContentResolver().unregisterContentObserver(lightObs);
         handler.removeCallbacks(runnable);
-
     }
 
     protected void maybeRunQuery() {
         if (situationManager.allowsQuery()) {
             QueryObject queryObject = queryManager.getNextQueryObject();
             if (queryObject != null) {
+
+                // TODO: Log to Databse
                 Log.d(TAG, "Running Query with where =  " + queryObject.getWhereObject().getValue() + " what = " + queryObject.getWhatObject().getValue()
                         + " and Affinity of " + queryObject.getAffinity());
                 new ExecuteSearchTask(this).execute(new String[]{"0", queryObject.getWhereObject().getValue(), queryObject.getWhatObject().getValue()});
             } else {
+                // TODO: Log to Databse
                 Log.d(TAG, "No QueryObject available");
             }
         } else {
+            // TODO: Log to Databse
             Log.d(TAG, "Query not allowed at the moment");
         }
+    }
+
+    private void maybeStartRunnable() {
+        // always reset runnumber when this is called, i.e. when context arrived
+        runNumber = 0;
+
+        if (!isRunnableRunning) {
+            isRunnableRunning = true;
+            runnable.run();
+        }
+
     }
 
     public class TermCollectorObserver extends ContentObserver {
@@ -144,16 +155,17 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.d(TAG, "@onChange of Term Content");
+            // TODO: Log to Databse
+            Log.d(TAG, "@onChange of TermCollectorObserver");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     termCollectorContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
-                String localWhat = cursor.getString(cursor.getColumnIndex("term_content"));
-                long localTimestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
-                String localSource = cursor.getString(cursor.getColumnIndex("term_source"));
+                String localWhat = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TERM_CONTENT));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TIMESTAMP));
+                String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TERM_SOURCE));
 
                 queryManager.addWhatObject(new WhatObject(localTimestamp, localSource, localWhat));
 
@@ -174,17 +186,18 @@ public class Plugin extends Aware_Plugin {
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
 
-            Log.d(TAG, "@onChange of Geo Content");
+            // TODO: Log to Databse
+            Log.d(TAG, "@onChange of GeoCollectorObserver");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     geoCollectorContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TIMESTAMP  + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
                 String localWhere = cursor.getString(cursor
-                        .getColumnIndex("term_content"));
-                long localTimestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
-                String localSource = cursor.getString(cursor.getColumnIndex("term_source"));
+                        .getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TERM_CONTENT));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TIMESTAMP));
+                String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TERM_SOURCE));
 
                 queryManager.addWhereObject(new WhereObject(localTimestamp, localSource, localWhere));
 
@@ -205,56 +218,24 @@ public class Plugin extends Aware_Plugin {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-
-            Log.d(TAG, "@onChange of Light");
+            // TODO: Log to Databse
+            //Log.d(TAG, "@onChange of LightObserver");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     lightContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.LIGHT_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
                 Double lux = Double.parseDouble(cursor.getString(cursor
-                        .getColumnIndex("double_light_lux")));
-                Log.d(TAG, "Light changed to " + lux);
-                situationManager.putContextValue("Light", lux);
+                        .getColumnIndex(ContextophelesConstants.LIGHT_FIELD_DOUBLE_LUX)));
+
+                situationManager.putContextValue(ContextophelesConstants.SITUATION_MANAGER_LIGHT, lux);
             }
 
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
         }
-    }
-
-
-    private Runnable runnable = new Runnable()
-    {
-
-        public void run()
-        {
-            // running query
-            runNumber = runNumber + 1;
-            maybeRunQuery();
-            Log.d(TAG, "Runnumber " + runNumber);
-            if(runNumber < 150) {
-                handler.postDelayed(this, 1000);
-            } else {
-                isRunnableRunning = false;
-            }
-        }
-    };
-
-
-    private void maybeStartRunnable(){
-        // always reset runnumber when this is called, i.e. when context arrived
-        Log.d(TAG, "@maybeStartRunnable");
-
-        runNumber = 0;
-
-        if(!isRunnableRunning){
-            isRunnableRunning = true;
-            runnable.run();
-        }
-
     }
 }

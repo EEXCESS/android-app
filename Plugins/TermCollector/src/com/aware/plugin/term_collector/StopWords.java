@@ -24,7 +24,7 @@ public class StopWords {
 
         //now loop through and check if we have input, if so append it to list
         try{
-            while((myLine=myDIS.readLine())!=null) stopwords.add(myLine);
+            while((myLine=myDIS.readLine())!=null) stopwords.add(myLine.trim());
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -33,7 +33,7 @@ public class StopWords {
     public String[] filteredArray(String[] arrayToFilter) {
     ArrayList<String> resultList = new ArrayList<String>();
         for(String token : arrayToFilter ){
-            if(!stopwords.contains(token.toLowerCase())){
+            if(!stopwords.contains(token.toLowerCase().trim())){
                 resultList.add(token);
             }
         }
@@ -42,6 +42,6 @@ public class StopWords {
     }
 
     public boolean isStopWord(String token){
-        return stopwords.contains(token.toLowerCase());
+        return stopwords.contains(token.toLowerCase().trim());
     }
 }

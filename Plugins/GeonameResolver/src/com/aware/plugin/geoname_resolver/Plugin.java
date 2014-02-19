@@ -16,12 +16,14 @@ import com.aware.plugin.geoname_resolver.GeonameResolver_Provider.GeonameResolve
 import com.aware.providers.Locations_Provider;
 import com.aware.utils.Aware_Plugin;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
 import io.mingle.v1.Mingle;
 import io.mingle.v1.Response;
 
 public class Plugin extends Aware_Plugin {
 
-	private static final String TAG = "GeonameResolver Plugin";
+	private static final String TAG = ContextophelesConstants.TAG_GEONAME_RESOLVER + " Plugin";
 	public static final String ACTION_AWARE_GEONAMERESOLVER = "ACTION_AWARE_GEONAMERESOLVER";
 	
 	private static long previousTimestamp = 0L;
@@ -29,6 +31,7 @@ public class Plugin extends Aware_Plugin {
     private static Location previousDissolvedLocation = null;
 
     //minimal Distance to dissolve again
+    // TODO Make this a setting
     private static double minimalDistanceBetweenCoordinates = 200.0;
 	
 	public static Uri locationContentUri;
@@ -49,7 +52,6 @@ public class Plugin extends Aware_Plugin {
 		CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
 			@Override
 			public void onContext() {
-				Log.d(TAG, "Putting extra context into intent");
 				Intent notification = new Intent(ACTION_AWARE_GEONAMERESOLVER);
 				sendBroadcast(notification);
 			}
@@ -65,16 +67,13 @@ public class Plugin extends Aware_Plugin {
 		// Set the observers, that run in independent threads, for
 		// responsiveness
 
-        locationContentUri= Uri
-                .parse("content://com.aware.provider.locations/locations");
+        locationContentUri= Uri.parse(ContextophelesConstants.LOCATION_URI);
         locationObs = new LocationObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
                 locationContentUri, true, locationObs);
 
         Log.d(TAG, "notificationCatcherObs registered");
-
-		
 		Log.d(TAG, "Plugin Started");
 	}
 
@@ -83,25 +82,18 @@ public class Plugin extends Aware_Plugin {
 
 		Log.d(TAG, "Plugin is destroyed");
 
-		super.onDestroy();
-		
-		getContentResolver().unregisterContentObserver(locationObs);
-		
+        getContentResolver().unregisterContentObserver(locationObs);
 
+        super.onDestroy();
 	}
 
 	protected void saveData(Response res) {
-		Log.wtf(TAG, "@saveData(Response res)");
-		
+
 		if (res != null) {
             long timestamp = System.currentTimeMillis();
 
-
-            Log.wtf(TAG, "found " + res.size() + " results");
-
             for (int i = 0; i < res.size(); i++) {
 
-                Log.wtf(TAG, "i: " + i);
 			ContentValues rowData = new ContentValues();
 
             rowData.put(GeonameResolver.DEVICE_ID, Aware.getSetting(
@@ -112,10 +104,6 @@ public class Plugin extends Aware_Plugin {
             rowData.put(GeonameResolver.TIMESTAMP, timestamp + i);
 
 			rowData.put(GeonameResolver.NAME, res.get("result").get(i).get("name").toString());
-			//rowData.put(GeonameResolver.TYPE, res.get("result").get(i).get("type").toString());
-            //rowData.put(GeonameResolver.DISTANCE, cursor.getLong(cursor.getColumnIndex(MediaStore.Images.ImageColumns.WIDTH)));
-
-                Log.wtf(TAG, res.get("result").get(i).get("name").toString());
 
 				Log.d(TAG, "Saving " + rowData.toString());
 				getContentResolver().insert(GeonameResolver.CONTENT_URI, rowData);
@@ -130,25 +118,6 @@ public class Plugin extends Aware_Plugin {
 			super(handler);
 		}
 
-        private Response PrintResponse(String info, Response resp) throws Exception{
-//            Log.wtf(TAG, "Printing response for " + info);
-//            Log.wtf(TAG, "GOT HEAD: \t"+resp.get("head"));
-//            Log.wtf(TAG, "GOT BODY: \t"+resp.get("body"));
-//            Log.wtf(TAG, "GOT TOTAL: \t"+resp.get("total"));
-//            Log.wtf(TAG, "GOT TIME: \t"+resp.get("time"));
-//            Log.wtf(TAG, "GOT FOUND: \t"+resp.get("found"));
-
-            Log.wtf(TAG, info + " found " + resp.size() + " items.");
-
-            for (int i = 0; i < resp.size(); i++) {
-                Log.wtf(TAG, resp.get("result").get(i).get("name").toString());
-             }
-
-
-
-            return resp;
-        }
-
 		@Override
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
@@ -162,10 +131,22 @@ public class Plugin extends Aware_Plugin {
             if (cursor != null && cursor.moveToFirst()) {
 
                 // get lat and lon
+
+
                 double lat = Double.parseDouble(cursor.getString(cursor.getColumnIndex(Locations_Provider.Locations_Data.LATITUDE)));
                 double lon = Double.parseDouble(cursor.getString(cursor.getColumnIndex(Locations_Provider.Locations_Data.LONGITUDE)));
 
-                Log.wtf(TAG, "Lat:" + lat + " Lon:" + lon);
+                if(CommonSettings.getUseFakeLocation(getContentResolver())){
+                    lat = CommonSettings.getFakeLatitude(getContentResolver());
+                    lon = CommonSettings.getFakeLongitude(getContentResolver());
+                }
+
+                if (lat > 90) {lat = 90;}
+                if (lat < -90) {lat = -90;}
+                if (lon > 180) {lon = 180;}
+                if (lon < -180) {lon = -180;}
+
+                Log.d(TAG, "Lat:" + lat + " Lon:" + lon);
 
                 Location currentLocation = new Location("");
                 currentLocation.setLatitude(lat);
@@ -185,11 +166,10 @@ public class Plugin extends Aware_Plugin {
             if (previousDissolvedLocation != null) {
                 // we have dissolved successfully in the past
                 float distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
-                Log.wtf(TAG, "Distance between locs " + distBetweenLocs);
                 return distBetweenLocs > minimalDistanceBetweenCoordinates;
             } else {
                 // We haven't dissolved yet
-                Log.wtf(TAG, "Should try to dissolve, as it has not resolved yet.");
+                Log.d(TAG, "Should try to dissolve, as it has not resolved yet.");
                 return true;
             }
         }
@@ -201,8 +181,7 @@ public class Plugin extends Aware_Plugin {
 
             try {
                 mingle = new Mingle(getApplicationContext());
-                resPlaces = mingle.geonames().getPlacesNearbyOfClass((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), 1f, "P");
-                PrintResponse("getPlacesNearby", resPlaces);
+                resPlaces = mingle.geonames().getPlacesNearbyOfClass((float)currentLocation.getLatitude(), (float)currentLocation.getLongitude(), CommonSettings.getGeonameDistance(getContentResolver()), "P");
 
                 // response was not empty
                 if(resPlaces.size() > 0) {
@@ -210,12 +189,10 @@ public class Plugin extends Aware_Plugin {
                     // save data
                     saveData(resPlaces);
                 } else {
-                    Log.wtf(TAG, "Mingle Query did not yield any Results");
+                    Log.d(TAG, "Mingle Query did not yield any Results");
                 }
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-
             }
 
 

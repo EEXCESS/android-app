@@ -9,7 +9,7 @@ public class QueryObject {
     private long timestamp;
     private double affinity;
 
-    public QueryObject(WhatObject whatObject, WhereObject whereObject){
+    public QueryObject(WhatObject whatObject, WhereObject whereObject) {
         this.what = whatObject;
         this.where = whereObject;
         this.timestamp = System.currentTimeMillis();
@@ -17,7 +17,7 @@ public class QueryObject {
     }
 
     //  the affinity does not change over time
-    private double computeAffinity(WhatObject whatObject, WhereObject whereObject){
+    private double computeAffinity(WhatObject whatObject, WhereObject whereObject) {
         // we start with an affinity of 0.5
         double localAffinity = 0.5;
 
@@ -25,38 +25,40 @@ public class QueryObject {
         // Best Affinity is for a Difference of 0, worst for a Difference of 300.000 (Five Minutes)
         // Values up to 150.000 count as bonus (max + 0.25), value above 150.000 as malus (max - 0.25). Values above 300.000 count as 300.000
         //Log.d(this.getClass().toString(), "deltaTimestamp" + deltaTimestamp);
-        if (deltaTimestamp > 300000) {deltaTimestamp = 300000;}
+        if (deltaTimestamp > 300000) {
+            deltaTimestamp = 300000;
+        }
 
-        double modifier = Math.cos(((double) 300000) / Math.PI) * 0.25;
+        double modifier = Math.cos( deltaTimestamp / Math.PI) * 0.25;
         localAffinity += modifier;
 
 
         // bonus if both objects have the same source. Thought to favor e.g. place and object from one SMS
-        if(whatObject.getSource().equals(whereObject.getSource())){
+        if (whatObject.getSource().equals(whereObject.getSource())) {
             localAffinity += 0.15;
         }
 
         return localAffinity;
     }
 
-    public double getAffinity(){
+    public double getAffinity() {
         return affinity;
     }
 
-    public double getImportance(){
+    public double getImportance() {
         return what.getImportance() + where.getImportance() + affinity;
     }
 
-    public double getTimestamp(){
+    public double getTimestamp() {
         return timestamp;
     }
 
 
-    public WhatObject getWhatObject(){
+    public WhatObject getWhatObject() {
         return what;
     }
 
-    public WhereObject getWhereObject(){
+    public WhereObject getWhereObject() {
         return where;
     }
 

@@ -1,7 +1,5 @@
 package com.aware.plugin.clipboard_catcher;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,6 +16,10 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
+import java.util.HashMap;
+
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * ContentProvider for the NotificationCatcher
  * @author Christian Koehler
@@ -27,14 +29,11 @@ import com.aware.utils.DatabaseHelper;
 
 public class ClipboardCatcher_Provider extends ContentProvider {
 
-		private final String TAG = "ClipboardCatcher Provider";
-        public static final String PLUGIN_NAME = "plugin.clipboard_catcher";
-        public static final String AUTHORITY = "com.aware.provider." + PLUGIN_NAME;
-        public static final String MAIN_TABLE = "plugin_clipboard_catcher";
-
+		private final String TAG = ContextophelesConstants.TAG_CLIPBOARD_CATCHER + " Provider";
+        public static final String AUTHORITY = ContextophelesConstants.CLIPBOARD_CATCHER_AUTHORITY;
+        public static final String MAIN_TABLE = ContextophelesConstants.CLIPBOARD_CATCHER_MAIN_TABLE;
 
         private static final int DATABASE_VERSION = 3;
-        
         private static final int CLIPBOARD_CATCHER = 1;
         private static final int CLIPBOARD_CATCHER_ID = 2;
         
@@ -46,17 +45,17 @@ public class ClipboardCatcher_Provider extends ContentProvider {
         public static final class ClipboardCatcher implements BaseColumns {
                 private ClipboardCatcher() {};
 
-                public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+ MAIN_TABLE); //this needs to match the table name
-                public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+PLUGIN_NAME;
-                public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware."+PLUGIN_NAME;
+                public static final Uri    CONTENT_URI = ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI;
+                public static final String CONTENT_TYPE = ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_TYPE;
+                public static final String CONTENT_ITEM_TYPE = ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_ITEM_TYPE;
 
-                public static final String _ID = "_id";
-                public static final String TIMESTAMP = "timestamp";
-                public static final String DEVICE_ID = "device_id";
+                public static final String _ID = ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_ID;
+                public static final String TIMESTAMP = ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_TIMESTAMP;
+                public static final String DEVICE_ID = ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_DEVICE_ID;
                 /**
                  * Content of Clipboard
                  */
-                public static final String CLIPBOARDCONTENT = "CLIPBOARDCONTENT";
+                public static final String CLIPBOARDCONTENT = ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_CLIPBOARDCONTENT;
                 
         }
         

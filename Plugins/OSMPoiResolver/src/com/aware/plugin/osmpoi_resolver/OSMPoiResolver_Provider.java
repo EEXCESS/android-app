@@ -1,7 +1,5 @@
 package com.aware.plugin.osmpoi_resolver;
 
-import java.util.HashMap;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -18,6 +16,10 @@ import android.util.Log;
 import com.aware.Aware;
 import com.aware.utils.DatabaseHelper;
 
+import java.util.HashMap;
+
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * ContentProvider for the NotificationCatcher
  * @author Christian Koehler
@@ -27,10 +29,9 @@ import com.aware.utils.DatabaseHelper;
 
 public class OSMPoiResolver_Provider extends ContentProvider {
 
-		private final String TAG = "OSMPoiResolver Provider";
-        public static final String PLUGIN_NAME = "plugin.osmpoi_resolver";
-        public static final String AUTHORITY = "com.aware.provider."+PLUGIN_NAME;
-        public static final String MAIN_TABLE = "plugin_osmpoi_resolver";
+		private final String TAG = ContextophelesConstants.TAG_OSMPOI_RESOLVER + " Provider";
+        public static final String AUTHORITY = ContextophelesConstants.OSMPOI_RESOLVER_AUTHORITY;
+        public static final String MAIN_TABLE = ContextophelesConstants.OSMPOI_RESOLVER_MAIN_TABLE;
         
         private static final int DATABASE_VERSION = 3;
         
@@ -45,15 +46,15 @@ public class OSMPoiResolver_Provider extends ContentProvider {
         public static final class OSMPoiResolver implements BaseColumns {
                 private OSMPoiResolver() {};
                 
-                public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+MAIN_TABLE); //this needs to match the table name
-                public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+PLUGIN_NAME;
-                public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware."+PLUGIN_NAME;
+                public static final Uri    CONTENT_URI = ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI;
+                public static final String CONTENT_TYPE = ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_TYPE;
+                public static final String CONTENT_ITEM_TYPE = ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_ITEM_TYPE;
                 
-                public static final String _ID = "_id";
-                public static final String TIMESTAMP = "timestamp";
-                public static final String DEVICE_ID = "device_id";
-                public static final String NAME = "name";
-                public static final String TYPE = "type";
+                public static final String _ID = ContextophelesConstants.OSMPOI_RESOLVER_FIELD_ID;;
+                public static final String TIMESTAMP = ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP;
+                public static final String DEVICE_ID = ContextophelesConstants.OSMPOI_RESOLVER_FIELD_DEVICE_ID;
+                public static final String NAME = ContextophelesConstants.OSMPOI_RESOLVER_FIELD_NAME;
+                public static final String TYPE = ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TYPE;
 
                 
         }
@@ -124,8 +125,6 @@ public class OSMPoiResolver_Provider extends ContentProvider {
 	            case OSMPOI_RESOLVER:
 	                long _id = database.insert(DATABASE_TABLES[0], OSMPoiResolver.TIMESTAMP, values);
 
-                    Log.wtf(TAG, "Id:" + _id);
-
                     if (_id > 0) {
 	                    Uri dataUri = ContentUris.withAppendedId(OSMPoiResolver.CONTENT_URI, _id);
 	                    getContext().getContentResolver().notifyChange(dataUri, null);
@@ -184,7 +183,7 @@ public class OSMPoiResolver_Provider extends ContentProvider {
 	                database.close();
 	                throw new IllegalArgumentException("Unknown URI " + uri);
 	        }
-	        Log.d(TAG,"Notifying about change");
+
 	        getContext().getContentResolver().notifyChange(uri, null);
 	        return count;
         }

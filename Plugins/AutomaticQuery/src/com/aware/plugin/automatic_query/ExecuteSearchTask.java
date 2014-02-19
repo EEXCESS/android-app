@@ -6,16 +6,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import com.aware.Aware;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
 import eu.europeana.api.client.Api2Query;
 import eu.europeana.api.client.EuropeanaApi2Client;
 import eu.europeana.api.client.EuropeanaApi2Item;
@@ -26,11 +27,11 @@ import eu.europeana.api.client.EuropeanaApi2Results;
  */
 public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Results> {
 
-    private String TAG = "ExecuteSearchTask";
+    private final static String TAG = ContextophelesConstants.TAG_AUTOMATIC_QUERY +  " ExecuteSearchTask";
     private String where = "";
     private String what = "";
 
-    private int maxNumberOfMessages = 5;
+    private int maxNumberOfMessages = ContextophelesConstants.AQ_PLUGIN_MAX_NUMBER_OF_NOTIFICATIONS_AT_ONCE;
 
     private ContextWrapper wrapperRef;
 
@@ -38,7 +39,7 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         this.wrapperRef = wrapper;
     }
 
-    //params[0] contains offset as String, rest is searchterms
+    //params[0] contains offset as String,  params[1] contains where, params[2] contains what, rest is ignored;
     protected EuropeanaApi2Results doInBackground(String... params) {
         //create the query object
         Api2Query europeanaQuery = new Api2Query();
@@ -62,14 +63,17 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
 
         //print out search results
+        // TODO: Log to Databse
         Log.wtf(TAG, "Query: " + europeanaQuery.getSearchTerms());
 
         try {
+            // TODO: Log to Databse
             Log.wtf(TAG, "Query url: " + europeanaQuery.getQueryUrl(europeanaClient));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
+        // TODO: Log to Databse
         Log.wtf(TAG, "Results: " + res.getItemCount() + " / " + res.getTotalResults());
 
         return res;
@@ -77,10 +81,10 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
     protected void onPostExecute(EuropeanaApi2Results result) {
         if (wrapperRef.getClass() == DisplayResultsActivity.class) {
-            Log.d(TAG, "First case, " + where + " " + what);
+            // Display Results in querying Activity
             ((DisplayResultsActivity) wrapperRef).postResultsFromQuery(result, where, what);
         } else {
-            Log.d(TAG, "Second case, " + where + " " + what);
+            // Display Results as Notification
             postResultsFromQuery(result, where, what);
         }
     }
@@ -89,20 +93,18 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
         Intent intent = new Intent(wrapperRef.getApplicationContext(), DisplayResultsActivity.class);
 
+        ArrayList<String> resultJSONStringList = new ArrayList<String>();
 
-        // Instanciating an array list (you don't need to do this, you already have yours)
-        ArrayList<String> your_array_list = new ArrayList<String>();
-
-        // Only react to more than 5 objects
-        if (results.getAllItems().size() > 5) {
+        // Only react to more than the specieifed number of objects
+        if (results.getAllItems().size() > CommonSettings.getMinimumNumberOfResultsToDisplayNotification(wrapperRef.getApplicationContext().getContentResolver())) {
             for (EuropeanaApi2Item item : results.getAllItems()) {
-                your_array_list.add(item.toJSON());
+                resultJSONStringList.add(item.toJSON());
             }
 
             intent.putExtra("totalNumberOfResults", results.getTotalResults());
             intent.putExtra("what", what);
             intent.putExtra("where", where);
-            intent.putStringArrayListExtra("results_list", your_array_list);
+            intent.putStringArrayListExtra("results_list", resultJSONStringList);
 
 
             int notificationNumber = 0;
@@ -112,19 +114,12 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
                 // Apply modulo on notification number
 
-                notificationNumber = ((Plugin) wrapperRef).getNotificationNumber() % maxNumberOfMessages;
-                ((Plugin) wrapperRef).setNotificationNumber(notificationNumber + 1);
+                notificationNumber = (((Plugin) wrapperRef).getNotificationNumber() + 1) % maxNumberOfMessages;
+                ((Plugin) wrapperRef).setNotificationNumber(notificationNumber);
+
                 String msgText;
 
-                if (what.equals("")) {
-                    msgText = " results in " + where;
-                } else if (where.equals("")) {
-                    msgText = " results for " + what;
-                } else {
-                    msgText = " results in " + where + " for "  + what;
-                }
-
-                createAndSendNotification(intent, results.getTotalResults() + msgText, notificationNumber);
+                createAndSendNotification(intent, results.getTotalResults(), notificationNumber);
             } else {
                 // SearchTask was started from DisplayResultsAdapter
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -135,13 +130,27 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
     }
 
-    public void createAndSendNotification(Intent intent, String term, int notifyID) {
+    public void createAndSendNotification(Intent intent, long numberOfResults, int notifyID) {
+
+        Resources res = wrapperRef.getResources();
+        String resultsFound = res.getQuantityString(R.plurals.numberOfResultsAvailable, (int) numberOfResults, (int) numberOfResults);
+
+        if (!what.equals("")) {
+            resultsFound += " " + res.getString(R.string.result_for) + " " + what;
+        }
+
+        if (!where.equals("")) {
+            resultsFound += " " + res.getString(R.string.result_in) + " " + where;
+        }
+
+        resultsFound += ".";
+
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(wrapperRef.getApplicationContext())
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("New Europeana results")
-                        .setContentText(term);
+                        .setContentTitle(res.getString(R.string.notification_title))
+                        .setContentText(resultsFound);
 
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -157,11 +166,11 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         Notification note = mBuilder.build();
 
 
-        if(getNotificationUsesVibration()){
+        if (CommonSettings.getNotificationUsesVibration(wrapperRef.getContentResolver())) {
             note.defaults |= Notification.DEFAULT_VIBRATE;
         }
 
-        if(getNotificationUsesSound()){
+        if (CommonSettings.getNotificationUsesSound(wrapperRef.getContentResolver())) {
             note.defaults |= Notification.DEFAULT_SOUND;
         }
 
@@ -169,37 +178,8 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
 
         mNotificationManager.notify(notifyID, note);
 
-        setTimeOfLastSuccessfulQuery(System.currentTimeMillis());
-    }
-
-    public void setTimeOfLastSuccessfulQuery(Long endTime) {
-        Aware.setSetting(wrapperRef.getContentResolver(), Settings.AWARE_LAST_SUCCESSFUL_QUERY, endTime);
+        CommonSettings.setTimeOfLastSuccessfulQuery(wrapperRef.getContentResolver(), System.currentTimeMillis());
     }
 
 
-    public boolean getNotificationUsesSound(){
-        String useSoundString = Aware.getSetting(wrapperRef.getContentResolver(), Settings.AWARE_QUERY_NOTIFICATION_SOUND);
-        if(useSoundString != null) {
-            try {
-                return Boolean.parseBoolean(useSoundString);
-            } catch (NumberFormatException e) {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    public boolean getNotificationUsesVibration(){
-        String useVibrationString = Aware.getSetting(wrapperRef.getContentResolver(), Settings.AWARE_QUERY_NOTIFICATION_VIBRATE);
-        if(useVibrationString != null) {
-            try {
-                return Boolean.parseBoolean(useVibrationString);
-            } catch (NumberFormatException e) {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
 }

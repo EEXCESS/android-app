@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,26 +23,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aware.Aware;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
 import eu.europeana.api.client.EuropeanaApi2Item;
 import eu.europeana.api.client.EuropeanaApi2Results;
 
 public class DisplayResultsActivity extends Activity {
 
-    private ListView m_listview;
-    private GridView m_gridview;
-
-
-    public static final String TAG = "DisplayResultsActivity";
+    private final static String TAG = ContextophelesConstants.TAG_AUTOMATIC_QUERY + " DisplayResultsActivity";
     boolean flag_loading = false;
     boolean flag_all_loaded = false;
+    private ListView m_listview;
+    private GridView m_gridview;
     private String what = "";
     private String where = "";
-
 
 
     private TextView loadingView = null;
@@ -55,28 +54,21 @@ public class DisplayResultsActivity extends Activity {
 
         int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
-        Log.wtf(TAG, "@Screensize: " + screenSize);
+        setContentView(R.layout.main);
 
-        switch(screenSize) {
+        switch (screenSize) {
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                setContentView(R.layout.main);
                 m_gridview = (GridView) findViewById(R.id.id_grid_view);
-                Log.wtf(TAG, "@View: " + m_gridview);
-                Log.wtf(TAG, "@ViewClass: " + m_gridview.getClass().toString());
                 break;
             default:
                 m_listview = (ListView) findViewById(R.id.id_list_view);
-                Log.wtf(TAG, "@View: " + m_listview);
-                Log.wtf(TAG, "@ViewClass: " + m_listview.getClass().toString());
         }
 
 
         AbsListView.OnScrollListener scrollListener = new AbsListView.OnScrollListener() {
 
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-
             }
 
             public void onScroll(AbsListView view, int firstVisibleItem,
@@ -84,12 +76,10 @@ public class DisplayResultsActivity extends Activity {
 
                 if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
                     if (flag_all_loaded == false && flag_loading == false) {
-                        Log.d(TAG, "@61");
                         flag_loading = true;
 
-
                         int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-                        switch(screenSize) {
+                        switch (screenSize) {
                             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
                             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                                 break;
@@ -104,7 +94,7 @@ public class DisplayResultsActivity extends Activity {
         };
 
 
-        switch(screenSize) {
+        switch (screenSize) {
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                 m_gridview.setOnScrollListener(scrollListener);
@@ -114,7 +104,7 @@ public class DisplayResultsActivity extends Activity {
         }
 
         Intent myIntent = getIntent();
-        if(myIntent != null) {
+        if (myIntent != null) {
             onNewIntent(getIntent());
         }
     }
@@ -130,6 +120,7 @@ public class DisplayResultsActivity extends Activity {
 
         flag_all_loaded = false;
         flag_loading = false;
+
         items = new ArrayList<EuropeanaApi2Item>();
 
         what = intent.getStringExtra("what");
@@ -140,30 +131,40 @@ public class DisplayResultsActivity extends Activity {
         if (
                 resultList != null) {
 
-        // set Time, the user has clicked the result.
-        // used to temporarily disable the UIContent Plugin
-        setLastTimeUserClickedResult(System.currentTimeMillis());
+            // set Time, the user has clicked the result.
+            // used to temporarily disable the UIContent Plugin
+            CommonSettings.setLastTimeUserClickedResultItem(getContentResolver(), System.currentTimeMillis());
 
-        checkIfAllItemsAreLoaded(resultList.size(), intent.getLongExtra("totalNumberOfResults", 0));
+            checkIfAllItemsAreLoaded(resultList.size(), intent.getLongExtra("totalNumberOfResults", 0));
 
-        Toast.makeText(getApplicationContext(),
-                "Showing " + intent.getLongExtra("totalNumberOfResults", 0) + " results for query where = " + where + " what = " +  what , Toast.LENGTH_LONG).show();
+            Resources res = getResources();
+            String toastText = res.getQuantityString(R.plurals.toastText, (int) intent.getLongExtra("totalNumberOfResults", 0), (int) intent.getLongExtra("totalNumberOfResults", 0));
 
+            if (!what.equals("")) {
+                toastText += " " + res.getString(R.string.result_for) + " " + what;
+            }
 
+            if (!where.equals("")) {
+                toastText += " " + res.getString(R.string.result_in) + " " + where;
+            }
 
-        Log.d(TAG, "Where = " + where + " What = " + what);
+            toastText += ".";
 
-        items = new ArrayList<EuropeanaApi2Item>();
+            createAndSendToast(toastText);
 
-        Gson gson = new Gson();
-        int i = 0;
+            Log.d(TAG, toastText);
 
-        for (String json : resultList) {
-            items.add(gson.fromJson(json, EuropeanaApi2Item.class));
-            i++;
-        }
+            items = new ArrayList<EuropeanaApi2Item>();
 
-        EuropeanaApi2ResultAdapter adapter = new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()]));
+            Gson gson = new Gson();
+            int i = 0;
+
+            for (String json : resultList) {
+                items.add(gson.fromJson(json, EuropeanaApi2Item.class));
+                i++;
+            }
+
+            EuropeanaApi2ResultAdapter adapter = new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()]));
 
 
             AdapterView.OnItemClickListener onClickListener = new AdapterView.OnItemClickListener() {
@@ -180,7 +181,7 @@ public class DisplayResultsActivity extends Activity {
 
             int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
-            switch(screenSize) {
+            switch (screenSize) {
                 case Configuration.SCREENLAYOUT_SIZE_XLARGE:
                 case Configuration.SCREENLAYOUT_SIZE_LARGE:
                     m_gridview.setAdapter(adapter);
@@ -204,7 +205,7 @@ public class DisplayResultsActivity extends Activity {
     public void showDNDDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-// 2. Chain together various setter methods to set the dialog characteristics
+        //TODO: Extract Strings and Times
         builder.setTitle("Choose how long Do-Not-Disturb should be active");
         final CharSequence[] items = new CharSequence[]{"15 minutes", "1 hour", "4 hours", "12 hours", "1 Day"};
         builder.setItems(items,
@@ -215,23 +216,23 @@ public class DisplayResultsActivity extends Activity {
                         switch (which) {
                             case 0:
                                 createAndSendToast("DND activated for " + items[0] + ".");
-                                setEndOfDND(System.currentTimeMillis() + 15L * 60L * 1000L);
+                                CommonSettings.setEndOfDoNotDisturb(getContentResolver(), System.currentTimeMillis() + 15L * 60L * 1000L);
                                 break;
                             case 1:
                                 createAndSendToast("DND activated for " + items[1] + ".");
-                                setEndOfDND(System.currentTimeMillis() + 60L * 60L * 1000L);
+                                CommonSettings.setEndOfDoNotDisturb(getContentResolver(), System.currentTimeMillis() + 60L * 60L * 1000L);
                                 break;
                             case 2:
                                 createAndSendToast("DND activated for " + items[2] + ".");
-                                setEndOfDND(System.currentTimeMillis() + 4L * 60L * 60L * 1000L);
+                                CommonSettings.setEndOfDoNotDisturb(getContentResolver(), System.currentTimeMillis() + 4L * 60L * 60L * 1000L);
                                 break;
                             case 3:
                                 createAndSendToast("DND activated for " + items[3] + ".");
-                                setEndOfDND(System.currentTimeMillis() + 12L * 60L * 60L * 1000L);
+                                CommonSettings.setEndOfDoNotDisturb(getContentResolver(), System.currentTimeMillis() + 12L * 60L * 60L * 1000L);
                                 break;
                             case 4:
                                 createAndSendToast("DND activated for " + items[4] + ".");
-                                setEndOfDND(System.currentTimeMillis() + 24L * 60L * 60L * 1000L);
+                                CommonSettings.setEndOfDoNotDisturb(getContentResolver(), System.currentTimeMillis() + 24L * 60L * 60L * 1000L);
                                 break;
                         }
                     }
@@ -242,52 +243,11 @@ public class DisplayResultsActivity extends Activity {
 
     }
 
-
-    public void setLastTimeUserClickedResult(Long time){
-        Aware.setSetting(getContentResolver(), Settings.AWARE_LAST_TIME_USER_CLICKED_RESULTITEM, time);
-    }
-
-    public void setEndOfDND(Long endTime){
-        Aware.setSetting(getContentResolver(), Settings.AWARE_END_OF_DND, endTime);
-    }
-
-    public long getEndOfDND(){
-        String endOfDNDString = Aware.getSetting(getContentResolver(), Settings.AWARE_END_OF_DND);
-        if(endOfDNDString != null) {
-            try {
-                return Long.parseLong(endOfDNDString);
-            } catch (NumberFormatException e) {
-                return 0L;
-            }
-        } else {
-            return 0L;
-        }
-    }
-
-    public void setUseLocation(Boolean value){
-        Aware.setSetting(getContentResolver(), Settings.AWARE_USE_LOCATION, value.toString());
-    }
-
-    public boolean getUseLocation(){
-        String useLocationString = Aware.getSetting(getContentResolver(), Settings.AWARE_USE_LOCATION);
-        if(useLocationString != null) {
-            try {
-                return Boolean.parseBoolean(useLocationString);
-            } catch (NumberFormatException e) {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    public void showPrefilledQuery(){
+    public void showPrefilledQuery() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
         alert.setTitle("Modify Query");
         alert.setMessage("Modify the query to better fit your needs.");
-
-// Set an EditText view to get user input
 
         LayoutInflater factory = LayoutInflater.from(this);
         final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
@@ -305,7 +265,7 @@ public class DisplayResultsActivity extends Activity {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String where = whereField.getText().toString();
                 String what = whatField.getText().toString();
- 
+
                 // Do something with value!
                 new ExecuteSearchTask(getApplication()).execute(new String[]{"0", where, what});
             }
@@ -328,22 +288,20 @@ public class DisplayResultsActivity extends Activity {
 
     }
 
-    public void postResultsFromQuery(EuropeanaApi2Results results,  String where, String what) {
+    public void postResultsFromQuery(EuropeanaApi2Results results, String where, String what) {
         Log.d(TAG, "loaded more results for where " + where + " what " + what);
-        if(items == null){
+        if (items == null) {
             items = new ArrayList<EuropeanaApi2Item>();
         }
 
-        if (results.getAllItems() != null){
+        if (results.getAllItems() != null) {
             items.addAll(results.getAllItems());
         }
 
 
-
-
         int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
-        switch(screenSize) {
+        switch (screenSize) {
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                 m_gridview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
@@ -359,9 +317,6 @@ public class DisplayResultsActivity extends Activity {
         }
 
 
-
-
-
         // All Results have been loaded
         Log.d(TAG, "items size: " + items.size() + " total size:" + results.getTotalResults());
 
@@ -370,16 +325,12 @@ public class DisplayResultsActivity extends Activity {
         flag_loading = false;
     }
 
-    private void checkIfAllItemsAreLoaded(int numberOfLoadedItems, long numberOfItemsTotal){
-        // gte because, well, i guess some bug
-
-        Log.d(TAG, "NLI:" + numberOfLoadedItems + " NOIT: " + numberOfItemsTotal);
-
-        if(numberOfLoadedItems >= numberOfItemsTotal) {
+    private void checkIfAllItemsAreLoaded(int numberOfLoadedItems, long numberOfItemsTotal) {
+        if (numberOfLoadedItems >= numberOfItemsTotal) {
             flag_all_loaded = true;
         }
 
-}
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -392,12 +343,12 @@ public class DisplayResultsActivity extends Activity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         //show the right button for deactivating or activating DND
-        boolean deactivateVisible = System.currentTimeMillis() < getEndOfDND();
+        boolean deactivateVisible = System.currentTimeMillis() < CommonSettings.getEndOfDoNotDisturb(getContentResolver());
         menu.findItem(R.id.action_activate_dnd).setVisible(!deactivateVisible);
         menu.findItem(R.id.action_deactivate_dnd).setVisible(deactivateVisible);
 
         //show the right button for enabling or disabling Location
-        boolean useLocationEnabled = getUseLocation();
+        boolean useLocationEnabled = CommonSettings.getQueryUseOfLocation(getContentResolver());
         menu.findItem(R.id.action_enable_location).setVisible(!useLocationEnabled);
         menu.findItem(R.id.action_disable_location).setVisible(useLocationEnabled);
 
@@ -416,15 +367,15 @@ public class DisplayResultsActivity extends Activity {
                 showDNDDialog();
                 return true;
             case R.id.action_deactivate_dnd:
-                setEndOfDND(System.currentTimeMillis());
+                CommonSettings.setEndOfDoNotDisturb(getContentResolver(), System.currentTimeMillis());
                 createAndSendToast("Do not disturb disabled.");
                 return true;
             case R.id.action_disable_location:
-                setUseLocation(false);
+                CommonSettings.setQueryUseOfLocation(getContentResolver(), false);
                 createAndSendToast("Use of location disabled.");
                 return true;
             case R.id.action_enable_location:
-                setUseLocation(true);
+                CommonSettings.setQueryUseOfLocation(getContentResolver(), true);
                 createAndSendToast("Use of location enabled.");
                 return true;
             default:

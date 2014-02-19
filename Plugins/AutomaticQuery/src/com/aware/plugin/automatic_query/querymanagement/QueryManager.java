@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * Created by wmb on 10.02.14.
  */
@@ -20,16 +22,16 @@ public class QueryManager {
 
         Log.d(this.getClass().toString(), "@registering WhatManagerPlugins");
         whatManager = new TermManager("WhatManager");
-        whatManager.registerPlugin("content://com.aware.provider.plugin.ui_content/plugin_ui_content", 5, 5 * 60 * 1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.clipboard_catcher/plugin_clipboard_catcher", 5, 5 * 60 * 1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver", 5, 5 * 60 * 1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.notification_catcher/plugin_notification_catcher", 5, 5 * 60 * 1000);
-        whatManager.registerPlugin("content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver", 5, 5 * 60 * 1000);
+        whatManager.registerPlugin(ContextophelesConstants.UI_CONTENT_URI, ContextophelesConstants.UI_CONTENT_MAX_STORAGE, ContextophelesConstants.UI_CONTENT_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.CLIPBOARD_CATCHER_MAX_STORAGE, ContextophelesConstants.CLIPBOARD_CATCHER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.OSMPOI_RESOLVER_URI, ContextophelesConstants.OSMPOI_RESOLVER_MAX_STORAGE, ContextophelesConstants.OSMPOI_RESOLVER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.NOTIFICATION_CATCHER_URI, ContextophelesConstants.NOTIFICATION_CATCHER_MAX_STORAGE, ContextophelesConstants.NOTIFICATION_CATCHER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.SMS_RECEIVER_URI, ContextophelesConstants.SMS_RECEIVER_MAX_STORAGE, ContextophelesConstants.SMS_RECEIVER_WEAROFF_TIME);
 
         Log.d(this.getClass().toString(), "@registering WhereManagerPlugins");
         whereManager = new TermManager("WhereManager");
-        whereManager.registerPlugin("content://com.aware.provider.plugin.term_collector/plugin_term_collector_geodata", 7, 5 * 60 * 1000);
-        whereManager.registerPlugin("content://com.aware.provider.plugin.geoname_resolver/plugin_geoname_resolver", 7, 15 * 60 * 1000);
+        whereManager.registerPlugin(ContextophelesConstants.TERM_COLLECTOR_GEODATA_URI, ContextophelesConstants.TERM_COLLECTOR_GEODATA_MAX_STORAGE, ContextophelesConstants.TERM_COLLECTOR_GEODATA_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_MAX_STORAGE, ContextophelesConstants.GEONAME_RESOLVER_WEAROFF_TIME);
     }
 
     public void addWhatObject(WhatObject toAdd) {
@@ -68,7 +70,7 @@ public class QueryManager {
         Log.d(this.getClass().toString(), "Removing Objects: " + objectsToRemove);
 
         // remove them
-        for(QueryObject objectToRemove: objectsToRemove){
+        for (QueryObject objectToRemove : objectsToRemove) {
             queryList.remove(objectToRemove);
         }
     }

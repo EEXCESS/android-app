@@ -18,19 +18,14 @@ import com.aware.utils.DatabaseHelper;
 
 import java.util.HashMap;
 
-/**
- * ContentProvider for the NotificationCatcher
- * @author Christian Koehler
- * @email: ckoehler@andrew.cmu.edu
- * @since: 29 May 2013
- */
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 
 public class GeonameResolver_Provider extends ContentProvider {
 
-		private final String TAG = "GeonameResolver Provider";
-        public static final String PLUGIN_NAME = "plugin.geoname_resolver";
-        public static final String AUTHORITY = "com.aware.provider."+PLUGIN_NAME;
-        public static final String MAIN_TABLE = "plugin_geoname_resolver";
+		private final String TAG = ContextophelesConstants.TAG_GEONAME_RESOLVER + " Provider";
+        public static final String AUTHORITY = ContextophelesConstants.GEONAME_RESOLVER_AUTHORITY;
+        public static final String MAIN_TABLE = ContextophelesConstants.GEONAME_RESOLVER_MAIN_TABLE;
         
         private static final int DATABASE_VERSION = 4;
         
@@ -43,19 +38,16 @@ public class GeonameResolver_Provider extends ContentProvider {
         private static SQLiteDatabase database = null;        
         
         public static final class GeonameResolver implements BaseColumns {
-                private GeonameResolver() {};
+                private GeonameResolver() {}
                 
-                public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+MAIN_TABLE); //this needs to match the table name
-                public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+PLUGIN_NAME;
-                public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware."+PLUGIN_NAME;
+                public static final Uri CONTENT_URI = ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI;
+                public static final String CONTENT_TYPE = ContextophelesConstants.GEONAME_RESOLVER_CONTENT_TYPE;
+                public static final String CONTENT_ITEM_TYPE = ContextophelesConstants.GEONAME_RESOLVER_CONTENT_ITEM_TYPE;
                 
-                public static final String _ID = "_id";
-                public static final String TIMESTAMP = "timestamp";
-                public static final String DEVICE_ID = "device_id";
-                public static final String NAME = "name";
-                //public static final String TYPE = "type";
-
-                
+                public static final String _ID =        ContextophelesConstants.GEONAME_RESOLVER_FIELD_ID;
+                public static final String TIMESTAMP =  ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP;
+                public static final String DEVICE_ID =  ContextophelesConstants.GEONAME_RESOLVER_FIELD_DEVICE_ID;
+                public static final String NAME =       ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME;
         }
         
         public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/"+MAIN_TABLE+".db";
@@ -69,7 +61,6 @@ public class GeonameResolver_Provider extends ContentProvider {
         			GeonameResolver.TIMESTAMP + " real default 0," + 
         			GeonameResolver.DEVICE_ID + " text default ''," +
         			GeonameResolver.NAME + " text default ''," +
-                    //GeonameResolver.TYPE + " text default ''," +
                    "UNIQUE ("+GeonameResolver.TIMESTAMP+","+GeonameResolver.DEVICE_ID+","+ GeonameResolver.NAME + ")"
         };
         
@@ -83,7 +74,6 @@ public class GeonameResolver_Provider extends ContentProvider {
                 contentMap.put(GeonameResolver.TIMESTAMP, GeonameResolver.TIMESTAMP);
                 contentMap.put(GeonameResolver.DEVICE_ID, GeonameResolver.DEVICE_ID);
                 contentMap.put(GeonameResolver.NAME, GeonameResolver.NAME);
-                //contentMap.put(GeonameResolver.TYPE, GeonameResolver.TYPE);
         }
         
         @Override
@@ -123,8 +113,6 @@ public class GeonameResolver_Provider extends ContentProvider {
 	        switch(uriMatcher.match(uri)) {
 	            case GEONAME_RESOLVER:
 	                long _id = database.insert(DATABASE_TABLES[0], GeonameResolver.TIMESTAMP, values);
-
-                    Log.wtf(TAG, "Id:" + _id);
 
                     if (_id > 0) {
 	                    Uri dataUri = ContentUris.withAppendedId(GeonameResolver.CONTENT_URI, _id);
@@ -184,7 +172,6 @@ public class GeonameResolver_Provider extends ContentProvider {
 	                database.close();
 	                throw new IllegalArgumentException("Unknown URI " + uri);
 	        }
-	        Log.d(TAG,"Notifying about change");
 	        getContext().getContentResolver().notifyChange(uri, null);
 	        return count;
         }
