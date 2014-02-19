@@ -16,9 +16,11 @@ import com.aware.Aware_Preferences;
 import com.aware.plugin.image_receiver.ImageReceiver_Provider.ImageReceiver;
 import com.aware.utils.Aware_Plugin;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 public class Plugin extends Aware_Plugin {
 
-	private static final String TAG = "ImageReceiver Plugin";
+	private static final String TAG = ContextophelesConstants.TAG_IMAGE_RECEIVER + " Plugin";
 	public static final String ACTION_AWARE_IMAGERECEIVER = "ACTION_AWARE_IMAGERECEIVER";
 	
 	private static long previousTimestamp = 0L;
@@ -44,7 +46,6 @@ public class Plugin extends Aware_Plugin {
 		CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
 			@Override
 			public void onContext() {
-				Log.d(TAG, "Putting extra context into intent");
 				Intent notification = new Intent(ACTION_AWARE_IMAGERECEIVER);
 				sendBroadcast(notification);
 			}
@@ -93,12 +94,6 @@ public class Plugin extends Aware_Plugin {
 		
 		if (cursor != null && cursor.moveToFirst()) {
 
-//			for (String name : cursor.getColumnNames()) {
-//				Log.d(TAG, name + ": " + cursor.getString(cursor.getColumnIndex(name)));
-//			}
-			
-			
-			
 			ContentValues rowData = new ContentValues();
 			
 			rowData.put(ImageReceiver.DEVICE_ID, Aware.getSetting(

@@ -18,21 +18,14 @@ import com.aware.utils.DatabaseHelper;
 
 import java.util.HashMap;
 
-/**
- * ContentProvider for the NotificationCatcher
- * @author Christian Koehler
- * @email: ckoehler@andrew.cmu.edu
- * @since: 29 May 2013
- */
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 
 public class ImageReceiver_Provider extends ContentProvider {
 
-		private final String TAG = "ImageReceiver Provider";
-        public static final String PLUGIN_NAME = "plugin.image_receiver";
-        public static final String AUTHORITY = "com.aware.provider."+PLUGIN_NAME;
-        public static final String MAIN_TABLE = "plugin_image_receiver";
-        
-        
+		private final String TAG = ContextophelesConstants.TAG_IMAGE_RECEIVER + " Provider";
+        public static final String AUTHORITY = ContextophelesConstants.IMAGE_RECEIVER_AUTHORITY;
+        public static final String MAIN_TABLE = ContextophelesConstants.IMAGE_RECEIVER_MAIN_TABLE;
+
         private static final int DATABASE_VERSION = 3;
         
         private static final int IMAGE_RECEIVER = 1;
@@ -46,32 +39,32 @@ public class ImageReceiver_Provider extends ContentProvider {
         public static final class ImageReceiver implements BaseColumns {
                 private ImageReceiver() {};
                 
-                public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/"+MAIN_TABLE); //this needs to match the table name
-                public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+PLUGIN_NAME;
-                public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware."+PLUGIN_NAME;
-                
-                public static final String _ID = "_id";
-                public static final String TIMESTAMP = "timestamp";
-                public static final String DEVICE_ID = "device_id";
-                public static final String _DATA = "_data";
-                public static final String _DISPLAY_NAME = "_display_name";
-                public static final String _SIZE = "_size";
-                public static final String BUCKET_DISPLAY_NAME = "bucket_display_name";
-                public static final String BUCKET_ID = "bucket_id";
-                public static final String DATE_TAKEN = "date_taken";
-                public static final String DATE_ADDED = "date_added";
-                public static final String DATE_MODIFIED = "date_modified";
-                public static final String DESCRIPTION = "description";
-                public static final String HEIGHT = "height";
-                public static final String ISPRIVATE = "isprivate";
-                public static final String LATITUDE = "latitude";
-                public static final String LONGITUDE = "longitude";
-                public static final String MIME_TYPE = "mime_type";
-                public static final String MINI_THUMB_MAGIC = "mini_thumb_magic";
-                public static final String ORIENTATION = "orientation";
-                public static final String PICASA_ID = "picasa_id";
-                public static final String TITLE = "title";
-                public static final String WIDTH = "width";
+                public static final Uri    CONTENT_URI = ContextophelesConstants.IMAGE_RECEIVER_CONTENT_URI;
+                public static final String CONTENT_TYPE = ContextophelesConstants.IMAGE_RECEIVER_CONTENT_TYPE;
+                public static final String CONTENT_ITEM_TYPE = ContextophelesConstants.IMAGE_RECEIVER_CONTENT_ITEM_TYPE;
+
+            public static final String _ID = ContextophelesConstants.IMAGE_RECEIVER_FIELD_ID;
+            public static final String TIMESTAMP = ContextophelesConstants.IMAGE_RECEIVER_FIELD_TIMESTAMP;
+            public static final String DEVICE_ID = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DEVICE_ID;
+            public static final String _DATA = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DATA;
+            public static final String _DISPLAY_NAME = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DISPLAY_NAME;
+            public static final String _SIZE = ContextophelesConstants.IMAGE_RECEIVER_FIELD_SIZE;
+            public static final String BUCKET_DISPLAY_NAME = ContextophelesConstants.IMAGE_RECEIVER_FIELD_BUCKET_DISPLAY_NAME;
+            public static final String BUCKET_ID = ContextophelesConstants.IMAGE_RECEIVER_FIELD_BUCKET_ID;
+            public static final String DATE_TAKEN = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DATE_TAKEN;
+            public static final String DATE_ADDED = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DATE_ADDED;
+            public static final String DATE_MODIFIED = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DATE_MODIFIED;
+            public static final String DESCRIPTION = ContextophelesConstants.IMAGE_RECEIVER_FIELD_DESCRIPTION;
+            public static final String HEIGHT = ContextophelesConstants.IMAGE_RECEIVER_FIELD_HEIGHT;
+            public static final String ISPRIVATE = ContextophelesConstants.IMAGE_RECEIVER_FIELD_ISPRIVATE;
+            public static final String LATITUDE = ContextophelesConstants.IMAGE_RECEIVER_FIELD_LATITUDE;
+            public static final String LONGITUDE = ContextophelesConstants.IMAGE_RECEIVER_FIELD_LONGITUDE;
+            public static final String MIME_TYPE = ContextophelesConstants.IMAGE_RECEIVER_FIELD_MIME_TYPE;
+            public static final String MINI_THUMB_MAGIC = ContextophelesConstants.IMAGE_RECEIVER_FIELD_MINI_THUMB_MAGIC;
+            public static final String ORIENTATION = ContextophelesConstants.IMAGE_RECEIVER_FIELD_ORIENTATION;
+            public static final String PICASA_ID = ContextophelesConstants.IMAGE_RECEIVER_FIELD_PICASA_ID;
+            public static final String TITLE = ContextophelesConstants.IMAGE_RECEIVER_FIELD_TITLE;
+            public static final String WIDTH = ContextophelesConstants.IMAGE_RECEIVER_FIELD_WIDTH;
                 
         }
         
@@ -232,7 +225,6 @@ public class ImageReceiver_Provider extends ContentProvider {
 	                database.close();
 	                throw new IllegalArgumentException("Unknown URI " + uri);
 	        }
-	        Log.d(TAG,"Notifying about change");
 	        getContext().getContentResolver().notifyChange(uri, null);
 	        return count;
         }

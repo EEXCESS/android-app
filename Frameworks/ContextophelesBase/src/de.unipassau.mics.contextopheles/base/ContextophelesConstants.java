@@ -8,6 +8,8 @@ public class ContextophelesConstants {
     public static final String TAG_CLIPBOARD_CATCHER = "Contextopheles Clipboard Catcher";
     public static final String TAG_GEONAME_RESOLVER = "GeonameResolver";
     public static final String TAG_OSMPOI_RESOLVER = "OSMPoiResolver";
+    public static final String TAG_IMAGE_RECEIVER= "ImageReceiver";
+
 
     // Settings Fields, AQ = Automatic Query, GR = GeonameResolver, OR = OSMPOIResolver
     public static final String SETTINGS_AQ_END_OF_DND = "AQ_END_OF_DND";
@@ -83,7 +85,6 @@ public class ContextophelesConstants {
     public static final long   GEONAME_RESOLVER_WEAROFF_TIME = 15 * 60 * 1000;
 
     // OSM Poi Resolver
-
     public static final String OSMPOI_RESOLVER_PLUGIN_NAME = "plugin.osmpoi_resolver";
     public static final String OSMPOI_RESOLVER_AUTHORITY = "com.aware.provider."+ OSMPOI_RESOLVER_PLUGIN_NAME;
     public static final String OSMPOI_RESOLVER_MAIN_TABLE = "plugin_osmpoi_resolver";
@@ -98,6 +99,40 @@ public class ContextophelesConstants {
     public static final String  OSMPOI_RESOLVER_FIELD_NAME = "name";
     public static final String  OSMPOI_RESOLVER_FIELD_TYPE = "type";
 
+    public static final int    OSMPOI_RESOLVER_MAX_STORAGE = 5;
+    public static final long   OSMPOI_RESOLVER_WEAROFF_TIME = 5 * 60 * 1000;
+
+    // Image Receiver
+    public static final String IMAGE_RECEIVER_PLUGIN_NAME = "plugin.image_receiver";
+    public static final String IMAGE_RECEIVER_AUTHORITY = "com.aware.provider."+IMAGE_RECEIVER_PLUGIN_NAME;
+    public static final String IMAGE_RECEIVER_MAIN_TABLE = "plugin_image_receiver";
+
+    public static final Uri    IMAGE_RECEIVER_CONTENT_URI = Uri.parse("content://"+IMAGE_RECEIVER_AUTHORITY+"/"+IMAGE_RECEIVER_MAIN_TABLE); //this needs to match the table name
+    public static final String IMAGE_RECEIVER_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+IMAGE_RECEIVER_PLUGIN_NAME;
+    public static final String IMAGE_RECEIVER_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware."+IMAGE_RECEIVER_PLUGIN_NAME;
+
+    public static final String IMAGE_RECEIVER_FIELD_ID = "_id";
+    public static final String IMAGE_RECEIVER_FIELD_TIMESTAMP = "timestamp";
+    public static final String IMAGE_RECEIVER_FIELD_DEVICE_ID = "device_id";
+    public static final String IMAGE_RECEIVER_FIELD_DATA = "_data";
+    public static final String IMAGE_RECEIVER_FIELD_DISPLAY_NAME = "_display_name";
+    public static final String IMAGE_RECEIVER_FIELD_SIZE = "_size";
+    public static final String IMAGE_RECEIVER_FIELD_BUCKET_DISPLAY_NAME = "bucket_display_name";
+    public static final String IMAGE_RECEIVER_FIELD_BUCKET_ID = "bucket_id";
+    public static final String IMAGE_RECEIVER_FIELD_DATE_TAKEN = "date_taken";
+    public static final String IMAGE_RECEIVER_FIELD_DATE_ADDED = "date_added";
+    public static final String IMAGE_RECEIVER_FIELD_DATE_MODIFIED = "date_modified";
+    public static final String IMAGE_RECEIVER_FIELD_DESCRIPTION = "description";
+    public static final String IMAGE_RECEIVER_FIELD_HEIGHT = "height";
+    public static final String IMAGE_RECEIVER_FIELD_ISPRIVATE = "isprivate";
+    public static final String IMAGE_RECEIVER_FIELD_LATITUDE = "latitude";
+    public static final String IMAGE_RECEIVER_FIELD_LONGITUDE = "longitude";
+    public static final String IMAGE_RECEIVER_FIELD_MIME_TYPE = "mime_type";
+    public static final String IMAGE_RECEIVER_FIELD_MINI_THUMB_MAGIC = "mini_thumb_magic";
+    public static final String IMAGE_RECEIVER_FIELD_ORIENTATION = "orientation";
+    public static final String IMAGE_RECEIVER_FIELD_PICASA_ID = "picasa_id";
+    public static final String IMAGE_RECEIVER_FIELD_TITLE = "title";
+    public static final String IMAGE_RECEIVER_FIELD_WIDTH = "width";
 
     //Term Collector Term
     public static final String TERM_COLLECTOR_TERM_URI = "content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms";
@@ -117,7 +152,6 @@ public class ContextophelesConstants {
     public static final String LIGHT_FIELD_DOUBLE_LUX = "double_light_lux";
 
     // Location
-
     public static final String LOCATION_URI = "content://com.aware.provider.locations/locations";
 
     //SituationManager Fields
@@ -128,9 +162,8 @@ public class ContextophelesConstants {
     public static final String UI_CONTENT_URI = "content://com.aware.provider.plugin.ui_content/plugin_ui_content";
     public static final int    UI_CONTENT_MAX_STORAGE = 5;
     public static final long   UI_CONTENT_WEAROFF_TIME = 5 * 60 * 1000;
-    public static final String OSMPOI_RESOLVER_URI = "content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver";
-    public static final int    OSMPOI_RESOLVER_MAX_STORAGE = 5;
-    public static final long   OSMPOI_RESOLVER_WEAROFF_TIME = 5 * 60 * 1000;
+
+
     public static final String NOTIFICATION_CATCHER_URI = "content://com.aware.provider.plugin.notification_catcher/plugin_notification_catcher";
     public static final int    NOTIFICATION_CATCHER_MAX_STORAGE = 5;
     public static final long   NOTIFICATION_CATCHER_WEAROFF_TIME = 5 * 60 * 1000;

@@ -24,7 +24,7 @@ public class QueryManager {
         whatManager = new TermManager("WhatManager");
         whatManager.registerPlugin(ContextophelesConstants.UI_CONTENT_URI, ContextophelesConstants.UI_CONTENT_MAX_STORAGE, ContextophelesConstants.UI_CONTENT_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.CLIPBOARD_CATCHER_MAX_STORAGE, ContextophelesConstants.CLIPBOARD_CATCHER_WEAROFF_TIME);
-        whatManager.registerPlugin(ContextophelesConstants.OSMPOI_RESOLVER_URI, ContextophelesConstants.OSMPOI_RESOLVER_MAX_STORAGE, ContextophelesConstants.OSMPOI_RESOLVER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.OSMPOI_RESOLVER_MAX_STORAGE, ContextophelesConstants.OSMPOI_RESOLVER_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.NOTIFICATION_CATCHER_URI, ContextophelesConstants.NOTIFICATION_CATCHER_MAX_STORAGE, ContextophelesConstants.NOTIFICATION_CATCHER_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.SMS_RECEIVER_URI, ContextophelesConstants.SMS_RECEIVER_MAX_STORAGE, ContextophelesConstants.SMS_RECEIVER_WEAROFF_TIME);
 
