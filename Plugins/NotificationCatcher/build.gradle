@@ -15,6 +15,7 @@ apply plugin: 'android'
 
 dependencies {
     compile project(':Frameworks:aware_framework_v2')
+    compile project(':Frameworks:ContextophelesBase')
 
 }
 

@@ -17,18 +17,18 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <service
-            android:name="Plugin"
+            android:name="com.aware.plugin.notification_catcher_contextopheles.Plugin"
             android:exported="true">            
         </service>
-        <service android:name=".NotificationCatcher" android:enabled="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true">
+        <service android:name="com.aware.plugin.notification_catcher_contextopheles.NotificationCatcher" android:enabled="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
-        <provider android:name="NotificationCatcher_Provider" android:authorities="com.aware.provider.plugin.notification_catcher" android:exported="true" android:writePermission="com.aware.WRITE_CONTEXT_DATA" android:readPermission="com.aware.READ_CONTEXT_DATA"></provider>
+        <provider android:name="com.aware.plugin.notification_catcher_contextopheles.NotificationCatcher_Provider" android:authorities="com.aware.provider.plugin.notification_catcher" android:exported="true" android:writePermission="com.aware.WRITE_CONTEXT_DATA" android:readPermission="com.aware.READ_CONTEXT_DATA"></provider>
 
         <activity
-            android:name="Settings"
+            android:name="com.aware.plugin.notification_catcher_contextopheles.Settings"
             android:exported="true"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>

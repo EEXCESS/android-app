@@ -1,11 +1,13 @@
-package com.aware.plugin.notification_catcher;
+package com.aware.plugin.notification_catcher_contextopheles;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.aware.plugin.notification_catcher.NotificationCatcher_Provider.Notifications;
+import com.aware.plugin.notification_catcher_contextopheles.NotificationCatcher_Provider.Notifications;
 import com.aware.utils.Aware_Plugin;
+
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 
 /**
  * Main Plugin for the NotificationCatcher
@@ -15,15 +17,12 @@ import com.aware.utils.Aware_Plugin;
  */
 
 public class Plugin extends Aware_Plugin{
-
-	public static final String ACTION_AWARE_NOTIFICATIONCATCHER = "ACTION_AWARE_NOTIFICATIONCATCHER";
+    private final static String TAG = ContextophelesConstants.TAG_NOTIFICATION_CATCHER + " Plugin";
+    public static final String ACTION_AWARE_NOTIFICATIONCATCHER = "ACTION_AWARE_NOTIFICATIONCATCHER";
 	
 	@Override
     public void onCreate() {
         super.onCreate();
-        
-        //Set plugin values on the framework
-        TAG = "NotificationCatcher";
         
         //Share the context back to the framework and other applications
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
@@ -37,7 +36,7 @@ public class Plugin extends Aware_Plugin{
         TABLES_FIELDS = NotificationCatcher_Provider.TABLES_FIELDS;
         CONTEXT_URIS = new Uri[]{ Notifications.CONTENT_URI };
         
-        Log.d("NotificationCatcher Plugin","Plugin Started");
+        Log.d(TAG,"Plugin Started");
                 
     }
 	

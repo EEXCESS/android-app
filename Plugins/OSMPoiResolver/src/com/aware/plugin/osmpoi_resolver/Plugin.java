@@ -110,8 +110,6 @@ public class Plugin extends Aware_Plugin {
 			rowData.put(OSMPoiResolver.NAME, res.get("result").get(i).get("name").toString());
 			rowData.put(OSMPoiResolver.TYPE, res.get("result").get(i).get("type").toString());
 
-                Log.wtf(TAG, res.get("result").get(i).get("name").toString());
-
 				Log.d(TAG, "Saving " + rowData.toString());
 				getContentResolver().insert(OSMPoiResolver.CONTENT_URI, rowData);
 

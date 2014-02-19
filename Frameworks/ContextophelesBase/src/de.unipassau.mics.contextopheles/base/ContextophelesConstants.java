@@ -9,6 +9,7 @@ public class ContextophelesConstants {
     public static final String TAG_GEONAME_RESOLVER = "GeonameResolver";
     public static final String TAG_OSMPOI_RESOLVER = "OSMPoiResolver";
     public static final String TAG_IMAGE_RECEIVER= "ImageReceiver";
+    public static final String TAG_NOTIFICATION_CATCHER= "Contextopheles Notification Catcher";
 
 
     // Settings Fields, AQ = Automatic Query, GR = GeonameResolver, OR = OSMPOIResolver
@@ -134,6 +135,25 @@ public class ContextophelesConstants {
     public static final String IMAGE_RECEIVER_FIELD_TITLE = "title";
     public static final String IMAGE_RECEIVER_FIELD_WIDTH = "width";
 
+    // Notification Catcher
+    public static final String NOTIFICATION_CATCHER_PLUGIN_NAME = "plugin.notification_catcher_contextopheles";
+    public static final String NOTIFICATION_CATCHER_AUTHORITY = "com.aware.provider."+NOTIFICATION_CATCHER_PLUGIN_NAME;
+    public static final String NOTIFICATION_CATCHER_MAIN_TABLE = "notification_catcher_contextopheles";
+
+    public static final Uri    NOTIFICATION_CATCHER_CONTENT_URI = Uri.parse("content://"+NOTIFICATION_CATCHER_AUTHORITY+"/"+NOTIFICATION_CATCHER_MAIN_TABLE); //this needs to match the table name
+    public static final String NOTIFICATION_CATCHER_CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware."+NOTIFICATION_CATCHER_PLUGIN_NAME;
+    public static final String NOTIFICATION_CATCHER_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware."+NOTIFICATION_CATCHER_PLUGIN_NAME;
+
+    public static final String NOTIFICATION_CATCHER_FIELD_ID =        "_id";
+    public static final String NOTIFICATION_CATCHER_FIELD_TIMESTAMP =  "timestamp";
+    public static final String NOTIFICATION_CATCHER_FIELD_DEVICE_ID =  "device_id";
+    public static final String NOTIFICATION_CATCHER_FIELD_TITLE =      "title";
+    public static final String NOTIFICATION_CATCHER_FIELD_TEXT =       "content_text";
+    public static final String NOTIFICATION_CATCHER_FIELD_APP_NAME =   "app_name";
+
+    public static final int    NOTIFICATION_CATCHER_MAX_STORAGE = 5;
+    public static final long   NOTIFICATION_CATCHER_WEAROFF_TIME = 5 * 60 * 1000;
+
     //Term Collector Term
     public static final String TERM_COLLECTOR_TERM_URI = "content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms";
     public static final String TERM_COLLECTOR_TERM_FIELD_TIMESTAMP = "timestamp";
@@ -164,9 +184,7 @@ public class ContextophelesConstants {
     public static final long   UI_CONTENT_WEAROFF_TIME = 5 * 60 * 1000;
 
 
-    public static final String NOTIFICATION_CATCHER_URI = "content://com.aware.provider.plugin.notification_catcher/plugin_notification_catcher";
-    public static final int    NOTIFICATION_CATCHER_MAX_STORAGE = 5;
-    public static final long   NOTIFICATION_CATCHER_WEAROFF_TIME = 5 * 60 * 1000;
+
     public static final String SMS_RECEIVER_URI = "content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver";
     public static final int    SMS_RECEIVER_MAX_STORAGE = 5;
     public static final long   SMS_RECEIVER_WEAROFF_TIME = 5 * 60 * 1000;
