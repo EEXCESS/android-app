@@ -7,10 +7,10 @@ include "Plugins:TermCollector"
 include "Plugins:GeoCollector"
 include "Plugins:OSMPoiResolver"
 include "Plugins:GeonameResolver"
-include "Plugins:BrowserHistory"
 include "Plugins:AutomaticQuery"
 include "Plugins:UIContent"
 include "Frameworks:aware_framework_v2"
 include 'Frameworks:EuropeanaClient'
 include 'Frameworks:MingleClient'
+include 'Frameworks:ContextophelesBase'
 include "Support:TermViewer"
