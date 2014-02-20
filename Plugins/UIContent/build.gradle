@@ -14,6 +14,7 @@ buildscript {
 apply plugin: 'android'
 
 dependencies {
+    compile project(':Frameworks:ContextophelesBase')
     compile project(':Frameworks:aware_framework_v2')
 
 }

@@ -6,24 +6,16 @@ import android.util.Log;
 
 import com.aware.utils.Aware_Plugin;
 
-/**
- * Main Plugin for the UIContent
- * @author Christian Koehler
- * @email: ckoehler@andrew.cmu.edu
- *
- */
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 
 public class Plugin extends Aware_Plugin{
-
+    private static final String TAG = ContextophelesConstants.TAG_UI_CONTENT + " Plugin";
 	public static final String ACTION_AWARE_UICONTENT = "ACTION_AWARE_UICONTENT";
 	
 	@Override
     public void onCreate() {
         super.onCreate();
-        
-        //Set plugin values on the framework
-        TAG = "UIContent";
-        
+
         //Share the context back to the framework and other applications
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
             @Override
@@ -36,7 +28,7 @@ public class Plugin extends Aware_Plugin{
         TABLES_FIELDS = UIContent_Provider.TABLES_FIELDS;
         CONTEXT_URIS = new Uri[]{ UIContent_Provider.UIContents.CONTENT_URI };
         
-        Log.d("UIContent Plugin","Plugin Started");
+        Log.d(TAG, "Plugin Started");
                 
     }
 	
