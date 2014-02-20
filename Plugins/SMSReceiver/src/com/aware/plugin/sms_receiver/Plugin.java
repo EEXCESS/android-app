@@ -1,24 +1,21 @@
 package com.aware.plugin.sms_receiver;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 import com.aware.plugin.sms_receiver.SMSReceiver_Provider.SMSReceiver;
 import com.aware.utils.Aware_Plugin;
+
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 
 /**
  * Main Plugin for the ClipboardCatcher
@@ -29,7 +26,7 @@ import com.aware.utils.Aware_Plugin;
 
 public class Plugin extends Aware_Plugin{
 
-	private static final String TAG = "SMSReceiver Plugin";
+	private static final String TAG = ContextophelesConstants.TAG_SMS_RECEIVER + " Plugin";
 	public static final String ACTION_AWARE_SMSRECEIVER= "ACTION_AWARE_SMSRECEIVER";
 	public static SmsReceiver smsreceiver;
 	
@@ -37,16 +34,11 @@ public class Plugin extends Aware_Plugin{
     public void onCreate() {
 		Log.d(TAG,"Plugin Created");
         super.onCreate();
-        
-        // load initially
-     		
-        //loadCurrentClipboardContent();
-        
+
         //Share the context back to the framework and other applications
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
             @Override
             public void onContext() {
-            	Log.d(TAG,"Putting extra context into intent");
                 Intent notification = new Intent(ACTION_AWARE_SMSRECEIVER);
                 
                 sendBroadcast(notification);
@@ -77,29 +69,16 @@ public class Plugin extends Aware_Plugin{
         
         unregisterReceiver(smsreceiver);
     }
-	
-	@SuppressLint("NewApi")
-	public void clipboardUpdated(){
-		// load
-		//loadCurrentClipboardContent();
-		 
-		// save
-//		saveData(currentClipboardContent);
-     	
-		// distribute
-		CONTEXT_PRODUCER.onContext();
-	}
 
 	
 	protected void saveData(String smsContent) {
-		
-		Log.d(TAG,"Saving Data");
-		
 		ContentValues rowData = new ContentValues();
         rowData.put(SMSReceiver.DEVICE_ID, Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID));
         rowData.put(SMSReceiver.TIMESTAMP, System.currentTimeMillis());    
         rowData.put(SMSReceiver.SMSContent, smsContent);
-        
+
+        Log.d(TAG,"Saving Row " + rowData.toString());
+
         getContentResolver().insert(SMSReceiver.CONTENT_URI, rowData);
     }
 	
@@ -127,14 +106,10 @@ public class Plugin extends Aware_Plugin{
 	                    messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
 	                    sb.append(messages[i].getMessageBody());
 	                }
-	                String sender = messages[0].getOriginatingAddress();
+
 	                String message = sb.toString();
-//	                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-	                Log.d(TAG, message);
 	                
 	                saveData(message);
-	                // prevent any other broadcast receivers from receiving broadcast
-	                // abortBroadcast();
 	            }
 	        }
 	    }
