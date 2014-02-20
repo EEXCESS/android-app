@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.aware.plugin.automatic_query.europeana.ExecuteSearchTask;
 import com.aware.plugin.automatic_query.querymanagement.QueryManager;
 import com.aware.plugin.automatic_query.querymanagement.QueryObject;
 import com.aware.plugin.automatic_query.querymanagement.WhatObject;
@@ -70,7 +71,7 @@ public class Plugin extends Aware_Plugin {
 
         situationManager = new SituationManager(getApplicationContext());
 
-        queryManager = new QueryManager();
+        queryManager = new QueryManager(getApplicationContext());
 
         threads = new HandlerThread(TAG);
         threads.start();
@@ -78,7 +79,7 @@ public class Plugin extends Aware_Plugin {
         // Set the observers, that run in independent threads, for
         // responsiveness
 
-        termCollectorContentUri = Uri.parse(ContextophelesConstants.TERM_COLLECTOR_TERM_URI);
+        termCollectorContentUri = ContextophelesConstants.TERM_COLLECTOR_TERM_CONTENT_URI;
         termCollectorObs = new TermCollectorObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -86,8 +87,7 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "termCollectorObs registered");
 
 
-        geoCollectorContentUri = Uri
-                .parse(ContextophelesConstants.GEO_COLLECTOR_TERM_URI);
+        geoCollectorContentUri = ContextophelesConstants.GEO_COLLECTOR_CONTENT_URI;
         geoCollectorObs = new GeoCollectorObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -161,10 +161,10 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     termCollectorContentUri, null, null, null,
-                    ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TIMESTAMP + " DESC LIMIT 1");
+                    ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
                 String localWhat = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TERM_CONTENT));
-                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TIMESTAMP));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP));
                 String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TERM_SOURCE));
 
                 queryManager.addWhatObject(new WhatObject(localTimestamp, localSource, localWhat));
@@ -192,12 +192,12 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     geoCollectorContentUri, null, null, null,
-                    ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TIMESTAMP  + " DESC LIMIT 1");
+                    ContextophelesConstants.GEO_COLLECTOR_FIELD_TIMESTAMP  + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
                 String localWhere = cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TERM_CONTENT));
-                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TIMESTAMP));
-                String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_TERM_FIELD_TERM_SOURCE));
+                        .getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_CONTENT));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_FIELD_TIMESTAMP));
+                String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_SOURCE));
 
                 queryManager.addWhereObject(new WhereObject(localTimestamp, localSource, localWhere));
 

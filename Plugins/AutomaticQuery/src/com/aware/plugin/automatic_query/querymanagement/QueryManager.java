@@ -1,5 +1,6 @@
 package com.aware.plugin.automatic_query.querymanagement;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
 
 /**
  * Created by wmb on 10.02.14.
@@ -16,21 +18,23 @@ public class QueryManager {
     private ConcurrentSkipListSet<QueryObject> queryList;
     private TermManager whatManager;
     private TermManager whereManager;
+    private Context context;
 
-    public QueryManager() {
+    public QueryManager(Context context) {
+        this.context = context;
         queryList = new ConcurrentSkipListSet<QueryObject>(new QueryObjectImportanceComparator());
 
         Log.d(this.getClass().toString(), "@registering WhatManagerPlugins");
         whatManager = new TermManager("WhatManager");
-        whatManager.registerPlugin(ContextophelesConstants.UI_CONTENT_URI, ContextophelesConstants.UI_CONTENT_MAX_STORAGE, ContextophelesConstants.UI_CONTENT_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.UI_CONTENT_CONTENT_URI.toString(), ContextophelesConstants.UI_CONTENT_MAX_STORAGE, ContextophelesConstants.UI_CONTENT_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.CLIPBOARD_CATCHER_MAX_STORAGE, ContextophelesConstants.CLIPBOARD_CATCHER_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.OSMPOI_RESOLVER_MAX_STORAGE, ContextophelesConstants.OSMPOI_RESOLVER_WEAROFF_TIME);
-        whatManager.registerPlugin(ContextophelesConstants.NOTIFICATION_CATCHER_URI, ContextophelesConstants.NOTIFICATION_CATCHER_MAX_STORAGE, ContextophelesConstants.NOTIFICATION_CATCHER_WEAROFF_TIME);
-        whatManager.registerPlugin(ContextophelesConstants.SMS_RECEIVER_URI, ContextophelesConstants.SMS_RECEIVER_MAX_STORAGE, ContextophelesConstants.SMS_RECEIVER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.NOTIFICATION_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.NOTIFICATION_CATCHER_MAX_STORAGE, ContextophelesConstants.NOTIFICATION_CATCHER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.SMS_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.SMS_RECEIVER_MAX_STORAGE, ContextophelesConstants.SMS_RECEIVER_WEAROFF_TIME);
 
         Log.d(this.getClass().toString(), "@registering WhereManagerPlugins");
         whereManager = new TermManager("WhereManager");
-        whereManager.registerPlugin(ContextophelesConstants.TERM_COLLECTOR_GEODATA_URI, ContextophelesConstants.TERM_COLLECTOR_GEODATA_MAX_STORAGE, ContextophelesConstants.TERM_COLLECTOR_GEODATA_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI.toString(), ContextophelesConstants.TERM_COLLECTOR_GEODATA_MAX_STORAGE, ContextophelesConstants.TERM_COLLECTOR_GEODATA_WEAROFF_TIME);
         whereManager.registerPlugin(ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_MAX_STORAGE, ContextophelesConstants.GEONAME_RESOLVER_WEAROFF_TIME);
     }
 
@@ -57,7 +61,7 @@ public class QueryManager {
     private void cleanupQueryList() {
         Long time = System.currentTimeMillis();
 
-        int wearOffTime = 60000;
+        int wearOffTime = CommonSettings.getQueryListWearOffTime(context.getContentResolver());
         // this collects the objects to remove
         List<QueryObject> objectsToRemove = new ArrayList<QueryObject>();
 
