@@ -54,7 +54,7 @@ public class NotificationCatcher_Provider extends ContentProvider {
         public static final String APP_NAME = ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_APP_NAME;
     }
 
-    public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/plugin_notification_catcher.db";
+    public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/plugin_contextopheles_notification_catcher.db";
 
     public static final String[] DATABASE_TABLES = {
             MAIN_TABLE
