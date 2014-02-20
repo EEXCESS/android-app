@@ -160,11 +160,12 @@ public class Settings extends Activity {
         showFakeLocationDialog();
     }
 
+    //Todo: Make this part of the base project and load locations from a json file
     public void showFakeLocationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Choose the location to fake");
-        final CharSequence[] items = new CharSequence[]{"Rome", "Berlin", "Regensburg", "Passau", "London"};
+        final CharSequence[] items = new CharSequence[]{"Rome", "Berlin", "Regensburg", "Passau", "London", "Luxembourg"};
         builder.setItems(items,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -190,6 +191,10 @@ public class Settings extends Activity {
                             case 4:
                                 // London
                                 setLatitudeAndLongitudeInSettingsAndMenu(51.5072, 0.1275);
+                                break;
+                            case 5:
+                                // Luxembourg
+                                setLatitudeAndLongitudeInSettingsAndMenu(49.6117, 6.1300);
                                 break;
                         }
                     }
