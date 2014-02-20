@@ -14,6 +14,9 @@ import com.aware.Aware_Preferences;
 import com.aware.plugin.geo_collector.GeoCollector_Provider.GeoCollectorTermData;
 import com.aware.utils.Aware_Plugin;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
+
 /**
  * Main Plugin for the GEO Collector
  *
@@ -23,7 +26,7 @@ import com.aware.utils.Aware_Plugin;
 
 public class Plugin extends Aware_Plugin {
 
-    private static final String TAG = "GeoCollector Plugin";
+    private static final String TAG = ContextophelesConstants.TAG_GEO_COLLECTOR + " Plugin";
     public static final String ACTION_AWARE_GEOCOLLECTOR = "ACTION_AWARE_GEOCOLLECTOR";
 
     public static final String EXTRA_TERMCONTENT = "termcontent";
@@ -45,12 +48,10 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "Plugin Created");
         super.onCreate();
 
-
         // Share the context back to the framework and other applications
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
             @Override
             public void onContext() {
-                Log.d(TAG, "Putting extra context into intent");
                 Intent notification = new Intent(ACTION_AWARE_GEOCOLLECTOR);
                 notification
                         .putExtra(Plugin.EXTRA_TERMCONTENT, lastTermContent);
@@ -68,9 +69,7 @@ public class Plugin extends Aware_Plugin {
         // Set the observers, that run in independent threads, for
         // responsiveness
 
-
-        geonameResolverContentUri = Uri
-                .parse("content://com.aware.provider.plugin.geoname_resolver/plugin_geoname_resolver");
+        geonameResolverContentUri = ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI;
         geonameResolverObs = new GeonameResolverObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -145,7 +144,7 @@ public class Plugin extends Aware_Plugin {
             Log.wtf(TAG, "@onChange (GeonameResolverObserver)");
 
             // run only, if use of location is allowed
-            if  (getUseLocation()){
+            if  (CommonSettings.getQueryUseOfLocation(getContentResolver())){
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     geonameResolverContentUri, null, null, null,
@@ -166,8 +165,6 @@ public class Plugin extends Aware_Plugin {
     }
 
     private void saveGeoData(long timestamp, String source, String content) {
-        //Log.d(TAG, "Saving Data");
-
         ContentValues rowData = new ContentValues();
         rowData.put(GeoCollectorTermData.DEVICE_ID, Aware.getSetting(
                 getContentResolver(), Aware_Preferences.DEVICE_ID));
@@ -177,19 +174,6 @@ public class Plugin extends Aware_Plugin {
 
         Log.d(TAG, "Saving " + rowData.toString());
         getContentResolver().insert(GeoCollectorTermData.CONTENT_URI, rowData);
-    }
-
-    public boolean getUseLocation(){
-        String useLocationString = Aware.getSetting(getContentResolver(), "AWARE_USE_LOCATION");
-        if(useLocationString != null) {
-            try {
-                return Boolean.parseBoolean(useLocationString);
-            } catch (NumberFormatException e) {
-                return true;
-            }
-        } else {
-            return true;
-        }
     }
 
 }

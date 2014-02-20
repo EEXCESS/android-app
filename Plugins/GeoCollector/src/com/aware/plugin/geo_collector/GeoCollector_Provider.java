@@ -18,15 +18,17 @@ import com.aware.utils.DatabaseHelper;
 
 import java.util.HashMap;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * ContentProvider for the Geo Collector
  */
 
 public class GeoCollector_Provider extends ContentProvider {
 
-    private final String TAG = "GeoCollector Provider";
-    public static final String AUTHORITY = "com.aware.provider.plugin.geo_collector";
-
+    private final String TAG = ContextophelesConstants.TAG_GEO_COLLECTOR + " Provider";
+    public static final String AUTHORITY = ContextophelesConstants.GEO_COLLECTOR_AUTHORITY;
+    public static final String MAIN_TABLE = ContextophelesConstants.GEO_COLLECTOR_MAIN_TABLE;
     private static final int DATABASE_VERSION = 5;
 
     private static final int GEO_COLLECTOR_TERMS = 1;
@@ -41,29 +43,22 @@ public class GeoCollector_Provider extends ContentProvider {
         private GeoCollectorTermData() {
         }
 
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/plugin_geo_collector_terms"); //this needs to match the table name
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.geo_collector";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.geo_collector";
+        public static final Uri    CONTENT_URI =       ContextophelesConstants.GEO_COLLECTOR_CONTENT_URI;
+        public static final String CONTENT_TYPE =      ContextophelesConstants.GEO_COLLECTOR_CONTENT_TYPE;
+        public static final String CONTENT_ITEM_TYPE = ContextophelesConstants.GEO_COLLECTOR_CONTENT_ITEM_TYPE;
 
-        public static final String _ID = "_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String DEVICE_ID = "device_id";
+        public static final String _ID =           ContextophelesConstants.GEO_COLLECTOR_FIELD_ID;
+        public static final String TIMESTAMP =     ContextophelesConstants.GEO_COLLECTOR_FIELD_TIMESTAMP;
+        public static final String DEVICE_ID =     ContextophelesConstants.GEO_COLLECTOR_FIELD_DEVICE_ID;
 
-        /**
-         * Content of Geo
-         */
-        public static final String TERM_CONTENT = "term_content";
-
-        /**
-         * Source of Geo
-         */
-        public static final String TERM_SOURCE = "term_source";
+        public static final String TERM_CONTENT =  ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_CONTENT;
+        public static final String TERM_SOURCE =   ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_SOURCE;
     }
 
     public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/plugin_geo_collector.db";
 
     public static final String[] DATABASE_TABLES = {
-            "plugin_geo_collector_terms"
+            MAIN_TABLE
     };
 
     public static final String[] TABLES_FIELDS = {
@@ -73,9 +68,6 @@ public class GeoCollector_Provider extends ContentProvider {
                     GeoCollectorTermData.DEVICE_ID + " text default ''," +
                     GeoCollectorTermData.TERM_CONTENT + " text default ''," +
                     GeoCollectorTermData.TERM_SOURCE + " text default ''",
-                    //+ "UNIQUE (" + GeoCollectorTermData.TIMESTAMP + "," + GeoCollectorTermData.DEVICE_ID + "," + GeoCollectorTermData.GEO_CONTENT + ")",
-
-
     };
 
     static {
