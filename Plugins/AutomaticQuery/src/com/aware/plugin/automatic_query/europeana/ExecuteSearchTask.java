@@ -1,4 +1,4 @@
-package com.aware.plugin.automatic_query;
+package com.aware.plugin.automatic_query.europeana;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -10,6 +10,9 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.aware.plugin.automatic_query.Plugin;
+import com.aware.plugin.automatic_query.R;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

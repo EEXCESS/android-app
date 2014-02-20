@@ -1,4 +1,4 @@
-package com.aware.plugin.automatic_query;
+package com.aware.plugin.automatic_query.europeana;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aware.plugin.automatic_query.R;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;

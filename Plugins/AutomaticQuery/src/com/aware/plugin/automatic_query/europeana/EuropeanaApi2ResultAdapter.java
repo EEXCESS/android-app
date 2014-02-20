@@ -1,4 +1,4 @@
-package com.aware.plugin.automatic_query;
+package com.aware.plugin.automatic_query.europeana;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.aware.plugin.automatic_query.R;
 
 import java.io.InputStream;
 
