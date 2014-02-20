@@ -26,7 +26,6 @@ public class CommonSettings {
         }
     }
 
-
     private static int getIntegerFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, int defaultValue) {
         String integerString = Aware.getSetting(resolver, settingsIdentifier);
         if (integerString != null) {
@@ -80,24 +79,19 @@ public class CommonSettings {
     }
 
     public static boolean getNotificationUsesVibration(ContentResolver resolver) {
-        boolean result = getBooleanFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE_DEFAULT);
-        //Log.d(TAG, "@getNotificationUsesVibration " + result);
-        return result;
+
+        return getBooleanFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE_DEFAULT);
     }
 
     public static void setNotificationUsesVibration(ContentResolver resolver, Boolean value) {
-        //Log.d(TAG, "@setNotificationUsesVibration: "  + value );
         Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE, value.toString());
     }
 
     public static boolean getNotificationUsesSound(ContentResolver resolver) {
-        boolean result = getBooleanFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND_DEFAULT);
-        //Log.d(TAG, "@getNotificationUsesSound " + result);
-        return result;
+        return  getBooleanFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND_DEFAULT);
     }
 
     public static void setNotificationUsesSound(ContentResolver resolver, Boolean value) {
-        //Log.d(TAG, "@setNotificationUsesSound: " + value );
         Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND, value.toString());
     }
 
@@ -157,11 +151,11 @@ public class CommonSettings {
     }
 
     public static int getGeonameDistanceSeekBarProgress(ContentResolver resolver) {
-        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.GEONAME_DISTANCE_SEEKBAR_PROGRESS, ContextophelesConstants.GEONAME_DISTANCE_SEEKBAR_PROGRESS_DEFAULT);
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_GR_DISTANCE_SEEKBAR_PROGRESS, ContextophelesConstants.SETTINGS_GR_DISTANCE_SEEKBAR_PROGRESS_DEFAULT);
     }
 
     public static void setGeonameDistanceSeekBarProgress(ContentResolver resolver, Integer value) {
-        Aware.setSetting(resolver, ContextophelesConstants.GEONAME_DISTANCE_SEEKBAR_PROGRESS, value.toString());
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_GR_DISTANCE_SEEKBAR_PROGRESS, value.toString());
     }
 
     public static float getOSMPoiDistance(ContentResolver resolver) {
@@ -177,11 +171,11 @@ public class CommonSettings {
     }
 
     public static int getOSMPoiDistanceSeekBarProgress(ContentResolver resolver) {
-        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.OSMPOI_DISTANCE_SEEKBAR_PROGRESS, ContextophelesConstants.OSMPOI_DISTANCE_SEEKBAR_PROGRESS_DEFAULT);
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS, ContextophelesConstants.SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS_DEFAULT);
     }
 
     public static void setOSMPoiDistanceSeekBarProgress(ContentResolver resolver, Integer value) {
-        Aware.setSetting(resolver, ContextophelesConstants.OSMPOI_DISTANCE_SEEKBAR_PROGRESS, value.toString());
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS, value.toString());
     }
 
     public static boolean getUseFakeLocation(ContentResolver resolver) {
@@ -217,7 +211,43 @@ public class CommonSettings {
         return getDoubleFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_FAKE_LATITUDE, ContextophelesConstants.SETTINGS_FAKE_LATITUDE_DEFAULT);
     }
 
+    public static int getMinimalUIContentLength(ContentResolver resolver) {
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH_DEFAULT);
+    }
 
+    public static void setMinimalUIContentLength(ContentResolver resolver, String value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH, value);
+    }
+
+
+
+
+
+    public static int getQueryListWearOffTime(ContentResolver resolver) {
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME_DEFAULT);
+    }
+
+    public static void setQueryListWearOffTime(ContentResolver resolver, String value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME, value);
+    }
+
+
+    public static int getMinimalTermCollectorTokenLength(ContentResolver resolver) {
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH_DEFAULT);
+    }
+
+    public static void setMinimalTermCollectorTokenLength(ContentResolver resolver, String value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH, value);
+    }
+
+
+    public static boolean getTermCollectorApplyStopwords(ContentResolver resolver) {
+        return getBooleanFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_TC_APPLY_STOPWORDS, ContextophelesConstants.SETTINGS_TC_APPLY_STOPWORDS_DEFAULT);
+    }
+
+    public static void setTermCollectorApplyStopwords(ContentResolver resolver, Boolean value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_TC_APPLY_STOPWORDS, value.toString());
+    }
 
 
 
@@ -230,8 +260,13 @@ public class CommonSettings {
                 null,
                 null);
 
-        countCursor.moveToFirst();
-        return countCursor.getInt(0);
+        try{
+            countCursor.moveToFirst();
+            return countCursor.getInt(0);
+        } catch (NullPointerException e) {
+            return 0;
+        }
+
     }
 
     public static void cleanDataForUri(ContentResolver resolver, Uri uri){
