@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+import de.unipassau.mics.contextopheles.utils.BlacklistedApps;
+import de.unipassau.mics.contextopheles.utils.CommonConnectors;
+import de.unipassau.mics.contextopheles.utils.CommonSettings;
+import de.unipassau.mics.contextopheles.utils.StopWords;
 import io.mingle.v1.Mingle;
 
 /**
@@ -33,7 +38,7 @@ import io.mingle.v1.Mingle;
 
 public class Plugin extends Aware_Plugin {
 
-    private static final String TAG = "TermCollector Plugin";
+    private static final String TAG = ContextophelesConstants.TAG_TERM_COLLECTOR + " Plugin";
     public static final String ACTION_AWARE_TERMCOLLECTOR = "ACTION_AWARE_TERMCOLLECTOR";
 
     private static StopWords stopWords;
@@ -76,7 +81,6 @@ public class Plugin extends Aware_Plugin {
         CONTEXT_PRODUCER = new Aware_Plugin.ContextProducer() {
             @Override
             public void onContext() {
-                Log.d(TAG, "Putting extra context into intent");
                 Intent notification = new Intent(ACTION_AWARE_TERMCOLLECTOR);
                 notification
                         .putExtra(Plugin.EXTRA_TERMCONTENT, lastTermContent);
@@ -94,16 +98,14 @@ public class Plugin extends Aware_Plugin {
         // Set the observers, that run in independent threads, for
         // responsiveness
 
-        clipboardCatcherContentUri = Uri
-                .parse("content://com.aware.provider.plugin.clipboard_catcher/plugin_clipboard_catcher");
+        clipboardCatcherContentUri = ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI;
         clipboardCatcherObs = new ClipboardCatcherObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
                 clipboardCatcherContentUri, true, clipboardCatcherObs);
         Log.d(TAG, "clipboardCatcherObs registered");
 
-        notificationCatcherContentUri = Uri
-                .parse("content://com.aware.provider.plugin.notification_catcher/plugin_notification_catcher");
+        notificationCatcherContentUri = ContextophelesConstants.NOTIFICATION_CATCHER_CONTENT_URI;
         notificationCatcherObs = new NotificationCatcherObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -111,8 +113,7 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "notificationCatcherObs registered");
 
 
-        smsReceiverContentUri = Uri
-                .parse("content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver");
+        smsReceiverContentUri = ContextophelesConstants.SMS_RECEIVER_CONTENT_URI;
         smsReceiverObs = new SmsReceiverObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -120,8 +121,7 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "smsReceiverObs registered");
 
 
-        osmpoiResolverContentUri = Uri
-                .parse("content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver");
+        osmpoiResolverContentUri = ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI;
         osmpoiResolverObs = new OSMPoiResolverObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -129,8 +129,7 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "osmpoiResolverObs registered");
 
 
-        uiContentContentUri = Uri
-                .parse("content://com.aware.provider.plugin.ui_content/plugin_ui_content");
+        uiContentContentUri = ContextophelesConstants.UI_CONTENT_CONTENT_URI;
         uiContentObs = new UIContentObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -168,13 +167,13 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     clipboardCatcherContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
                 String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                        .getColumnIndex("CLIPBOARDCONTENT")));
+                        .getColumnIndex(ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_CLIPBOARDCONTENT)));
 
-                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_TIMESTAMP)),
                         clipboardCatcherContentUri.toString(), tokens);
             }
 
@@ -198,22 +197,22 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     notificationCatcherContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
 
                 if (!isApplicationBlacklisted(cursor.getString(cursor
-                        .getColumnIndex("app_name")))) {
+                        .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_APP_NAME)))) {
                     // get title and content_text
                     String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                            .getColumnIndex("content_text")) + " " + cursor.getString(cursor
-                            .getColumnIndex("title")));
+                            .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TEXT)) + " " + cursor.getString(cursor
+                            .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TITLE)));
 
-                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TIMESTAMP)),
                             notificationCatcherContentUri.toString(), tokens);
                 } else {
                     Log.d(TAG, "Notification from Application " + cursor.getString(cursor
-                            .getColumnIndex("app_name")) + " was ignored (Cause: Blacklist)");
+                            .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_APP_NAME)) + " was ignored (Cause: Blacklist)");
                 }
             }
 
@@ -237,13 +236,13 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     smsReceiverContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.SMS_RECEIVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
                 String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                        .getColumnIndex("SMSCONTENT")));
+                        .getColumnIndex(ContextophelesConstants.SMS_RECEIVER_FIELD_SMSContent)));
 
-                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.SMS_RECEIVER_FIELD_TIMESTAMP)),
                         smsReceiverContentUri.toString(), tokens);
             }
 
@@ -265,23 +264,23 @@ public class Plugin extends Aware_Plugin {
             Log.wtf(TAG, "@OSMPoiResolverObs");
 
             // run only, if use of location is allowed
-            if  (getUseLocation()){
-            // set cursor to first item
-            Cursor cursor = getContentResolver().query(
-                    osmpoiResolverContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
-            if (cursor != null && cursor.moveToFirst()) {
+            if (CommonSettings.getQueryUseOfLocation(getContentResolver())) {
+                // set cursor to first item
+                Cursor cursor = getContentResolver().query(
+                        osmpoiResolverContentUri, null, null, null,
+                        ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
+                if (cursor != null && cursor.moveToFirst()) {
 
-                // POIs come in packages of one, so we do not need to split and filter them, so we package each one in an array
-                String[] singleTokenArray = new String[]{cursor.getString(cursor
-                        .getColumnIndex("NAME"))};
+                    // POIs come in packages of one, so we do not need to split and filter them, so we package each one in an array
+                    String[] singleTokenArray = new String[]{cursor.getString(cursor
+                            .getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_NAME))};
 
-                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
-                        osmpoiResolverContentUri.toString(), singleTokenArray);
-            }
+                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP)),
+                            osmpoiResolverContentUri.toString(), singleTokenArray);
+                }
 
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
                 }
             }
         }
@@ -305,23 +304,25 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     uiContentContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.UI_CONTENT_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
                 if (!isApplicationBlacklisted(cursor.getString(cursor
-                        .getColumnIndex("source_app")))) {
-                    if (lastId == cursor.getLong(cursor.getColumnIndex("_id"))) {
+                        .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_SOURCE_APP)))) {
+
+                    if (lastId == cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_ID))) {
                         return;
                     } else {
-                        lastId = cursor.getLong(cursor.getColumnIndex("_id"));
+                        lastId = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_ID));
                     }
-                    String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                            .getColumnIndex("content_text")));
 
-                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                    String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                            .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_TEXT)));
+
+                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_TIMESTAMP)),
                             uiContentContentUri.toString(), tokens);
                 } else {
                     Log.d(TAG, "UIContent from Application " + cursor.getString(cursor
-                            .getColumnIndex("source_app")) + " was ignored (Cause: Blacklist)");
+                            .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_SOURCE_APP)) + " was ignored (Cause: Blacklist)");
                 }
             }
             if (cursor != null && !cursor.isClosed()) {
@@ -402,8 +403,12 @@ public class Plugin extends Aware_Plugin {
 
         String[] contentTokens = splitAndReformulateContent(content);
 
-        //filter Stopwords
-        return stopWords.filteredArray(contentTokens);
+        //filter Stopwords, if set
+        if(CommonSettings.getTermCollectorApplyStopwords(getContentResolver())){
+            return stopWords.filteredArray(contentTokens);
+        } else {
+            return contentTokens;
+        }
     }
 
     private void classifyAndSaveData(long timestamp, String source, String[] contentTokens) {
@@ -448,9 +453,7 @@ public class Plugin extends Aware_Plugin {
                 Mingle mingle = new Mingle(getApplicationContext());
                 cities = mingle.geonames().areCities(tokensToCheck);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 // e.printStackTrace();
-
             }
 
             // Check, which tokens are in the cities list
@@ -541,7 +544,7 @@ public class Plugin extends Aware_Plugin {
     }
 
     boolean isApplicationBlacklisted(String appName) {
-            return blacklistedApps.isBlacklistedApp(appName);
+        return blacklistedApps.isBlacklistedApp(appName);
     }
 
     private boolean isInCache(String token) {
@@ -581,8 +584,6 @@ public class Plugin extends Aware_Plugin {
     }
 
     private void saveToCache(long timestamp, boolean isCity, String token) {
-        Log.d(TAG, "Saving to Cache");
-
         ContentValues rowData = new ContentValues();
 
         rowData.put(TermCollectorGeoDataCache.TIMESTAMP, timestamp);
@@ -595,21 +596,28 @@ public class Plugin extends Aware_Plugin {
 
         rowData.put(TermCollectorGeoDataCache.TERM_CONTENT, token);
 
-        Log.d(TAG, "Saving " + rowData.toString());
+        Log.d(TAG, "Saving to Cache: " + rowData.toString());
         getContentResolver().insert(TermCollectorGeoDataCache.CONTENT_URI, rowData);
     }
 
     private boolean tokenIsAllowedNoun(String token) {
-        // filter tokens shorter than 3 characters
-        if (token.length() > 2) {
+        int minLength = CommonSettings.getMinimalTermCollectorTokenLength(getContentResolver());
+        boolean applyStopWords = CommonSettings.getTermCollectorApplyStopwords(getContentResolver());
+        // filter tokens shorter than minLength characters
+        if (token.length() >= minLength) {
             //only allow Uppercase tokens, which have no more Uppercase characters (avoids strange CamelCase errors like PassauTown)
             if (Character.isUpperCase(token.charAt(0)) &&
                     token.substring(1).equals(token.substring(1).toLowerCase())
                     ) {
-                if (stopWords.isStopWord(token)) {
-                    Log.wtf(TAG, "Ignoring " + token + " as it is a stopword.");
-                    return false;
+                if(applyStopWords) {
+                    if (stopWords.isStopWord(token)) {
+                        Log.wtf(TAG, "Ignoring " + token + " as it is a stopword.");
+                        return false;
+                    } else {
+                        return true;
+                    }
                 } else {
+                    // Stop Words are not applied
                     return true;
                 }
             } else {
@@ -618,21 +626,9 @@ public class Plugin extends Aware_Plugin {
             }
 
         } else {
-            Log.wtf(TAG, "Ignoring " + token + " as it is shorter than 3 characters.");
+            Log.wtf(TAG, "Ignoring " + token + " as it is shorter than " + minLength + " characters.");
             return false;
         }
     }
 
-    public boolean getUseLocation(){
-        String useLocationString = Aware.getSetting(getContentResolver(), "AWARE_USE_LOCATION");
-        if(useLocationString != null) {
-            try {
-                return Boolean.parseBoolean(useLocationString);
-            } catch (NumberFormatException e) {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
 }

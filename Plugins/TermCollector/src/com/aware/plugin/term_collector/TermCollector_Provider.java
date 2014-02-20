@@ -18,14 +18,20 @@ import com.aware.utils.DatabaseHelper;
 
 import java.util.HashMap;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * ContentProvider for the Term Collector
  */
 
 public class TermCollector_Provider extends ContentProvider {
 
-    private final String TAG = "TermCollector Provider";
-    public static final String AUTHORITY = "com.aware.provider.plugin.term_collector";
+    private final String TAG = ContextophelesConstants.TAG_TERM_COLLECTOR + " Provider";
+    public static final String AUTHORITY = ContextophelesConstants.TERM_COLLECTOR_AUTHORITY;
+
+    public static final String TERM_TABLE = ContextophelesConstants.TERM_COLLECTOR_TERM_TABLE;
+    public static final String GEODATA_TABLE = ContextophelesConstants.TERM_COLLECTOR_GEODATA_TABLE;
+    public static final String CACHE_TABLE = ContextophelesConstants.TERM_COLLECTOR_CACHE_TABLE;
 
     private static final int DATABASE_VERSION = 6;
 
@@ -47,73 +53,56 @@ public class TermCollector_Provider extends ContentProvider {
         private TermCollectorTermData() {
         }
 
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/plugin_term_collector_terms"); //this needs to match the table name
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.term_collector";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.term_collector";
+        public static final Uri     CONTENT_URI = ContextophelesConstants.TERM_COLLECTOR_TERM_CONTENT_URI;
+        public static final String  CONTENT_TYPE = ContextophelesConstants.TERM_COLLECTOR_CONTENT_TYPE;
+        public static final String  CONTENT_ITEM_TYPE = ContextophelesConstants.TERM_COLLECTOR_CONTENT_ITEM_TYPE;
 
-        public static final String _ID = "_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String DEVICE_ID = "device_id";
+        public static final String  _ID =       ContextophelesConstants.TERM_COLLECTOR_FIELD_ID;
+        public static final String  TIMESTAMP = ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP;
+        public static final String  DEVICE_ID = ContextophelesConstants.TERM_COLLECTOR_FIELD_DEVICE_ID;
 
-        /**
-         * Content of Term
-         */
-        public static final String TERM_CONTENT = "term_content";
+        public static final String  TERM_CONTENT = ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TERM_CONTENT;
+        public static final String  TERM_SOURCE  = ContextophelesConstants.TERM_COLLECTOR_TERM_FIELD_TERM_SOURCE ;
 
-        /**
-         * Source of Term
-         */
-        public static final String TERM_SOURCE = "term_source";
     }
 
     public static final class TermCollectorGeoData implements BaseColumns {
         private TermCollectorGeoData() {
         }
 
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/plugin_term_collector_geodata"); //this needs to match the table name
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.term_collector";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.term_collector";
+        public static final Uri     CONTENT_URI = ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI;
+        public static final String  CONTENT_TYPE = ContextophelesConstants.TERM_COLLECTOR_CONTENT_TYPE;
+        public static final String  CONTENT_ITEM_TYPE = ContextophelesConstants.TERM_COLLECTOR_CONTENT_ITEM_TYPE;
 
-        public static final String _ID = "_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String DEVICE_ID = "device_id";
+        public static final String  _ID =       ContextophelesConstants.TERM_COLLECTOR_FIELD_ID;
+        public static final String  TIMESTAMP = ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP;
+        public static final String  DEVICE_ID = ContextophelesConstants.TERM_COLLECTOR_FIELD_DEVICE_ID;
 
-        /**
-         * Content of Term
-         */
-        public static final String TERM_CONTENT = "term_content";
-
-        /**
-         * Source of Term
-         */
-        public static final String TERM_SOURCE = "term_source";
+        public static final String  TERM_CONTENT = ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_CONTENT;
+        public static final String  TERM_SOURCE  = ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_SOURCE;
     }
 
     public static final class TermCollectorGeoDataCache implements BaseColumns {
         private TermCollectorGeoDataCache() {
         }
 
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/plugin_term_collector_geodata_cache"); //this needs to match the table name
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.term_collector";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.term_collector";
+        public static final Uri     CONTENT_URI = ContextophelesConstants.TERM_COLLECTOR_CACHE_CONTENT_URI;
+        public static final String  CONTENT_TYPE = ContextophelesConstants.TERM_COLLECTOR_CONTENT_TYPE;
+        public static final String  CONTENT_ITEM_TYPE = ContextophelesConstants.TERM_COLLECTOR_CONTENT_ITEM_TYPE;
 
-        public static final String _ID = "_id";
-        public static final String TIMESTAMP = "timestamp";
-        /**
-         * Content of Term
-         */
-        public static final String TERM_CONTENT = "term_content";
+        public static final String  _ID =       ContextophelesConstants.TERM_COLLECTOR_FIELD_ID;
+        public static final String  TIMESTAMP = ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP;
 
-        /**
-         * Source of Term
-         */
-        public static final String IS_CITY = "is_city";
+        public static final String  TERM_CONTENT = ContextophelesConstants.TERM_COLLECTOR_CACHE_FIELD_TERM_CONTENT;
+        public static final String  IS_CITY =      ContextophelesConstants.TERM_COLLECTOR_CACHE_FIELD_IS_CITE;
     }
 
     public static String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/plugin_term_collector.db";
 
     public static final String[] DATABASE_TABLES = {
-            "plugin_term_collector_terms", "plugin_term_collector_geodata", "plugin_term_collector_geodata_cache"
+            TERM_TABLE,
+            GEODATA_TABLE,
+            CACHE_TABLE
     };
 
     public static final String[] TABLES_FIELDS = {
@@ -123,7 +112,6 @@ public class TermCollector_Provider extends ContentProvider {
                     TermCollectorTermData.DEVICE_ID + " text default ''," +
                     TermCollectorTermData.TERM_CONTENT + " text default ''," +
                     TermCollectorTermData.TERM_SOURCE + " text default ''",
-                    //+ "UNIQUE (" + TermCollectorTermData.TIMESTAMP + "," + TermCollectorTermData.DEVICE_ID + "," + TermCollectorTermData.TERM_CONTENT + ")",
 
             //GeoData
             TermCollectorGeoData._ID + " integer primary key autoincrement," +
@@ -131,15 +119,12 @@ public class TermCollector_Provider extends ContentProvider {
                     TermCollectorGeoData.DEVICE_ID + " text default ''," +
                     TermCollectorGeoData.TERM_CONTENT + " text default ''," +
                     TermCollectorGeoData.TERM_SOURCE + " text default ''",
-                    //+ "UNIQUE (" + TermCollectorGeoData.TIMESTAMP + "," + TermCollectorGeoData.DEVICE_ID + "," + TermCollectorGeoData.TERM_CONTENT + ")"
-
 
             //GeoDataCache
             TermCollectorGeoDataCache._ID + " integer primary key autoincrement," +
                     TermCollectorGeoDataCache.TIMESTAMP + " real default 0," +
                     TermCollectorGeoDataCache.TERM_CONTENT + " text default ''," +
                     TermCollectorGeoDataCache.IS_CITY + " text default ''"
-            //+ "UNIQUE (" + TermCollectorGeoDataCache.TIMESTAMP + "," + TermCollectorGeoDataCache.DEVICE_ID + "," + TermCollectorGeoDataCache.TERM_CONTENT + ")"
     };
 
     static {
