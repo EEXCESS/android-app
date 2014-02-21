@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/debug_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Data"
+        android:id="@+id/dataHeader"
+        />
+
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clean Data"
+            android:id="@+id/button"
+            android:layout_gravity="center_horizontal"
+            android:onClick="cleanData" />
+
+        <TextView
+            android:id="@+id/countLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Number of entries:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_toRightOf="@id/button"
+            android:layout_centerInParent="true"
+
+            />
+
+        <TextView
+            android:id="@+id/count"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/countLabel"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            />
+    </RelativeLayout>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Fake Location"
+        android:id="@+id/FakeLocationHeader"
+        android:paddingTop="10pt" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+
+        >
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use fake location"
+        android:id="@+id/useFakeLocationButton"
+        android:layout_alignParentLeft="true"
+        android:layout_centerInParent="true"
+        android:onClick="onSwitchClicked" />
+
+
+
+
+    <TextView
+        android:id="@+id/useFakeLocationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/useFakeLocationButton"
+        android:text="Use fake Location"
+        android:layout_centerInParent="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="choose"
+            android:id="@+id/chooseLocation"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:onClick="onChooseClicked" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Fake Latitude"
+        android:id="@+id/fakeLatitude"
+        android:paddingTop="10pt" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal|numberSigned"
+        android:ems="10"
+        android:id="@+id/fakeLatitudeValue" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Fake Latitude"
+        android:id="@+id/fakeLongitude"
+        android:paddingTop="10pt" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal|numberSigned"
+        android:ems="10"
+        android:id="@+id/fakeLongitudeValue" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Distance to resolve"
+        android:id="@+id/DistanceHeader"
+        android:paddingTop="10pt" />
+
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+
+        >
+
+        <TextView
+            android:id="@+id/distanceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Distance in km:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+
+            />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/distanceValue"
+        android:layout_toRightOf="@id/distanceLabel"
+        />
+    </RelativeLayout>
+
+</LinearLayout>

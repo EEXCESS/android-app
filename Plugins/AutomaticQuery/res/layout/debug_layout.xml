@@ -6,20 +6,101 @@
     android:orientation="vertical" >
 
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Notification uses Sound"
-        android:id="@+id/usesSound"
-        android:checked="false"
-        android:onClick="onSoundCheckboxClicked" />
 
-    <CheckBox
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New ToggleButton"
+            android:id="@+id/vibrateButton"
+            android:onClick="onToggleButtonClicked" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Notification uses vibration"
+            android:id="@+id/vibrationText"
+            android:layout_toRightOf="@+id/vibrateButton"
+            android:layout_centerVertical="true"
+            />
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New ToggleButton"
+            android:id="@+id/soundButton"
+            android:onClick="onToggleButtonClicked" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Notification uses sound"
+            android:id="@+id/soundText"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/soundButton"/>
+
+        </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <NumberPicker
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Notification uses Vibration"
-        android:id="@+id/usesVibration"
-        android:checked="false"
-        android:onClick="onSoundCheckboxClicked" />
+        android:id="@+id/numberPicker" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Minimum number of results to display notification"
+        android:id="@+id/numberText"
+        android:layout_toRightOf="@+id/numberPicker"
+        android:layout_centerVertical="true"
+        />
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/wearOffTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Query List wearoff time in seconds:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="20px"
+
+        />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"/>
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/wearOffTimeValue"
+        />
 
 </LinearLayout>

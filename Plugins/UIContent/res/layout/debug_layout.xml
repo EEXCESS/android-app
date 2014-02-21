@@ -41,4 +41,30 @@
             />
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/tokenLengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minimal token length:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="20px"
+
+        />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"/>
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/tokenLengthValue"
+        />
+
 </LinearLayout>

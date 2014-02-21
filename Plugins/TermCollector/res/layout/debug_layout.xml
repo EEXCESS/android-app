@@ -105,4 +105,59 @@
         
     </RelativeLayout>
 
+
+    <TextView
+        android:id="@+id/tokenLengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minimal Token length:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="20px"
+
+        />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"/>
+
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/tokenLengthValue"
+            />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginTop="30px"
+    >
+    >
+
+        <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:id="@+id/stopWordButton"
+
+        android:onClick="onToggleButtonClicked" />
+
+    <TextView
+        android:id="@+id/tokenLengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use Stopword List"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_toRightOf="@id/stopWordButton"
+        android:layout_centerVertical="true"
+        />
+    </RelativeLayout>
+
+
 </LinearLayout>

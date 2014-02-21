@@ -215,19 +215,23 @@ public class CommonSettings {
         return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH_DEFAULT);
     }
 
-    public static void setMinimalUIContentLength(ContentResolver resolver, String value) {
-        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH, value);
+    public static void setMinimalUIContentLength(ContentResolver resolver, Integer value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH, value.toString());
     }
 
-
-
-
+    public static void setMinimalUIContentLengthFromString(ContentResolver resolver, String value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH, value);
+    }
 
     public static int getQueryListWearOffTime(ContentResolver resolver) {
         return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME_DEFAULT);
     }
 
-    public static void setQueryListWearOffTime(ContentResolver resolver, String value) {
+    public static void setQueryListWearOffTime(ContentResolver resolver, Integer value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME, value.toString());
+    }
+
+    public static void setQueryListWearOffTimeFromString(ContentResolver resolver, String value) {
         Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME, value);
     }
 
@@ -236,7 +240,11 @@ public class CommonSettings {
         return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH_DEFAULT);
     }
 
-    public static void setMinimalTermCollectorTokenLength(ContentResolver resolver, String value) {
+    public static void setMinimalTermCollectorTokenLength(ContentResolver resolver, Integer value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH, value.toString());
+    }
+
+    public static void setMinimalTermCollectorTokenLengthFromString(ContentResolver resolver, String value) {
         Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH, value);
     }
 
