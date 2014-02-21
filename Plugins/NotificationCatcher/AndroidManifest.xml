@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.aware.plugin.notification_catcher"
+    package="com.aware.plugin.notification_catcher_contextopheles"
     android:versionCode="3"
     android:versionName="1.3" >
 
@@ -25,7 +25,7 @@
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
-        <provider android:name="com.aware.plugin.notification_catcher_contextopheles.NotificationCatcher_Provider" android:authorities="com.aware.provider.plugin.notification_catcher" android:exported="true" android:writePermission="com.aware.WRITE_CONTEXT_DATA" android:readPermission="com.aware.READ_CONTEXT_DATA"></provider>
+        <provider android:name="com.aware.plugin.notification_catcher_contextopheles.NotificationCatcher_Provider" android:authorities="com.aware.provider.plugin.notification_catcher_contextopheles" android:exported="true" android:writePermission="com.aware.WRITE_CONTEXT_DATA" android:readPermission="com.aware.READ_CONTEXT_DATA"></provider>
 
         <activity
             android:name="com.aware.plugin.notification_catcher_contextopheles.Settings"
