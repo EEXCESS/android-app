@@ -36,6 +36,10 @@ public class Settings extends Activity {
 
         updateCounts();
 
+        init();
+    }
+
+    private void init(){
         // Apply Stop Word List
         ((ToggleButton)findViewById(R.id.stopWordButton)).setChecked(CommonSettings.getTermCollectorApplyStopwords(getContentResolver()));
 
@@ -127,5 +131,9 @@ public class Settings extends Activity {
         textView.setText("" + CommonSettings.getCountForUri(getContentResolver(), uri));
     }
 
-
+    public void onResetButtonClicked(View view){
+    CommonSettings.setTermCollectorApplyStopwords(getContentResolver(), ContextophelesConstants.SETTINGS_TC_APPLY_STOPWORDS_DEFAULT);
+    CommonSettings.setMinimalTermCollectorTokenLength(getContentResolver(), ContextophelesConstants.SETTINGS_TC_MINIMAL_TOKEN_LENGTH_DEFAULT);
+    init();
+    }
 }

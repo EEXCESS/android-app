@@ -49,7 +49,7 @@ public class ContextophelesConstants {
     public static final int  SETTINGS_UI_MINIMAL_CONTENT_LENGTH_DEFAULT = 20;
     public static final int  SETTINGS_TC_MINIMAL_TOKEN_LENGTH_DEFAULT = 3;
     public static final boolean SETTINGS_TC_APPLY_STOPWORDS_DEFAULT = true;
-    public static final boolean SETTINGS_USE_FAKE_LOCATION_DEFAULT = true;
+    public static final boolean SETTINGS_USE_FAKE_LOCATION_DEFAULT = false;
     public static final double SETTINGS_FAKE_LATITUDE_DEFAULT = 0.0;
     public static final double SETTINGS_FAKE_LONGITUDE_DEFAULT = 0.0;
 

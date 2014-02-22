@@ -3,6 +3,7 @@ package com.aware.plugin.osmpoi_resolver;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
 
@@ -19,6 +20,10 @@ public class Settings extends GeoSettings {
 
         super.onCreate(savedInstanceState);
 
+      init();
+    }
+
+    private void init(){
         // Set Status of Slider
         ((SeekBar)findViewById(R.id.seekBar)).setProgress(CommonSettings.getOSMPoiDistanceSeekBarProgress(getContentResolver()));
         ((SeekBar)findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -58,5 +63,12 @@ public class Settings extends GeoSettings {
             }
 
         });
+    }
+
+    @Override
+    public void onResetButtonClicked(View view){
+        super.onResetButtonClicked(view);
+        CommonSettings.setOSMPoiDistance(getContentResolver(), ContextophelesConstants.SETTINGS_OR_DISTANCE_DEFAULT);
+        init();
     }
 }

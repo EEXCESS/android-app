@@ -3,6 +3,7 @@ package com.aware.plugin.geoname_resolver;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
 
@@ -18,6 +19,10 @@ public class Settings extends GeoSettings {
 
         super.onCreate(savedInstanceState);
 
+        init();
+    }
+
+    private void init(){
         // Set Status of Slider
         ((SeekBar)findViewById(R.id.seekBar)).setProgress(CommonSettings.getGeonameDistanceSeekBarProgress(getContentResolver()));
         ((SeekBar)findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -66,5 +71,12 @@ public class Settings extends GeoSettings {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public void onResetButtonClicked(View view){
+        super.onResetButtonClicked(view);
+        CommonSettings.setGeonameDistance(getContentResolver(), ContextophelesConstants.SETTINGS_GR_DISTANCE_DEFAULT);
+        init();
     }
 }

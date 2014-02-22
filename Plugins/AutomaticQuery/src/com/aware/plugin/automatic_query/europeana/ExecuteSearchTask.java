@@ -99,6 +99,7 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
         ArrayList<String> resultJSONStringList = new ArrayList<String>();
 
         // Only react to more than the specieifed number of objects
+        Log.d(TAG, "Necessary mnimum number:" + CommonSettings.getMinimumNumberOfResultsToDisplayNotification(wrapperRef.getApplicationContext().getContentResolver()));
         if (results.getAllItems().size() > CommonSettings.getMinimumNumberOfResultsToDisplayNotification(wrapperRef.getApplicationContext().getContentResolver())) {
             for (EuropeanaApi2Item item : results.getAllItems()) {
                 resultJSONStringList.add(item.toJSON());
@@ -116,11 +117,8 @@ public class ExecuteSearchTask extends AsyncTask<String, Void, EuropeanaApi2Resu
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                 // Apply modulo on notification number
-
                 notificationNumber = (((Plugin) wrapperRef).getNotificationNumber() + 1) % maxNumberOfMessages;
                 ((Plugin) wrapperRef).setNotificationNumber(notificationNumber);
-
-                String msgText;
 
                 createAndSendNotification(intent, results.getTotalResults(), notificationNumber);
             } else {

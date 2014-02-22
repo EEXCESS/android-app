@@ -24,7 +24,11 @@ public class Settings extends Activity {
 
         setContentView(R.layout.debug_layout);
 
+        init();
 
+    }
+
+    private void init(){
         final ToggleButton soundToggleButton = (ToggleButton) findViewById(R.id.soundButton);
         soundToggleButton.setChecked(CommonSettings.getNotificationUsesSound(getContentResolver()));
 
@@ -35,13 +39,13 @@ public class Settings extends Activity {
 
         minResultsNumberPicker.setMaxValue(50);
         minResultsNumberPicker.setMinValue(0);
-        minResultsNumberPicker.setValue(CommonSettings.getMinimumNumberOfResultsToDisplayNotification(getContentResolver())/1000);
+        minResultsNumberPicker.setValue(CommonSettings.getMinimumNumberOfResultsToDisplayNotification(getContentResolver()));
         minResultsNumberPicker.setOnValueChangedListener( new NumberPicker.
                 OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int
                     oldVal, int newVal) {
-                CommonSettings.setMinimumNumberOfResultsToDisplayNotification(getContentResolver(), newVal * 1000);
+                CommonSettings.setMinimumNumberOfResultsToDisplayNotification(getContentResolver(), newVal);
             }
         });
 
@@ -51,14 +55,15 @@ public class Settings extends Activity {
         // Set Status of Slider
         SeekBar seekBar = ((SeekBar)findViewById(R.id.seekBar));
         seekBar.setProgress(CommonSettings.getQueryListWearOffTime(getContentResolver())/1000);
-        seekBar.incrementProgressBy(15);
         seekBar.setMax(600);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
                 CommonSettings.setQueryListWearOffTime(getContentResolver(), i * 1000);
-                ((EditText)findViewById(R.id.wearOffTimeValue)).setText("" + (CommonSettings.getQueryListWearOffTime(getContentResolver())/1000));
+                ((EditText) findViewById(R.id.wearOffTimeValue)).setText("" + (CommonSettings.getQueryListWearOffTime(getContentResolver()) / 1000));
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
@@ -88,7 +93,6 @@ public class Settings extends Activity {
 
         });
     }
-
     protected void onResume() {
         super.onResume();
     }
@@ -111,4 +115,14 @@ public class Settings extends Activity {
                 CommonSettings.setNotificationUsesVibration(getContentResolver(), checked);
         }
     }
+
+
+    public void onResetButtonClicked(View view){
+        CommonSettings.setQueryListWearOffTime(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_QUERYLIST_WEAROFF_TIME_DEFAULT);
+        CommonSettings.setNotificationUsesVibration(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE_DEFAULT);
+        CommonSettings.setNotificationUsesSound(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND_DEFAULT);
+        CommonSettings.setMinimumNumberOfResultsToDisplayNotification(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_MINIMUM_NUMBER_OF_RESULTS_TO_DISPLAY_NOTIFICATION_DEFAULT);
+        init();
+    }
+
 }

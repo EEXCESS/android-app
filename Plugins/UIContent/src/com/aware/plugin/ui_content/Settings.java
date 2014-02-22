@@ -29,6 +29,11 @@ public class Settings extends Activity {
         
         updateCount();
 
+       init();
+
+    }
+
+    private void init(){
         // Minimal Token Length
 
         // Set Status of Slider
@@ -67,7 +72,6 @@ public class Settings extends Activity {
             }
 
         });
-
     }
     
     protected void onResume() {
@@ -88,4 +92,10 @@ public class Settings extends Activity {
         CommonSettings.cleanDataForUri(getContentResolver(), contentUri);
         updateCount();
     }
+
+    public void onResetButtonClicked(View view){
+        CommonSettings.setMinimalTermCollectorTokenLength(getContentResolver(), ContextophelesConstants.SETTINGS_UI_MINIMAL_CONTENT_LENGTH_DEFAULT);
+        init();
+    }
+
 }

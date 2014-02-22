@@ -31,6 +31,11 @@ public class GeoSettings extends Activity {
 
         updateCount();
 
+        init();
+
+    }
+
+    private  void init() {
         // Set On/off for fake Location
 
         ((ToggleButton)findViewById(R.id.useFakeLocationButton)).setChecked(CommonSettings.getUseFakeLocation(getContentResolver()));
@@ -76,7 +81,6 @@ public class GeoSettings extends Activity {
             }
 
         });
-
     }
 
     protected void onResume() {
@@ -165,8 +169,10 @@ public class GeoSettings extends Activity {
     private void setLatitudeAndLongitudeInSettingsAndMenu(double latitude, double longitude){
         CommonSettings.setFakeLatitude(getContentResolver(), latitude);
         CommonSettings.setFakeLongitude(getContentResolver(), longitude);
-        ((EditText)findViewById(R.id.fakeLatitudeValue)).setText("" + CommonSettings.getFakeLatitude(getContentResolver()));
-        ((EditText)findViewById(R.id.fakeLongitudeValue)).setText("" + CommonSettings.getFakeLongitude(getContentResolver()));
+        CommonSettings.setUseFakeLocation(getContentResolver(), true);
+
+        init();
+
         if(CommonSettings.getUseFakeLocation(getContentResolver())){
             notifyForLocationChange();
         }
@@ -175,5 +181,12 @@ public class GeoSettings extends Activity {
 
     private void notifyForLocationChange(){
         getContentResolver().notifyChange(Uri.parse(ContextophelesConstants.LOCATION_URI), null);
+    }
+
+    public void onResetButtonClicked(View view){
+        CommonSettings.setUseFakeLocation(getContentResolver(), ContextophelesConstants.SETTINGS_USE_FAKE_LOCATION_DEFAULT);
+        CommonSettings.setFakeLatitude(getContentResolver(), ContextophelesConstants.SETTINGS_FAKE_LATITUDE_DEFAULT);
+        CommonSettings.setFakeLongitude(getContentResolver(), ContextophelesConstants.SETTINGS_FAKE_LONGITUDE_DEFAULT);
+        init();
     }
 }
