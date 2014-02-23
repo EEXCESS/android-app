@@ -14,6 +14,7 @@ buildscript {
 apply plugin: 'android'
 
 dependencies {
+    compile files('libs/universal-image-loader-1.9.1-with-sources.jar')
     compile project(':Frameworks:ContextophelesBase')
     compile project(':Frameworks:aware_framework_v2')
     compile project(':Frameworks:EuropeanaClient')
