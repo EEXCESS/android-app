@@ -43,6 +43,9 @@ public class DisplayResultsActivity extends Activity {
     private String what = "";
     private String where = "";
 
+    int lastViewedPosition = 0;
+    int topOffset = 0;
+
 
     private TextView loadingView = null;
 
@@ -74,12 +77,36 @@ public class DisplayResultsActivity extends Activity {
 
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
+                int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+
+                View v;
+
+                switch (screenSize) {
+                    case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+                    case Configuration.SCREENLAYOUT_SIZE_LARGE:
+
+                       //get scroll position
+                      lastViewedPosition = m_gridview.getFirstVisiblePosition();
+                      //get offset
+                      v = m_listview.getChildAt(0);
+                      topOffset = (v == null) ? 0 : v.getTop();
+
+
+                        break;
+                    default:
+                        //get scroll position
+                       lastViewedPosition = m_listview.getFirstVisiblePosition();
+                       //get offset
+                       v = m_listview.getChildAt(0);
+                       topOffset = (v == null) ? 0 : v.getTop();
+
+
+                }
 
                 if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
                     if (flag_all_loaded == false && flag_loading == false) {
                         flag_loading = true;
 
-                        int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
                         switch (screenSize) {
                             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
                             case Configuration.SCREENLAYOUT_SIZE_LARGE:
@@ -103,6 +130,8 @@ public class DisplayResultsActivity extends Activity {
             default:
                 m_listview.setOnScrollListener(scrollListener);
         }
+
+
 
         Intent myIntent = getIntent();
         if (myIntent != null) {
@@ -306,20 +335,18 @@ public class DisplayResultsActivity extends Activity {
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                 m_gridview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
-                // jump to newest entry
-                m_gridview.setSelection(items.size() - results.getItemsCount());
-                //m_gridview.remove(loadingView);
+                //m_gridview.setSelectionFromTop(lastViewedPosition, topOffset);
                 break;
             default:
                 m_listview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
-                // jump to newest entry
-                m_listview.setSelection(items.size() - results.getItemsCount());
+
                 m_listview.removeFooterView(loadingView);
+                m_listview.setSelectionFromTop(lastViewedPosition, topOffset);
+
         }
 
 
-        // All Results have been loaded
-        Log.d(TAG, "items size: " + items.size() + " total size:" + results.getTotalResults());
+
 
         checkIfAllItemsAreLoaded(items.size(), results.getTotalResults());
 
@@ -332,6 +359,7 @@ public class DisplayResultsActivity extends Activity {
         }
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
