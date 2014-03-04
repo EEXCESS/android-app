@@ -60,7 +60,7 @@ public class ContextophelesConstants {
     // Automatic Query Defaults
     public static final long AQ_PLUGIN_TIME_TO_WAIT_BETWEEN_RUNS = 1000;
     public static final long AQ_PLUGIN_MAX_NUMBER_OF_EMPTY_RUNS_BEFORE_SLEEP = 150;
-    public static final int AQ_PLUGIN_MAX_NUMBER_OF_NOTIFICATIONS_AT_ONCE = 5;
+    public static final int  AQ_PLUGIN_MAX_NUMBER_OF_NOTIFICATIONS_AT_ONCE = 5;
 
     //Clipboard Catcher
     public static final String CLIPBOARD_CATCHER_PLUGIN_NAME = "plugin.clipboard_catcher";
@@ -267,7 +267,4 @@ public class ContextophelesConstants {
 
     //SituationManager Fields
     public static final String SITUATION_MANAGER_LIGHT = "light";
-    public static final long SITUATION_MANAGER_MINIMU_TIME_BETWEEN_QUERIES = 15000;
-
-
 }

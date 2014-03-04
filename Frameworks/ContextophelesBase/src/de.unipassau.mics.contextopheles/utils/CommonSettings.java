@@ -13,7 +13,7 @@ import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 public class CommonSettings {
     private static final String TAG = "CommonSettings";
 
-    private static boolean getBooleanFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, boolean defaultValue) {
+    public static boolean getBooleanFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, boolean defaultValue) {
         String booleanString = Aware.getSetting(resolver, settingsIdentifier);
         if (booleanString != null) {
             try {
@@ -26,7 +26,7 @@ public class CommonSettings {
         }
     }
 
-    private static int getIntegerFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, int defaultValue) {
+    public static int getIntegerFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, int defaultValue) {
         String integerString = Aware.getSetting(resolver, settingsIdentifier);
         if (integerString != null) {
             try {
@@ -39,7 +39,7 @@ public class CommonSettings {
         }
     }
 
-    private static long getLongFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, long defaultValue) {
+    public static long getLongFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, long defaultValue) {
         String longString = Aware.getSetting(resolver, settingsIdentifier);
         if (longString != null) {
             try {
@@ -52,7 +52,7 @@ public class CommonSettings {
         }
     }
 
-    private static float getFloatFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, float defaultValue) {
+    public static float getFloatFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, float defaultValue) {
         String floatString = Aware.getSetting(resolver, settingsIdentifier);
         if (floatString  != null) {
             try {
@@ -65,7 +65,7 @@ public class CommonSettings {
         }
     }
 
-    private static double getDoubleFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, double defaultValue) {
+    public static double getDoubleFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, double defaultValue) {
         String doubleString = Aware.getSetting(resolver, settingsIdentifier);
         if (doubleString != null) {
             try {
