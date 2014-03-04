@@ -76,8 +76,7 @@ public class Plugin extends Aware_Plugin {
                 geonameResolverContentUri, true, geonameResolverObs);
         Log.d(TAG, "geonameResolverObs registered");
 
-        termCollectorGeoTermContentUri = Uri
-                .parse("content://com.aware.provider.plugin.term_collector/plugin_term_collector_geodata");
+        termCollectorGeoTermContentUri = ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI;
         termCollectorGeoTermObs = new TermCollectorGeoTermObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
@@ -116,13 +115,13 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     termCollectorGeoTermContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP + " DESC LIMIT 1");
 
             if (cursor != null && cursor.moveToFirst()) {
 
-                saveGeoData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                saveGeoData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP)),
                         termCollectorGeoTermContentUri.toString(), cursor.getString(cursor
-                        .getColumnIndex("term_content")));
+                        .getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_CONTENT)));
             }
 
             if (cursor != null && !cursor.isClosed()) {
@@ -148,12 +147,12 @@ public class Plugin extends Aware_Plugin {
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
                     geonameResolverContentUri, null, null, null,
-                    "timestamp" + " DESC LIMIT 1");
+                    ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
-                saveGeoData(cursor.getLong(cursor.getColumnIndex("timestamp")),
+                saveGeoData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)),
                         geonameResolverContentUri.toString(), cursor.getString(cursor
-                        .getColumnIndex("NAME")));
+                        .getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME)));
             }
 
             if (cursor != null && !cursor.isClosed()) {
