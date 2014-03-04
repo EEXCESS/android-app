@@ -1,6 +1,7 @@
 package com.aware.plugin.automatic_query.situations;
 
 import android.content.Context;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class SituationManager {
     private boolean assesBlockerSituations() {
 
         for (Situation blocker : blockerSituations) {
-            if (blocker.assess(contextMap)) {
+            if (blocker.isEnabled(context) && blocker.assess(contextMap, context)) {
                 // one blocker returned true
                 return true;
             }
@@ -71,8 +72,8 @@ public class SituationManager {
     }
 
     private boolean assessTriggerSituations() {
-        for (Situation blocker : triggerSituations) {
-            if (blocker.assess(contextMap)) {
+        for (Situation trigger : triggerSituations) {
+            if (trigger.isEnabled(context) && trigger.assess(contextMap, context)) {
                 // one Trigger returned true
                 return true;
             }
@@ -85,6 +86,44 @@ public class SituationManager {
     private void fillContextMap() {
         contextMap.put(ContextophelesConstants.SETTINGS_AQ_END_OF_DND, CommonSettings.getEndOfDoNotDisturb(context.getContentResolver()));
         contextMap.put(ContextophelesConstants.INFO_AQ_LAST_SUCCESSFUL_QUERY, CommonSettings.getTimeOfLastSuccessfulQuery(context.getContentResolver()));
+    }
+
+    public LinearLayout getSettingsLayout(){
+        LinearLayout result = new LinearLayout(context);
+        result.setOrientation(LinearLayout.VERTICAL);
+
+        // Add Situation Settings
+        ArrayList<Situation> situations = new ArrayList<Situation>();
+        situations.addAll(blockerSituations);
+        situations.addAll(triggerSituations);
+
+        for(Situation situation: situations){
+            result.addView(situation.getSettingsLayout(context));
+        }
+
+        return result;
+    }
+
+    public void initSituationSettings(){
+        // Add Situation Settings
+        ArrayList<Situation> situations = new ArrayList<Situation>();
+        situations.addAll(blockerSituations);
+        situations.addAll(triggerSituations);
+
+        for(Situation situation: situations){
+            situation.initSettings(context);
+        }
+    }
+
+    public void resetSituationSettings(){
+        // Add Situation Settings
+        ArrayList<Situation> situations = new ArrayList<Situation>();
+        situations.addAll(blockerSituations);
+        situations.addAll(triggerSituations);
+
+        for(Situation situation: situations){
+            situation.resetSettings(context);
+        }
     }
 
 }

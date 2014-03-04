@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.ToggleButton;
@@ -23,6 +24,10 @@ public class Settings extends Activity {
         setTitle(TAG);
 
         setContentView(R.layout.debug_layout);
+
+        LinearLayout baseLayout = (LinearLayout) findViewById(R.id.scroll_layout);
+        LinearLayout settingsLayout = Plugin.getSituationManager().getSettingsLayout();
+        baseLayout.addView(settingsLayout);
 
         init();
 
@@ -48,6 +53,8 @@ public class Settings extends Activity {
                 CommonSettings.setMinimumNumberOfResultsToDisplayNotification(getContentResolver(), newVal);
             }
         });
+
+
 
 
         // Querylist Wearoff Time
@@ -92,7 +99,11 @@ public class Settings extends Activity {
             }
 
         });
+
+
+        Plugin.getSituationManager().initSituationSettings();
     }
+
     protected void onResume() {
         super.onResume();
     }
@@ -122,6 +133,7 @@ public class Settings extends Activity {
         CommonSettings.setNotificationUsesVibration(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_VIBRATE_DEFAULT);
         CommonSettings.setNotificationUsesSound(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_NOTIFICATION_SOUND_DEFAULT);
         CommonSettings.setMinimumNumberOfResultsToDisplayNotification(getContentResolver(), ContextophelesConstants.SETTINGS_AQ_MINIMUM_NUMBER_OF_RESULTS_TO_DISPLAY_NOTIFICATION_DEFAULT);
+        Plugin.getSituationManager().resetSituationSettings();
         init();
     }
 

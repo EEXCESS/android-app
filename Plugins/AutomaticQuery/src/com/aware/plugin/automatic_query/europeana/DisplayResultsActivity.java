@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -58,6 +59,16 @@ public class DisplayResultsActivity extends Activity {
 
         int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
+        // Landscape for Tablets, Portrait for Phones
+        switch (screenSize) {
+            case Configuration.SCREENLAYOUT_SIZE_XLARGE:
+            case Configuration.SCREENLAYOUT_SIZE_LARGE:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            default:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         setContentView(R.layout.main);
 
         switch (screenSize) {
@@ -87,10 +98,6 @@ public class DisplayResultsActivity extends Activity {
 
                        //get scroll position
                       lastViewedPosition = m_gridview.getFirstVisiblePosition();
-                      //get offset
-                      v = m_listview.getChildAt(0);
-                      topOffset = (v == null) ? 0 : v.getTop();
-
 
                         break;
                     default:
@@ -335,7 +342,7 @@ public class DisplayResultsActivity extends Activity {
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                 m_gridview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));
-                //m_gridview.setSelectionFromTop(lastViewedPosition, topOffset);
+                m_gridview.setSelection(lastViewedPosition);
                 break;
             default:
                 m_listview.setAdapter(new EuropeanaApi2ResultAdapter(this, R.layout.row, items.toArray(new EuropeanaApi2Item[items.size()])));

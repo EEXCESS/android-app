@@ -35,7 +35,7 @@ public class Plugin extends Aware_Plugin {
     private static LightObserver lightObs = null;
     private static HandlerThread threads = null;
     private int notificationNumber = 0;
-    private SituationManager situationManager;
+    private static SituationManager situationManager;
     private QueryManager queryManager;
     private boolean isRunnableRunning = false;
     private int runNumber;
@@ -55,6 +55,10 @@ public class Plugin extends Aware_Plugin {
     };
 
     private Handler handler = new Handler();
+
+    public static SituationManager getSituationManager(){
+        return situationManager;
+    }
 
     public int getNotificationNumber() {
         return notificationNumber;
