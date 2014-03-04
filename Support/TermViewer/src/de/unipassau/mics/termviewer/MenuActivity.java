@@ -11,6 +11,8 @@ import android.widget.ListView;
 
 import java.util.HashMap;
 
+import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
+
 /**
  * Created by wmb on 23.01.14.
  */
@@ -29,31 +31,21 @@ public class MenuActivity extends Activity {
 
         mTermList = (ListView) findViewById(R.id.menuEntryList);
 
-        final String[] activities = new String[] {
-                "ClipboardCatcher",
-                "TermCollectorTerms",
-                "TermCollectorGeodata",
-               // "AutomaticQuery",
-                "GeoCollector",
-                "GeonameResolver",
-                "OSMPoiResolver",
-                "ImageReceiver",
-                "SMSReceiver",
-                "UIContent"
-        };
-
-
         final HashMap<String, ActivityDescriptor> activityDescriptions = new HashMap<String, ActivityDescriptor>();
 
-        activityDescriptions.put("ClipboardCatcher", new ActivityDescriptor("ClipboardCatcher", "content://com.aware.provider.plugin.clipboard_catcher/plugin_clipboard_catcher", "CLIPBOARDCONTENT"));
-        activityDescriptions.put("TermCollectorTerms", new ActivityDescriptor("TermCollectorTerms", "content://com.aware.provider.plugin.term_collector/plugin_term_collector_terms","term_content"));
-        activityDescriptions.put("TermCollectorGeodata", new ActivityDescriptor("TermCollectorGeodata", "content://com.aware.provider.plugin.term_collector/plugin_term_collector_geodata", "term_content"));
-        activityDescriptions.put("GeoCollector", new ActivityDescriptor("GeoCollector", "content://com.aware.provider.plugin.geo_collector/plugin_geo_collector_terms", "term_content"));
-        activityDescriptions.put("GeonameResolver", new ActivityDescriptor("GeonameResolver", "content://com.aware.provider.plugin.geoname_resolver/plugin_geoname_resolver", "name"));
-        activityDescriptions.put("OSMPoiResolver", new ActivityDescriptor("OSMPoiResolver", "content://com.aware.provider.plugin.osmpoi_resolver/plugin_osmpoi_resolver", "name"));
-        activityDescriptions.put("ImageReceiver", new ActivityDescriptor("ImageReceiver", "content://com.aware.provider.plugin.image_receiver/plugin_image_receiver", "_display_name"));
-        activityDescriptions.put("SMSReceiver", new ActivityDescriptor("SMSReceiver", "content://com.aware.provider.plugin.sms_receiver/plugin_sms_receiver", "SMSCONTENT"));
-        activityDescriptions.put("UIContent", new ActivityDescriptor("UIContent", "content://com.aware.provider.plugin.ui_content/plugin_ui_content", "content_text"));
+        activityDescriptions.put("ClipboardCatcher", new ActivityDescriptor("ClipboardCatcher", ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_CLIPBOARDCONTENT));
+        activityDescriptions.put("TermCollectorTerms", new ActivityDescriptor("TermCollectorTerms", ContextophelesConstants.TERM_COLLECTOR_TERM_CONTENT_URI.toString(), ContextophelesConstants.TERM_COLLECTOR_CACHE_FIELD_TERM_CONTENT));
+        activityDescriptions.put("TermCollectorGeodata", new ActivityDescriptor("TermCollectorGeodata", ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI.toString(), ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_CONTENT));
+        activityDescriptions.put("GeoCollector", new ActivityDescriptor("GeoCollector", ContextophelesConstants.GEO_COLLECTOR_CONTENT_URI.toString(), ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_CONTENT));
+        activityDescriptions.put("GeonameResolver", new ActivityDescriptor("GeonameResolver", ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME));
+        activityDescriptions.put("OSMPoiResolver", new ActivityDescriptor("OSMPoiResolver", ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.OSMPOI_RESOLVER_FIELD_NAME));
+        activityDescriptions.put("ImageReceiver", new ActivityDescriptor("ImageReceiver", ContextophelesConstants.IMAGE_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.IMAGE_RECEIVER_FIELD_DISPLAY_NAME));
+        activityDescriptions.put("SMSReceiver", new ActivityDescriptor("SMSReceiver", ContextophelesConstants.SMS_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.SMS_RECEIVER_FIELD_SMSContent));
+        activityDescriptions.put("UIContent", new ActivityDescriptor("UIContent", ContextophelesConstants.UI_CONTENT_CONTENT_URI.toString(), ContextophelesConstants.UI_CONTENT_FIELD_TEXT));
+
+
+        final String[] activities = new String[activityDescriptions.keySet().size()];
+        activityDescriptions.keySet().toArray(activities);
 
         mTermList.setAdapter(new ArrayAdapter<String>(this, R.layout.menu_activity_entry, activities));
 
@@ -62,8 +54,6 @@ public class MenuActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
-                // TODO Auto-generated method stub
-                Log.d(TAG,"Item clicked: " +  activities[arg2] );
                 ActivityDescriptor desc = activityDescriptions.get(activities[arg2]);
 
                 String name = desc.getName();
@@ -74,7 +64,6 @@ public class MenuActivity extends Activity {
                 Log.d(TAG,"name:" + name);
                 Log.d(TAG,"uri:" + uri);
                 Log.d(TAG,"field:" + field);
-
 
                 Intent i = new Intent(getApplicationContext(), TermViewer.class);
                 i.putExtra("name", name);

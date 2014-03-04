@@ -16,6 +16,7 @@ apply plugin: 'android'
 dependencies {
 //    compile 'com.android.support:support-v13:18.0.+'
     compile project(':Frameworks:aware_framework_v2')
+    compile project(':Frameworks:ContextophelesBase')
 }
 
 android.applicationVariants.all { variant ->
