@@ -63,6 +63,9 @@ public class Plugin extends Aware_Plugin {
     public static Uri uiContentContentUri;
     private static UIContentObserver uiContentObs = null;
 
+    public static Uri geonameResolverContentUri;
+    private static GeonameResolverObserver geonameResolverObs = null;
+
     /**
      * Thread manager
      */
@@ -136,6 +139,14 @@ public class Plugin extends Aware_Plugin {
                 uiContentContentUri, true, uiContentObs);
         Log.d(TAG, "uiContentObs registered");
 
+
+        geonameResolverContentUri = ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI;
+        geonameResolverObs = new GeonameResolverObserver(new Handler(
+                threads.getLooper()));
+        getContentResolver().registerContentObserver(
+                geonameResolverContentUri, true, geonameResolverObs);
+        Log.d(TAG, "geonameResolverObs registered");
+
         Log.d(TAG, "Plugin Started");
     }
 
@@ -151,6 +162,7 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().unregisterContentObserver(smsReceiverObs);
         getContentResolver().unregisterContentObserver(osmpoiResolverObs);
         getContentResolver().unregisterContentObserver(uiContentObs);
+        getContentResolver().unregisterContentObserver(geonameResolverObs);
     }
 
     public class ClipboardCatcherObserver extends ContentObserver {
@@ -277,6 +289,38 @@ public class Plugin extends Aware_Plugin {
 
                     classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP)),
                             osmpoiResolverContentUri.toString(), singleTokenArray);
+                }
+
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
+            }
+        }
+
+    }
+
+
+    public class GeonameResolverObserver extends ContentObserver {
+        public GeonameResolverObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            Log.wtf(TAG, "@GeonameResolverObserver");
+
+            // run only, if use of location is allowed
+            if (CommonSettings.getQueryUseOfLocation(getContentResolver())) {
+                // set cursor to first item
+                Cursor cursor = getContentResolver().query(
+                        geonameResolverContentUri, null, null, null,
+                        ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
+                if (cursor != null && cursor.moveToFirst()) {
+
+                saveTermData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)), geonameResolverContentUri.toString(), cursor.getString(cursor
+                        .getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME)));
                 }
 
                 if (cursor != null && !cursor.isClosed()) {
