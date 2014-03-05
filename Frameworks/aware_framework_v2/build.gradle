@@ -1,0 +1,19 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.9'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.7.0'
+    }
+
+}
+
+//apply plugin: 'android'
+apply plugin: 'android-library'
+
+
+apply from: "buildFramework.gradle"

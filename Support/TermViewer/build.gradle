@@ -1,0 +1,42 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.7.0'
+    }
+}
+
+apply plugin: 'android'
+
+dependencies {
+//    compile 'com.android.support:support-v13:18.0.+'
+    compile project(':Frameworks:aware_framework_v2')
+    compile project(':Frameworks:ContextophelesBase')
+}
+
+android.applicationVariants.all { variant ->
+    variant.processResources.manifestFile = file('AndroidManifest.xml')
+    variant.processManifest.enabled=false
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+}

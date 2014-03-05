@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/debug_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean GeoData"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanGeoData" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean GeoDataCacheData"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanGeoDataCache" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean TermData"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cleanTermData" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" >
+       
+
+        <TextView
+            android:id="@+id/geoDataCountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Entries (geoData):"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+ 		<TextView
+            android:id="@+id/geodatacount"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:gravity="center"
+            />
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" >
+
+    <TextView
+            android:id="@+id/geoDataCacheCountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Entries (geoDataCache):"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/geodatacachecount"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:gravity="center"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal" >
+
+    <TextView
+            android:id="@+id/termDataCountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Entries (TermData):"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/termdatacount"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:gravity="center"
+            />
+        
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/tokenLengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minimal Token length:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="20px"
+
+        />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"/>
+
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/tokenLengthValue"
+            />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginTop="30px"
+    >
+    >
+
+        <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:id="@+id/stopWordButton"
+
+        android:onClick="onToggleButtonClicked" />
+
+    <TextView
+        android:id="@+id/tokenLengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use Stopword List"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_toRightOf="@id/stopWordButton"
+        android:layout_centerVertical="true"
+        />
+    </RelativeLayout>
+
+    <Button
+        android:layout_marginTop="20px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset to Default Settings"
+        android:id="@+id/resetSettings"
+        android:layout_gravity="center_horizontal|bottom"
+        android:onClick="onResetButtonClicked"
+        />
+
+
+</LinearLayout>

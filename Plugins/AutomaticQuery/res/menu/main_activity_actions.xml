@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/action_search" />
+
+    <item android:id="@+id/action_activate_dnd"
+        android:icon="@drawable/ic_action_settings"
+        android:title="@string/action_activate_dnd"
+        />
+
+    <item android:id="@+id/action_deactivate_dnd"
+        android:icon="@drawable/ic_action_settings"
+        android:title="@string/action_deactivate_dnd"
+        />
+
+    <item android:id="@+id/action_disable_location"
+        android:icon="@drawable/ic_action_settings"
+        android:title="@string/action_disable_location"
+        />
+
+    <item android:id="@+id/action_enable_location"
+        android:icon="@drawable/ic_action_settings"
+        android:title="@string/action_enable_location"
+        />
+
+</menu>
