@@ -27,6 +27,8 @@ public class ContextophelesConstants {
     public static final String SETTINGS_OR_DISTANCE = "SETTINGS_OR_DISTANCE";
     public static final String SETTINGS_GR_DISTANCE_SEEKBAR_PROGRESS = "SETTINGS_GR_DISTANCE_SEEKBAR_PROGRESS";
     public static final String SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS = "SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS";
+    public static final String SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS = "SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS";
+    public static final String SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS = "SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS";
     public static final String SETTINGS_UI_MINIMAL_CONTENT_LENGTH = "SETTINGS_UI_MINIMAL_CONTENT_LENGTH";
     public static final String SETTINGS_TC_MINIMAL_TOKEN_LENGTH = "SETTINGS_TC_MINIMAL_TOKEN_LENGTH";
     public static final String SETTINGS_USE_FAKE_LOCATION = "SETTINGS_USE_FAKE_LOCATION";
@@ -41,17 +43,20 @@ public class ContextophelesConstants {
     public static final int SETTINGS_AQ_MINIMUM_NUMBER_OF_RESULTS_TO_DISPLAY_NOTIFICATION_DEFAULT = 5;
     public static final long INFO_AQ_LAST_SUCCESSFUL_QUERY_DEFAULT = 0;
     public static final long SETTINGS_AQ_END_OF_DND_DEFAULT = 0;
-    public static final int SETTINGS_AQ_QUERYLIST_WEAROFF_TIME_DEFAULT = 60000;
+    public static final int SETTINGS_AQ_QUERYLIST_WEAROFF_TIME_DEFAULT = 120000;
     public static final float SETTINGS_GR_DISTANCE_DEFAULT = 1f;
     public static final float SETTINGS_OR_DISTANCE_DEFAULT = 1f;
     public static final int SETTINGS_GR_DISTANCE_SEEKBAR_PROGRESS_DEFAULT = 1;
     public static final int SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS_DEFAULT = 1;
+    public static final int SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS_DEFAULT = 200;
+    public static final int SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS_DEFAULT = 200;
     public static final int  SETTINGS_UI_MINIMAL_CONTENT_LENGTH_DEFAULT = 20;
     public static final int  SETTINGS_TC_MINIMAL_TOKEN_LENGTH_DEFAULT = 3;
     public static final boolean SETTINGS_TC_APPLY_STOPWORDS_DEFAULT = true;
     public static final boolean SETTINGS_USE_FAKE_LOCATION_DEFAULT = false;
     public static final double SETTINGS_FAKE_LATITUDE_DEFAULT = 0.0;
     public static final double SETTINGS_FAKE_LONGITUDE_DEFAULT = 0.0;
+
 
     // Fields for Values Saved via Settings
     public static final String INFO_AQ_LAST_SUCCESSFUL_QUERY = "AWARE_LAST_SUCCESSFUL_QUERY";
@@ -239,7 +244,7 @@ public class ContextophelesConstants {
     public static final String TERM_COLLECTOR_CACHE_FIELD_IS_CITE = "is_city";
 
 
-    //Geo Collector Term
+    //Geo Collector
 
     public static final String GEO_COLLECTOR_PLUGIN_NAME = "plugin.geo_collector";
     public static final String GEO_COLLECTOR_AUTHORITY = "com.aware.provider." + GEO_COLLECTOR_PLUGIN_NAME;
