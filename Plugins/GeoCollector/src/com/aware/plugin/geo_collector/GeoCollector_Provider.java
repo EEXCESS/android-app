@@ -184,7 +184,7 @@ public class GeoCollector_Provider extends ContentProvider {
                 database.close();
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        Log.d(TAG, "Notifying about change");
+
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
