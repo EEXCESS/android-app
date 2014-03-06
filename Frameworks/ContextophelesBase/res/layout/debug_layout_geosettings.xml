@@ -3,7 +3,32 @@
     android:id="@+id/debug_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants"
+    >
+
+
+
+    <Button
+        android:layout_marginTop="20px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset to Default Settings"
+        android:id="@+id/resetSettings"
+        android:layout_gravity="center_horizontal|bottom"
+        android:onClick="onResetButtonClicked"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/scroll_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
 
     <TextView
         android:layout_width="wrap_content"
@@ -56,7 +81,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Fake Location"
+        android:text="Fake Location (applies to all)"
         android:id="@+id/FakeLocationHeader"
         android:paddingTop="10pt" />
 
@@ -137,7 +162,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Distance to resolve"
+        android:text="Distance to resolve (only this plugin)"
         android:id="@+id/DistanceHeader"
         android:paddingTop="10pt" />
 
@@ -146,7 +171,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar"
-        android:layout_gravity="center_horizontal"
         android:layout_alignParentLeft="true"/>
 
 
@@ -178,14 +202,52 @@
         />
     </RelativeLayout>
 
-    <Button
-        android:layout_marginTop="20px"
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reset to Default Settings"
-        android:id="@+id/resetSettings"
-        android:layout_gravity="center_horizontal|bottom"
-        android:onClick="onResetButtonClicked"
-        />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Minimum Distance between Positions (only this plugin)"
+        android:id="@+id/MinDistanceHeader"
+        android:paddingTop="10pt" />
+
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/minDistanceSeekBar"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentLeft="true"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+
+        >
+
+        <TextView
+            android:id="@+id/minDistanceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Distance in m:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+
+            />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/minDistanceValue"
+            android:layout_toRightOf="@id/minDistanceLabel"
+            />
+    </RelativeLayout>
+</LinearLayout>
+</ScrollView>
 
 </LinearLayout>
