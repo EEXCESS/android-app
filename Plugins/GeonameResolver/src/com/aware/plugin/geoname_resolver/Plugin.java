@@ -30,10 +30,6 @@ public class Plugin extends Aware_Plugin {
 
     private static Location previousDissolvedLocation = null;
 
-    //minimal Distance to dissolve again
-    // TODO Make this a setting
-    private static double minimalDistanceBetweenCoordinates = 200.0;
-	
 	public static Uri locationContentUri;
 	private static LocationObserver locationObs = null;
 
@@ -166,7 +162,7 @@ public class Plugin extends Aware_Plugin {
             if (previousDissolvedLocation != null) {
                 // we have dissolved successfully in the past
                 float distBetweenLocs = previousDissolvedLocation.distanceTo(currentLocation);
-                return distBetweenLocs > minimalDistanceBetweenCoordinates;
+                return distBetweenLocs > CommonSettings.getGeonameMinimalDistanceBetweenPositions(getContentResolver());
             } else {
                 // We haven't dissolved yet
                 Log.d(TAG, "Should try to dissolve, as it has not resolved yet.");
