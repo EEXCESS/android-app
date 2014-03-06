@@ -31,6 +31,7 @@ public class QueryManager {
         whatManager.registerPlugin(ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.OSMPOI_RESOLVER_MAX_STORAGE, ContextophelesConstants.OSMPOI_RESOLVER_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.NOTIFICATION_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.NOTIFICATION_CATCHER_MAX_STORAGE, ContextophelesConstants.NOTIFICATION_CATCHER_WEAROFF_TIME);
         whatManager.registerPlugin(ContextophelesConstants.SMS_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.SMS_RECEIVER_MAX_STORAGE, ContextophelesConstants.SMS_RECEIVER_WEAROFF_TIME);
+        whatManager.registerPlugin(ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_MAX_STORAGE, ContextophelesConstants.GEONAME_RESOLVER_WEAROFF_TIME);
 
         Log.d(this.getClass().toString(), "@registering WhereManagerPlugins");
         whereManager = new TermManager("WhereManager");
