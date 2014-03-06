@@ -18,7 +18,7 @@ import de.unipassau.mics.contextopheles.utils.CommonSettings;
  * Created by wmb on 10.01.14.
  */
 public class MinimumTimeSinceLastSuccessfulQuerySituation extends Situation {
-    int DEFAULT_TIME = 15000;
+    int DEFAULT_TIME = 10000;
     public final String TIME_KEY = this.PREFIX + "_TIME";
     private EditText timeValue;
     private SeekBar timeSeekBar;
