@@ -3,7 +3,9 @@
     android:id="@+id/debug_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants"
+    >
 
     <Button
         android:layout_marginTop="20px"
@@ -25,7 +27,6 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:descendantFocusability="blocksDescendants"
         >
 
 

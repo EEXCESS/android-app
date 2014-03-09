@@ -15,7 +15,7 @@ public class CommonSettings {
 
     public static boolean getBooleanFromAwareSettings(ContentResolver resolver,  String settingsIdentifier, boolean defaultValue) {
         String booleanString = Aware.getSetting(resolver, settingsIdentifier);
-        if (booleanString != null) {
+        if (booleanString != null && !booleanString.equals("")) {
             try {
                 return Boolean.parseBoolean(booleanString);
             } catch (NumberFormatException e) {
@@ -176,6 +176,30 @@ public class CommonSettings {
 
     public static void setOSMPoiDistanceSeekBarProgress(ContentResolver resolver, Integer value) {
         Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_OR_DISTANCE_SEEKBAR_PROGRESS, value.toString());
+    }
+
+    public static int getGeonameMinimalDistanceBetweenPositions(ContentResolver resolver) {
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS, ContextophelesConstants.SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS_DEFAULT);
+    }
+
+    public static void setGeonameMinimalDistanceBetweenPositions(ContentResolver resolver, Integer value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS, value.toString());
+    }
+
+    public static void setGeonameMinimalDistanceBetweenPositionsFromString(ContentResolver resolver, String value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_GR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS, value);
+    }
+
+    public static int getOSMPoiMinimalDistanceBetweenPositions(ContentResolver resolver) {
+        return getIntegerFromAwareSettings(resolver, ContextophelesConstants.SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS, ContextophelesConstants.SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS_DEFAULT);
+    }
+
+    public static void setOSMPoiMinimalDistanceBetweenPositions(ContentResolver resolver, Integer value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS, value.toString());
+    }
+
+    public static void setOSMPoiMinimalDistanceBetweenPositionsFromString(ContentResolver resolver, String value) {
+        Aware.setSetting(resolver, ContextophelesConstants.SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS, value);
     }
 
     public static boolean getUseFakeLocation(ContentResolver resolver) {

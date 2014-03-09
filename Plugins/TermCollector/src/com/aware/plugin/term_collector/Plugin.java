@@ -294,6 +294,8 @@ public class Plugin extends Aware_Plugin {
                 if (cursor != null && !cursor.isClosed()) {
                     cursor.close();
                 }
+            } else {
+                Log.d(TAG, "Termcollector ignores input, as useOfLocation is disabled.");
             }
         }
 
@@ -326,6 +328,8 @@ public class Plugin extends Aware_Plugin {
                 if (cursor != null && !cursor.isClosed()) {
                     cursor.close();
                 }
+            }else {
+                Log.d(TAG, "GeonameResolver ignores input, as useOfLocation is disabled.");
             }
         }
 

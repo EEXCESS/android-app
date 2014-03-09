@@ -62,6 +62,44 @@ public class Settings extends GeoSettings {
             }
 
         });
+
+        // Set Status of Min Distance Slider
+        ((SeekBar)findViewById(R.id.minDistanceSeekBar)).setMax(1000);
+        ((SeekBar)findViewById(R.id.minDistanceSeekBar)).setProgress(CommonSettings.getGeonameMinimalDistanceBetweenPositions(getContentResolver()));
+        ((SeekBar)findViewById(R.id.minDistanceSeekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                CommonSettings.setGeonameMinimalDistanceBetweenPositions(getContentResolver(), i);
+                ((EditText)findViewById(R.id.minDistanceValue)).setText("" + CommonSettings.getGeonameMinimalDistanceBetweenPositions(getContentResolver()));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+        });
+
+
+        // Set Value of Distance
+        ((EditText)findViewById(R.id.minDistanceValue)).setText("" + CommonSettings.getGeonameMinimalDistanceBetweenPositions(getContentResolver()));
+        ((EditText)findViewById(R.id.minDistanceValue)).addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                CommonSettings.setGeonameMinimalDistanceBetweenPositionsFromString(getContentResolver(), s.toString());
+                ((SeekBar)findViewById(R.id.minDistanceSeekBar)).setProgress(CommonSettings.getGeonameMinimalDistanceBetweenPositions(getContentResolver()));
+            }
+
+        });
     }
 
     protected void onResume() {
@@ -77,6 +115,7 @@ public class Settings extends GeoSettings {
     public void onResetButtonClicked(View view){
         super.onResetButtonClicked(view);
         CommonSettings.setGeonameDistance(getContentResolver(), ContextophelesConstants.SETTINGS_GR_DISTANCE_DEFAULT);
+        CommonSettings.setGeonameMinimalDistanceBetweenPositions(getContentResolver(), ContextophelesConstants.SETTINGS_OR_MINIMAL_DISTANCE_BETWEEN_GEOPOSITIONS_DEFAULT);
         init();
     }
 }
