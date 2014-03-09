@@ -10,21 +10,10 @@ See the GNU General Public License for more details: http://www.gnu.org/licenses
 */
 package com.aware.ui;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.app.IntentService;
 import android.app.DownloadManager.Query;
+import android.app.IntentService;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -57,6 +46,17 @@ import com.aware.R;
 import com.aware.providers.Aware_Provider.Aware_Plugins;
 import com.aware.utils.Aware_Plugin;
 import com.aware.utils.Http;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * UI to manage installed plugins. 
@@ -105,8 +105,9 @@ public class Plugins_Manager extends Activity {
     	@Override
     	protected Void doInBackground(Void... params) {
     		Http fetch = new Http();
-	    	HttpResponse response = fetch.dataGET("http://www.awareframework.com/index.php/awaredev/get_addons");
-	    	if( response != null && response.getStatusLine().getStatusCode() == 200 ) {
+	    	//HttpResponse response = fetch.dataGET("http://www.awareframework.com/index.php/awaredev/get_addons");
+            HttpResponse response = fetch.dataGET("http://dl.dropboxusercontent.com/u/758290/Contextopheles/getAddons.html");
+            if( response != null && response.getStatusLine().getStatusCode() == 200 ) {
 	    		try {
 					String data = EntityUtils.toString(response.getEntity());
 					online_packages = new JSONArray(data);
@@ -219,7 +220,7 @@ public class Plugins_Manager extends Activity {
         File folders = new File(Environment.getExternalStorageDirectory()+"/AWARE/plugins/");
         folders.mkdirs();
     	
-    	String url = "http://www.awareframework.com/addons/" + package_name + ".apk";
+    	String url = "http://dl.dropboxusercontent.com/u/758290/Contextopheles/APKs/" + package_name + ".apk";
     	DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
     	
     	if( name.length() > 0 ) {
