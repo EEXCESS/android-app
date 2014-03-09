@@ -272,4 +272,8 @@ public class ContextophelesConstants {
 
     //SituationManager Fields
     public static final String SITUATION_MANAGER_LIGHT = "light";
+
+    //ActivitySituation
+    public static final String INFO_AQ_ACTIVITY_TYPE = "INFO_AQ_ACTIVITY_TYPE";
+    public static final String INFO_AQ_ACTIVITY_CONFIDENCE = "INFO_AQ_ACTIVITY_CONFIDENCE";
 }
