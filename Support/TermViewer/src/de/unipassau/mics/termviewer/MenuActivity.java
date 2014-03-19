@@ -42,6 +42,7 @@ public class MenuActivity extends Activity {
         activityDescriptions.put("ImageReceiver", new ActivityDescriptor("ImageReceiver", ContextophelesConstants.IMAGE_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.IMAGE_RECEIVER_FIELD_DISPLAY_NAME));
         activityDescriptions.put("SMSReceiver", new ActivityDescriptor("SMSReceiver", ContextophelesConstants.SMS_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.SMS_RECEIVER_FIELD_SMSContent));
         activityDescriptions.put("UIContent", new ActivityDescriptor("UIContent", ContextophelesConstants.UI_CONTENT_CONTENT_URI.toString(), ContextophelesConstants.UI_CONTENT_FIELD_TEXT));
+        activityDescriptions.put("Notification", new ActivityDescriptor("Notification", ContextophelesConstants.NOTIFICATION_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TEXT));
 
 
         final String[] activities = new String[activityDescriptions.keySet().size()];
