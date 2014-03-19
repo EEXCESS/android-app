@@ -66,6 +66,8 @@ public class Plugin extends Aware_Plugin {
     public static Uri geonameResolverContentUri;
     private static GeonameResolverObserver geonameResolverObs = null;
 
+    private static String sanitizingString = "[^A-Za-zÄÖÜäöüß\\- ]";
+
     /**
      * Thread manager
      */
@@ -387,13 +389,20 @@ public class Plugin extends Aware_Plugin {
         //remove all characters that are not A-Za-z
         ArrayList<String> resultList = new ArrayList<String>();
 
+        String latex = "\\boxed{" + TextUtils.join("} \\boxed{", tokenArray) + "}";
+        int chunksize = 1000;
+        for(int i=0; i< latex.length(); i = i + chunksize){
+            Log.wtf(TAG, "Reformulating Contentlist: "  + latex.substring(i, Math.min(i+chunksize, latex.length())));
+        }
+
+
 
         for (int i = 0; i < tokenArray.length; i++) {
             String token = tokenArray[i];
             if (tokenIsAllowedNoun(token)) {
                 resultList.add(token);
                 //token does not end in a punctuation mark
-                if (!token.matches("[\\p{Punct}]$")) {
+                if (!token.matches(".*[\\p{Punct}]")) {
 
                     // there is still another token
                     if (i + 1 < tokenArray.length) {
@@ -442,6 +451,7 @@ public class Plugin extends Aware_Plugin {
 
         for (String token : tokens) {
             filteredTokens.add(token.replaceAll("[^A-Za-zÄÖÜäöüß\\-]", " "));
+            filteredTokens.add(token.replaceAll(sanitizingString, ""));
         }
 
         return filteredTokens;
@@ -648,8 +658,14 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().insert(TermCollectorGeoDataCache.CONTENT_URI, rowData);
     }
 
+    //Checks, whether the given token does not break a set of rules, e.g. minlength or stopword
     private boolean tokenIsAllowedNoun(String token) {
+        Log.wtf(TAG, "Testing for allowed noun: " + token);
         int minLength = CommonSettings.getMinimalTermCollectorTokenLength(getContentResolver());
+
+        // Sanitize token temporarily:
+        token = token.replaceAll(sanitizingString, "");
+
         boolean applyStopWords = CommonSettings.getTermCollectorApplyStopwords(getContentResolver());
         // filter tokens shorter than minLength characters
         if (token.length() >= minLength) {
