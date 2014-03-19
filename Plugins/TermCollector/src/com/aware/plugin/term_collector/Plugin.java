@@ -601,10 +601,6 @@ public class Plugin extends Aware_Plugin {
         getContentResolver().insert(TermCollectorGeoData.CONTENT_URI, rowData);
     }
 
-    boolean isApplicationBlacklisted(String appName) {
-        return blacklistedApps.isBlacklistedApp(appName);
-    }
-
     private boolean isInCache(String token) {
         Cursor c = getContentResolver().query(TermCollector_Provider.TermCollectorGeoDataCache.CONTENT_URI, null, TermCollector_Provider.TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, null);
 
