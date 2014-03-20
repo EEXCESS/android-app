@@ -77,15 +77,7 @@
     </RelativeLayout>
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Fake Location (applies to all)"
-        android:id="@+id/FakeLocationHeader"
-        android:paddingTop="10pt" />
-
-    <RelativeLayout
+            <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -94,63 +86,10 @@
 
         >
 
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Use fake location"
-        android:id="@+id/useFakeLocationButton"
-        android:layout_alignParentLeft="true"
-        android:layout_centerInParent="true"
-        android:onClick="onSwitchClicked" />
-
-
-
-
-    <TextView
-        android:id="@+id/useFakeLocationText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/useFakeLocationButton"
-        android:text="Use fake Location"
-        android:layout_centerInParent="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="choose"
-            android:id="@+id/chooseLocation"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:onClick="onChooseClicked" />
 
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Fake Latitude"
-        android:id="@+id/fakeLatitude"
-        android:paddingTop="10pt" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal|numberSigned"
-        android:ems="10"
-        android:id="@+id/fakeLatitudeValue" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Fake Latitude"
-        android:id="@+id/fakeLongitude"
-        android:paddingTop="10pt" />
-    <EditText
+            <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal|numberSigned"
