@@ -27,10 +27,10 @@ import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 public class Plugin extends Aware_Plugin {
 
     private final static String TAG = ContextophelesConstants.TAG_AUTOMATIC_QUERY + " Plugin";
-    public static Uri geoCollectorContentUri;
+    public static Uri geoDataContentUri;
     public static Uri termCollectorContentUri;
     public static Uri lightContentUri;
-    private static GeoCollectorObserver geoCollectorObs = null;
+    private static GeoCollectorObserver geoDataObs = null;
     private static TermCollectorObserver termCollectorObs = null;
     private static LightObserver lightObs = null;
     private static HandlerThread threads = null;
@@ -91,12 +91,12 @@ public class Plugin extends Aware_Plugin {
         Log.d(TAG, "termCollectorObs registered");
 
 
-        geoCollectorContentUri = ContextophelesConstants.GEO_COLLECTOR_CONTENT_URI;
-        geoCollectorObs = new GeoCollectorObserver(new Handler(
+        geoDataContentUri = ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI;
+        geoDataObs = new GeoCollectorObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
-                geoCollectorContentUri, true, geoCollectorObs);
-        Log.d(TAG, "geoCollectorObs registered");
+                geoDataContentUri, true, geoDataObs);
+        Log.d(TAG, "geoDataObs registered");
 
 
         lightContentUri = Uri.parse(ContextophelesConstants.LIGHT_URI);
@@ -115,7 +115,7 @@ public class Plugin extends Aware_Plugin {
         super.onDestroy();
 
         getContentResolver().unregisterContentObserver(termCollectorObs);
-        getContentResolver().unregisterContentObserver(geoCollectorObs);
+        getContentResolver().unregisterContentObserver(geoDataObs);
         getContentResolver().unregisterContentObserver(lightObs);
         handler.removeCallbacks(runnable);
     }
@@ -195,13 +195,13 @@ public class Plugin extends Aware_Plugin {
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
-                    geoCollectorContentUri, null, null, null,
-                    ContextophelesConstants.GEO_COLLECTOR_FIELD_TIMESTAMP  + " DESC LIMIT 1");
+                    geoDataContentUri, null, null, null,
+                    ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP  + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
                 String localWhere = cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_CONTENT));
-                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_FIELD_TIMESTAMP));
-                String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_SOURCE));
+                        .getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_CONTENT));
+                long localTimestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_FIELD_TIMESTAMP));
+                String localSource = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_SOURCE));
 
                 queryManager.addWhereObject(new WhereObject(localTimestamp, localSource, localWhere));
 

@@ -353,8 +353,9 @@ public class Plugin extends Aware_Plugin {
                     String content = cursor.getString(cursor
                             .getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME));
 
-                    // Data from the GeonameResolver is directly saved
+                    // Data from the GeonameResolver is directly saved to both data and geotable
                     DataHelper.saveTermData(getContentResolver(), cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)), geonameResolverContentUri.toString(), content);
+                    DataHelper.saveGeoData(getContentResolver(), cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)), geonameResolverContentUri.toString(), content);
                 }
 
                 if (cursor != null && !cursor.isClosed()) {

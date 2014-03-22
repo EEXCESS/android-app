@@ -243,25 +243,6 @@ public class ContextophelesConstants {
     public static final String TERM_COLLECTOR_CACHE_FIELD_TERM_CONTENT = "term_content";
     public static final String TERM_COLLECTOR_CACHE_FIELD_IS_CITE = "is_city";
 
-
-    //Geo Collector
-
-    public static final String GEO_COLLECTOR_PLUGIN_NAME = "plugin.geo_collector";
-    public static final String GEO_COLLECTOR_AUTHORITY = "com.aware.provider." + GEO_COLLECTOR_PLUGIN_NAME;
-    public static final String GEO_COLLECTOR_MAIN_TABLE = "plugin_geo_collector";
-
-
-    public static final Uri     GEO_COLLECTOR_CONTENT_URI =        Uri.parse("content://" + GEO_COLLECTOR_AUTHORITY + "/" + GEO_COLLECTOR_MAIN_TABLE);
-    public static final String  GEO_COLLECTOR_CONTENT_TYPE =       "vnd.android.cursor.dir/vnd.aware." + GEO_COLLECTOR_PLUGIN_NAME;
-    public static final String  GEO_COLLECTOR_CONTENT_ITEM_TYPE =  "vnd.android.cursor.item/vnd.aware." + GEO_COLLECTOR_PLUGIN_NAME;
-
-   public static final String GEO_COLLECTOR_FIELD_ID =           "_id";
-   public static final String GEO_COLLECTOR_FIELD_TIMESTAMP =     "timestamp";
-   public static final String GEO_COLLECTOR_FIELD_DEVICE_ID =     "device_id";
-
-   public static final String GEO_COLLECTOR_FIELD_TERM_CONTENT =  "term_content";
-   public static final String GEO_COLLECTOR_FIELD_TERM_SOURCE =   "term_source";
-
     // Light Sensor
     public static final String LIGHT_URI = "content://com.aware.provider.light/light";
     public static final String LIGHT_FIELD_TIMESTAMP = "timestamp";
