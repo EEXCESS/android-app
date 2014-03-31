@@ -39,10 +39,6 @@ public class TermObject implements Comparable<TermObject> {
         return importance;
     }
 
-    public double getNovelty() {
-        return 0.0f;
-    }
-
     protected double computeImportanceFromValue(String value) {
         double importance = value.length() * 0.01f;
         if (value.contains(" ")) {

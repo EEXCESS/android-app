@@ -27,25 +27,31 @@ import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
 public class Plugin extends Aware_Plugin {
 
     private final static String TAG = ContextophelesConstants.TAG_AUTOMATIC_QUERY + " Plugin";
+
     public static Uri geoDataContentUri;
     public static Uri termCollectorContentUri;
     public static Uri lightContentUri;
+
     private static GeoCollectorObserver geoDataObs = null;
     private static TermCollectorObserver termCollectorObs = null;
     private static LightObserver lightObs = null;
+
     private static HandlerThread threads = null;
     private int notificationNumber = 0;
+
     private static SituationManager situationManager;
     private QueryManager queryManager;
+
     private boolean isRunnableRunning = false;
     private int runNumber;
     private Runnable runnable = new Runnable() {
-
         public void run() {
             // running query
             runNumber = runNumber + 1;
             maybeRunQuery();
+            //todo: how long does this take? Can we make maybeRunQuery blockable?
 
+            //Perhaps we can call this inside of something the executesearchtask starts after finishing
             if (runNumber < ContextophelesConstants.AQ_PLUGIN_MAX_NUMBER_OF_EMPTY_RUNS_BEFORE_SLEEP) {
                 handler.postDelayed(this, ContextophelesConstants.AQ_PLUGIN_TIME_TO_WAIT_BETWEEN_RUNS);
             } else {
