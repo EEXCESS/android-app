@@ -32,7 +32,7 @@ public class Plugin extends Aware_Plugin {
     public static Uri termCollectorContentUri;
     public static Uri lightContentUri;
 
-    private static GeoCollectorObserver geoDataObs = null;
+    private static GeoDataObserver geoDataObs = null;
     private static TermCollectorObserver termCollectorObs = null;
     private static LightObserver lightObs = null;
 
@@ -98,7 +98,7 @@ public class Plugin extends Aware_Plugin {
 
 
         geoDataContentUri = ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI;
-        geoDataObs = new GeoCollectorObserver(new Handler(
+        geoDataObs = new GeoDataObserver(new Handler(
                 threads.getLooper()));
         getContentResolver().registerContentObserver(
                 geoDataContentUri, true, geoDataObs);
@@ -187,8 +187,8 @@ public class Plugin extends Aware_Plugin {
         }
     }
 
-    public class GeoCollectorObserver extends ContentObserver {
-        public GeoCollectorObserver(Handler handler) {
+    public class GeoDataObserver extends ContentObserver {
+        public GeoDataObserver(Handler handler) {
             super(handler);
         }
 
@@ -197,7 +197,7 @@ public class Plugin extends Aware_Plugin {
             super.onChange(selfChange);
 
             // TODO: Log to Databse
-            Log.d(TAG, "@onChange of GeoCollectorObserver");
+            Log.d(TAG, "@onChange of GeoDataObserver");
 
             // set cursor to first item
             Cursor cursor = getContentResolver().query(
