@@ -616,10 +616,8 @@ public class Plugin extends Aware_Plugin {
         boolean applyStopWords = CommonSettings.getTermCollectorApplyStopwords(getContentResolver());
         // filter tokens shorter than minLength characters
         if (token.length() >= minLength) {
-            //only allow Uppercase tokens, which have no more Uppercase characters (avoids strange CamelCase errors like PassauTown)
-            if (Character.isUpperCase(token.charAt(0)) &&
-                    token.substring(1).equals(token.substring(1).toLowerCase())
-                    ) {
+            //Only allow Words, where the first character is uppercase, and all following are lowercase, except if there is a dash between the Words
+            if (token.matches("[A-ZÄÖÜ]{1}[a-zäöüß]*((\\-|\\—)[A-ZÄÖÜ]{1}[a-zäöüß]*)*")) {
                 if(applyStopWords) {
                     if (stopWords.isStopWord(token)) {
                         Log.wtf(TAG, "Ignoring " + token + " as it is a stopword.");
