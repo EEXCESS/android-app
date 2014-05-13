@@ -1,25 +1,21 @@
 package com.aware.plugin.term_collector;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.aware.Aware;
-import com.aware.Aware_Preferences;
 import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorGeoData;
-import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorGeoDataCache;
 import com.aware.plugin.term_collector.TermCollector_Provider.TermCollectorTermData;
 import com.aware.utils.Aware_Plugin;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import de.unipassau.mics.contextopheles.base.ContextophelesConstants;
@@ -65,6 +61,8 @@ public class Plugin extends Aware_Plugin {
 
     public static Uri geonameResolverContentUri;
     private static GeonameResolverObserver geonameResolverObs = null;
+
+    private static String sanitizingString = "[^A-Za-zÄÖÜäöüß\\- ]";
 
     /**
      * Thread manager
@@ -182,11 +180,18 @@ public class Plugin extends Aware_Plugin {
                     ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
-                String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_CLIPBOARDCONTENT)));
+                String content = cursor.getString(cursor
+                        .getColumnIndex(ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_CLIPBOARDCONTENT));
 
-                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_TIMESTAMP)),
-                        clipboardCatcherContentUri.toString(), tokens);
+                String[] contentTokens = splitAndReformulateContent(content);
+
+                ArrayList<String>[] lists = classifyData(contentTokens);
+
+                long timestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_TIMESTAMP));
+                String source = clipboardCatcherContentUri.toString();
+
+                DataHelper.saveGeoDataFromList(getContentResolver(),  timestamp, source, lists[0]);
+                DataHelper.saveTermDataFromList(getContentResolver(), timestamp, source, lists[1]);
             }
 
             if (cursor != null && !cursor.isClosed()) {
@@ -212,16 +217,24 @@ public class Plugin extends Aware_Plugin {
                     ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
 
+                String applicationName =  cursor.getString(cursor
+                        .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_APP_NAME));
 
-                if (!isApplicationBlacklisted(cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_APP_NAME)))) {
+                if (!blacklistedApps.isBlacklistedApp(applicationName)) {
                     // get title and content_text
-                    String[] tokens = splitAndFilterContent(cursor.getString(cursor
+                    String content = cursor.getString(cursor
                             .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TEXT)) + " " + cursor.getString(cursor
-                            .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TITLE)));
+                            .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TITLE));
 
-                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TIMESTAMP)),
-                            notificationCatcherContentUri.toString(), tokens);
+                    String[] contentTokens = splitAndReformulateContent(content);
+
+                    ArrayList<String>[] lists = classifyData(contentTokens);
+
+                    long timestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TIMESTAMP));
+                    String source = notificationCatcherContentUri.toString();
+
+                    DataHelper.saveGeoDataFromList(getContentResolver(),  timestamp, source, lists[0]);
+                    DataHelper.saveTermDataFromList(getContentResolver(), timestamp, source, lists[1]);
                 } else {
                     Log.d(TAG, "Notification from Application " + cursor.getString(cursor
                             .getColumnIndex(ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_APP_NAME)) + " was ignored (Cause: Blacklist)");
@@ -250,12 +263,16 @@ public class Plugin extends Aware_Plugin {
                     smsReceiverContentUri, null, null, null,
                     ContextophelesConstants.SMS_RECEIVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
             if (cursor != null && cursor.moveToFirst()) {
+                String content = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.SMS_RECEIVER_FIELD_SMSContent));
 
-                String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.SMS_RECEIVER_FIELD_SMSContent)));
+                String[] contentTokens = splitAndReformulateContent(content);
 
-                classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.SMS_RECEIVER_FIELD_TIMESTAMP)),
-                        smsReceiverContentUri.toString(), tokens);
+                long timestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.SMS_RECEIVER_FIELD_TIMESTAMP));
+                String source = smsReceiverContentUri.toString();
+                ArrayList<String>[] lists = classifyData(contentTokens);
+
+                DataHelper.saveGeoDataFromList(getContentResolver(),  timestamp, source, lists[0]);
+                DataHelper.saveTermDataFromList(getContentResolver(), timestamp, source, lists[1]);
             }
 
             if (cursor != null && !cursor.isClosed()) {
@@ -283,12 +300,25 @@ public class Plugin extends Aware_Plugin {
                         ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
                 if (cursor != null && cursor.moveToFirst()) {
 
-                    // POIs come in packages of one, so we do not need to split and filter them, so we package each one in an array
-                    String[] singleTokenArray = new String[]{cursor.getString(cursor
-                            .getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_NAME))};
 
-                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP)),
-                            osmpoiResolverContentUri.toString(), singleTokenArray);
+                    // POIs come in packages of one, so we do not need to split and filter them, so we package each one in an array
+                    String content = cursor.getString(cursor
+                            .getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_NAME));
+                    String type =  cursor.getString(cursor
+                            .getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TYPE));
+
+                    long timestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.OSMPOI_RESOLVER_FIELD_TIMESTAMP));
+                    String source = osmpoiResolverContentUri.toString();
+
+                    // String[] singleTokenArray = new String[]{content};
+                    //ArrayList<String>[] lists = classifyData(singleTokenArray);
+
+                    // As we already know the type of the POI, we can easily add it to GeoData if needed
+                    if(type.equals("POI_SUBURB") || type.equals("POI_TOWN") || type.equals("POI_CITY")){
+                        DataHelper.saveGeoData(getContentResolver(), timestamp, source, content);
+                    }
+
+                     DataHelper.saveTermData(getContentResolver(), timestamp, source, content);
                 }
 
                 if (cursor != null && !cursor.isClosed()) {
@@ -300,7 +330,6 @@ public class Plugin extends Aware_Plugin {
         }
 
     }
-
 
     public class GeonameResolverObserver extends ContentObserver {
         public GeonameResolverObserver(Handler handler) {
@@ -321,8 +350,12 @@ public class Plugin extends Aware_Plugin {
                         ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP + " DESC LIMIT 1");
                 if (cursor != null && cursor.moveToFirst()) {
 
-                saveTermData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)), geonameResolverContentUri.toString(), cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME)));
+                    String content = cursor.getString(cursor
+                            .getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME));
+
+                    // Data from the GeonameResolver is directly saved to both data and geotable
+                    DataHelper.saveTermData(getContentResolver(), cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)), geonameResolverContentUri.toString(), content);
+                    DataHelper.saveGeoData(getContentResolver(), cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.GEONAME_RESOLVER_FIELD_TIMESTAMP)), geonameResolverContentUri.toString(), content);
                 }
 
                 if (cursor != null && !cursor.isClosed()) {
@@ -353,21 +386,37 @@ public class Plugin extends Aware_Plugin {
             Cursor cursor = getContentResolver().query(
                     uiContentContentUri, null, null, null,
                     ContextophelesConstants.UI_CONTENT_FIELD_TIMESTAMP + " DESC LIMIT 1");
-            if (cursor != null && cursor.moveToFirst()) {
-                if (!isApplicationBlacklisted(cursor.getString(cursor
-                        .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_SOURCE_APP)))) {
 
-                    if (lastId == cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_ID))) {
+            if (cursor != null && cursor.moveToFirst()) {
+
+                String applicationName = cursor.getString(cursor
+                        .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_SOURCE_APP));
+
+                if (!blacklistedApps.isBlacklistedApp(applicationName)) {
+
+
+                    //check, if the ID has changed, if not abort
+                    long newId = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_ID));
+
+                    // ID has not changed
+                    if (lastId == newId) {
                         return;
                     } else {
-                        lastId = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_ID));
+                        lastId = newId;
                     }
 
-                    String[] tokens = splitAndFilterContent(cursor.getString(cursor
-                            .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_TEXT)));
+                    String content = cursor.getString(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_TEXT));
 
-                    classifyAndSaveData(cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_TIMESTAMP)),
-                            uiContentContentUri.toString(), tokens);
+                    String[] contentTokens = splitAndReformulateContent(content);
+
+                    ArrayList<String>[] lists = classifyData( contentTokens);
+
+                    long timestamp = cursor.getLong(cursor.getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_TIMESTAMP));
+                    String source = uiContentContentUri.toString();
+
+                    DataHelper.saveGeoDataFromList(getContentResolver(),  timestamp, source, lists[0]);
+                    DataHelper.saveTermDataFromList(getContentResolver(), timestamp, source, lists[1]);
+
                 } else {
                     Log.d(TAG, "UIContent from Application " + cursor.getString(cursor
                             .getColumnIndex(ContextophelesConstants.UI_CONTENT_FIELD_SOURCE_APP)) + " was ignored (Cause: Blacklist)");
@@ -380,6 +429,10 @@ public class Plugin extends Aware_Plugin {
 
     }
 
+    // Takes a String and splits it by Whitespace.
+    // It then filters out unallowed Nouns (e.g. if they are too short
+    // if 3 tokens in the array have the form <AllowedNoun>, <CommonConnector>, <AllowedNoun> or
+    // <AllowedNoun>, <NoPunctuation>, <AllowedNoun> they are joined with " " and added additionally 
     private String[] splitAndReformulateContent(String content) {
         Log.wtf(TAG, "Splitting Content: " + content);
 
@@ -387,13 +440,20 @@ public class Plugin extends Aware_Plugin {
         //remove all characters that are not A-Za-z
         ArrayList<String> resultList = new ArrayList<String>();
 
+        String latex = "\\boxed{" + TextUtils.join("} \\boxed{", tokenArray) + "}";
+        int chunksize = 1000;
+        for(int i=0; i< latex.length(); i = i + chunksize){
+            Log.wtf(TAG, "Reformulating Contentlist: "  + latex.substring(i, Math.min(i+chunksize, latex.length())));
+        }
+
+
 
         for (int i = 0; i < tokenArray.length; i++) {
             String token = tokenArray[i];
             if (tokenIsAllowedNoun(token)) {
                 resultList.add(token);
                 //token does not end in a punctuation mark
-                if (!token.matches("[\\p{Punct}]$")) {
+                if (!token.matches(".*[\\p{Punct}]")) {
 
                     // there is still another token
                     if (i + 1 < tokenArray.length) {
@@ -437,34 +497,28 @@ public class Plugin extends Aware_Plugin {
 
     }
 
+    //Takes an array of Strings, removes unwanted characters in every string and returns the contents as a list
     private ArrayList<String> sanitizeTokens(String[] tokens) {
+        Log.wtf(TAG, "Sanitizing tokens: \\boxed{" + TextUtils.join("} \\boxed{", tokens) + "}");
         ArrayList<String> filteredTokens = new ArrayList<String>();
 
         for (String token : tokens) {
-            filteredTokens.add(token.replaceAll("[^A-Za-zÄÖÜäöüß\\-]", " "));
+            filteredTokens.add(token.replaceAll(sanitizingString, ""));
         }
 
+        //deduplicate tokens
+        filteredTokens= new ArrayList<String>(new LinkedHashSet<String>(filteredTokens));
+
+        Log.wtf(TAG, "Sanitized tokens: \\boxed{" + TextUtils.join("} \\boxed{", filteredTokens) + "}");
         return filteredTokens;
     }
 
-    private String[] splitAndFilterContent(String content) {
+    // Takes a list of contentTokens and returns an Array of length 2, with a list of cityTokens at position 0 and a list of nonCityTokens at position 1.
+    private ArrayList<String>[] classifyData(String[] contentTokens) {
+        Log.wtf(TAG, "Classifying tokens: \\boxed{" + TextUtils.join("} \\boxed{", contentTokens) + "}");
 
-        String[] contentTokens = splitAndReformulateContent(content);
-
-        //filter Stopwords, if set
-        if(CommonSettings.getTermCollectorApplyStopwords(getContentResolver())){
-            return stopWords.filteredArray(contentTokens);
-        } else {
-            return contentTokens;
-        }
-    }
-
-    private void classifyAndSaveData(long timestamp, String source, String[] contentTokens) {
-
-
-        //filter Lowercase words and words with less than 3 Characters
+        //filter any unwanted Characters from the input
         ArrayList<String> filteredTokens = sanitizeTokens(contentTokens);
-
 
         //classify cities
         ArrayList<String> cityTokens = new ArrayList<String>();
@@ -478,8 +532,8 @@ public class Plugin extends Aware_Plugin {
         // if the token is in the cache, get the value and enter it into cityTokens or nonCityTokens
         // add it to tokensToCheck otherwise
         for (String filteredToken : filteredTokens) {
-            if (isInCache(filteredToken)) {
-                if (isCityFromCache(filteredToken)) {
+            if (DataHelper.isInCache(getContentResolver(), filteredToken)) {
+                if (DataHelper.isCityFromCache(getContentResolver(), filteredToken)) {
                     // Add City to both Lists, to use in What and When field
                     nonCityTokens.add(filteredToken);
                     cityTokens.add(filteredToken);
@@ -511,17 +565,17 @@ public class Plugin extends Aware_Plugin {
                     // Add City to both Lists, to use in What and When field
                     nonCityTokens.add(token);
                     cityTokens.add(token);
-                    saveToCache(System.currentTimeMillis(), true, token);
+                    DataHelper.saveToCache(getContentResolver(), System.currentTimeMillis(), true, token);
                 } else {
                     nonCityTokens.add(token);
-                    saveToCache(System.currentTimeMillis(), false, token);
+                    DataHelper.saveToCache(getContentResolver(), System.currentTimeMillis(), false, token);
                     Log.wtf(TAG, token + " is not a city (At once)");
                 }
             }
         } else {  // OLD, sequential check
             for (String token : filteredTokens) {
                 {
-                    Log.wtf(TAG, "Dissolving " + token);
+                    Log.wtf(TAG, "Resolving " + token);
                     // dissolve them with mingle
                     Mingle mingle;
 
@@ -532,10 +586,10 @@ public class Plugin extends Aware_Plugin {
                             Log.wtf(TAG, token + " is a city (Sequential)");
                             nonCityTokens.add(token);
                             cityTokens.add(token);
-                            saveToCache(System.currentTimeMillis(), true, token);
+                            DataHelper.saveToCache(getContentResolver(), System.currentTimeMillis(), true, token);
                         } else {
                             nonCityTokens.add(token);
-                            saveToCache(System.currentTimeMillis(), false, token);
+                            DataHelper.saveToCache(getContentResolver(), System.currentTimeMillis(), false, token);
                             Log.wtf(TAG, token + " is not a city (Sequential)");
                         }
 
@@ -548,115 +602,22 @@ public class Plugin extends Aware_Plugin {
             }
         }
 
-        // Save Non-City-Tokens to Term-Database, increase timestamp by 1 everytime
-        int tokenIndex = 0;
-        for (String token : nonCityTokens) {
-            saveTermData(timestamp + tokenIndex, source, token);
-            tokenIndex++;
-        }
-
-
-        // Save City-Tokens to Geo-Database, increase timestamp by 1 everytime
-        tokenIndex = 0;
-        for (String token : cityTokens) {
-            saveGeoData(timestamp + tokenIndex, source, token);
-            tokenIndex++;
-        }
-
+        return new ArrayList[]{cityTokens, nonCityTokens};
     }
 
-    private void saveTermData(long timestamp, String source, String content) {
-
-        ContentValues rowData = new ContentValues();
-        rowData.put(TermCollectorTermData.DEVICE_ID, Aware.getSetting(
-                getContentResolver(), Aware_Preferences.DEVICE_ID));
-        rowData.put(TermCollectorTermData.TIMESTAMP, timestamp);
-        rowData.put(TermCollectorTermData.TERM_SOURCE, source);
-        rowData.put(TermCollectorTermData.TERM_CONTENT, content);
-
-        Log.d(TAG, "Saving " + rowData.toString());
-        getContentResolver().insert(TermCollectorTermData.CONTENT_URI, rowData);
-    }
-
-    private void saveGeoData(long timestamp, String source, String content) {
-
-        ContentValues rowData = new ContentValues();
-        rowData.put(TermCollectorGeoData.DEVICE_ID, Aware.getSetting(
-                getContentResolver(), Aware_Preferences.DEVICE_ID));
-        rowData.put(TermCollectorGeoData.TIMESTAMP, timestamp);
-        rowData.put(TermCollectorGeoData.TERM_SOURCE, source);
-        rowData.put(TermCollectorGeoData.TERM_CONTENT, content);
-
-        Log.d(TAG, "Saving " + rowData.toString());
-        getContentResolver().insert(TermCollectorGeoData.CONTENT_URI, rowData);
-    }
-
-    boolean isApplicationBlacklisted(String appName) {
-        return blacklistedApps.isBlacklistedApp(appName);
-    }
-
-    private boolean isInCache(String token) {
-        Cursor c = getContentResolver().query(TermCollector_Provider.TermCollectorGeoDataCache.CONTENT_URI, null, TermCollector_Provider.TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, null);
-
-        boolean result = false;
-
-
-        if (c != null && c.moveToFirst()) {
-            result = c.getCount() > 0;
-        }
-
-        if (c != null && !c.isClosed()) {
-            c.close();
-        }
-
-        if (result) {
-            Log.d(TAG, "Cache hit " + token);
-        } else {
-            Log.d(TAG, "Cache miss " + token);
-        }
-        return result;
-    }
-
-    private boolean isCityFromCache(String token) {
-        Cursor c = getContentResolver().query(TermCollectorGeoDataCache.CONTENT_URI, null, TermCollectorGeoDataCache.TERM_CONTENT + " = " + DatabaseUtils.sqlEscapeString(token), null, "timestamp" + " DESC LIMIT 1");
-        boolean result = false;
-
-        if (c != null && c.moveToFirst()) {
-            result = c.getInt(c.getColumnIndex(TermCollectorGeoDataCache.IS_CITY)) > 0;
-        }
-
-        if (c != null && !c.isClosed()) {
-            c.close();
-        }
-        return result;
-    }
-
-    private void saveToCache(long timestamp, boolean isCity, String token) {
-        ContentValues rowData = new ContentValues();
-
-        rowData.put(TermCollectorGeoDataCache.TIMESTAMP, timestamp);
-
-        if (isCity) {
-            rowData.put(TermCollectorGeoDataCache.IS_CITY, 1);
-        } else {
-            rowData.put(TermCollectorGeoDataCache.IS_CITY, 0);
-        }
-
-        rowData.put(TermCollectorGeoDataCache.TERM_CONTENT, token);
-
-        Log.d(TAG, "Saving to Cache: " + rowData.toString());
-        getContentResolver().insert(TermCollectorGeoDataCache.CONTENT_URI, rowData);
-    }
-
+    //Checks, whether the given token does not break a set of rules, e.g. minlength or stopword
     private boolean tokenIsAllowedNoun(String token) {
+        Log.wtf(TAG, "Testing for allowed noun: " + token);
         int minLength = CommonSettings.getMinimalTermCollectorTokenLength(getContentResolver());
+
+        // Sanitize token temporarily:
+        token = token.replaceAll(sanitizingString, "");
+
         boolean applyStopWords = CommonSettings.getTermCollectorApplyStopwords(getContentResolver());
         // filter tokens shorter than minLength characters
         if (token.length() >= minLength) {
-            //only allow Uppercase tokens, which have no more Uppercase characters (avoids strange CamelCase errors like PassauTown)
-            if (Character.isUpperCase(token.charAt(0)) &&
-                    token.substring(1).equals(token.substring(1).toLowerCase())
-                    ) {
+            //Only allow Words, where the first character is uppercase, and all following are lowercase, except if there is a dash between the Words
+            if (token.matches("[A-ZÄÖÜ]{1}[a-zäöüß]*((\\-|\\—)[A-ZÄÖÜ]{1}[a-zäöüß]*)*")) {
                 if(applyStopWords) {
                     if (stopWords.isStopWord(token)) {
                         Log.wtf(TAG, "Ignoring " + token + " as it is a stopword.");
@@ -678,5 +639,4 @@ public class Plugin extends Aware_Plugin {
             return false;
         }
     }
-
 }

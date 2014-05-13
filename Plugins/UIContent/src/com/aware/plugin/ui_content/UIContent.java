@@ -118,7 +118,7 @@ public class UIContent extends AccessibilityService {
 
 
     private void saveData(String sourceApp, String text) {
-        // get information about wether text was already saved
+        // get information about wether text was already saved in the previous 1000 entries.
         Cursor c = getContentResolver().query(UIContents.CONTENT_URI, null, UIContents.TEXT + " = " + DatabaseUtils.sqlEscapeString(text), null, UIContents.TIMESTAMP + " DESC LIMIT 1000");
 
         if (c.getCount() == 0) {

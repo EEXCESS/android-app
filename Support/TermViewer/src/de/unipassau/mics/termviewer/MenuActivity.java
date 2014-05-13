@@ -36,12 +36,12 @@ public class MenuActivity extends Activity {
         activityDescriptions.put("ClipboardCatcher", new ActivityDescriptor("ClipboardCatcher", ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.CLIPBOARD_CATCHER_FIELD_CLIPBOARDCONTENT));
         activityDescriptions.put("TermCollectorTerms", new ActivityDescriptor("TermCollectorTerms", ContextophelesConstants.TERM_COLLECTOR_TERM_CONTENT_URI.toString(), ContextophelesConstants.TERM_COLLECTOR_CACHE_FIELD_TERM_CONTENT));
         activityDescriptions.put("TermCollectorGeodata", new ActivityDescriptor("TermCollectorGeodata", ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI.toString(), ContextophelesConstants.TERM_COLLECTOR_GEODATA_FIELD_TERM_CONTENT));
-        activityDescriptions.put("GeoCollector", new ActivityDescriptor("GeoCollector", ContextophelesConstants.GEO_COLLECTOR_CONTENT_URI.toString(), ContextophelesConstants.GEO_COLLECTOR_FIELD_TERM_CONTENT));
         activityDescriptions.put("GeonameResolver", new ActivityDescriptor("GeonameResolver", ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_FIELD_NAME));
         activityDescriptions.put("OSMPoiResolver", new ActivityDescriptor("OSMPoiResolver", ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.OSMPOI_RESOLVER_FIELD_NAME));
         activityDescriptions.put("ImageReceiver", new ActivityDescriptor("ImageReceiver", ContextophelesConstants.IMAGE_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.IMAGE_RECEIVER_FIELD_DISPLAY_NAME));
         activityDescriptions.put("SMSReceiver", new ActivityDescriptor("SMSReceiver", ContextophelesConstants.SMS_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.SMS_RECEIVER_FIELD_SMSContent));
         activityDescriptions.put("UIContent", new ActivityDescriptor("UIContent", ContextophelesConstants.UI_CONTENT_CONTENT_URI.toString(), ContextophelesConstants.UI_CONTENT_FIELD_TEXT));
+        activityDescriptions.put("NotificationCatcher", new ActivityDescriptor("NotificationCatcher", ContextophelesConstants.NOTIFICATION_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.NOTIFICATION_CATCHER_FIELD_TEXT));
 
 
         final String[] activities = new String[activityDescriptions.keySet().size()];

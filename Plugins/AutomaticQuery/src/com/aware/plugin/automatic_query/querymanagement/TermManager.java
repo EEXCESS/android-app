@@ -31,6 +31,7 @@ public class TermManager {
 
     public void add(TermObject toAdd) {
         cleanUp();
+        if(toAdd != null){
         String key = toAdd.getSource();
 
         List<TermObject> addList = objectListMap.get(key);
@@ -41,10 +42,10 @@ public class TermManager {
                 // Delete the first and oldest entry
                 addList.remove(0);
             }
-            ;
 
             // add the new object
             addList.add(toAdd);
+        }
         }
     }
 

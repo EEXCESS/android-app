@@ -33,7 +33,7 @@ public class TermCollector_Provider extends ContentProvider {
     public static final String GEODATA_TABLE = ContextophelesConstants.TERM_COLLECTOR_GEODATA_TABLE;
     public static final String CACHE_TABLE = ContextophelesConstants.TERM_COLLECTOR_CACHE_TABLE;
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final int TERM_COLLECTOR_TERMS = 1;
     private static final int TERM_COLLECTOR_TERMS_ID = 2;
@@ -124,7 +124,7 @@ public class TermCollector_Provider extends ContentProvider {
             TermCollectorGeoDataCache._ID + " integer primary key autoincrement," +
                     TermCollectorGeoDataCache.TIMESTAMP + " real default 0," +
                     TermCollectorGeoDataCache.TERM_CONTENT + " text default ''," +
-                    TermCollectorGeoDataCache.IS_CITY + " text default ''"
+                    TermCollectorGeoDataCache.IS_CITY + " real default 0"
     };
 
     static {

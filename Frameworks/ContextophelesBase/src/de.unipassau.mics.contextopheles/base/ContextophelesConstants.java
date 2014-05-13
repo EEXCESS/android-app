@@ -4,12 +4,12 @@ import android.net.Uri;
 
 public class ContextophelesConstants {
     // Tags
-    public static final String TAG_AUTOMATIC_QUERY = "Contextopheles AutomaticQuery";
-    public static final String TAG_CLIPBOARD_CATCHER = "Contextopheles Clipboard Catcher";
+    public static final String TAG_AUTOMATIC_QUERY = "AutomaticQuery";
+    public static final String TAG_CLIPBOARD_CATCHER = "ClipboardCatcher";
     public static final String TAG_GEONAME_RESOLVER = "GeonameResolver";
     public static final String TAG_OSMPOI_RESOLVER = "OSMPoiResolver";
     public static final String TAG_IMAGE_RECEIVER = "ImageReceiver";
-    public static final String TAG_NOTIFICATION_CATCHER = "Contextopheles Notification Catcher";
+    public static final String TAG_NOTIFICATION_CATCHER = "NotificationCatcher";
     public static final String TAG_SMS_RECEIVER = "SMSReceiver";
     public static final String TAG_UI_CONTENT = "UIContent";
     public static final String TAG_GEO_COLLECTOR = "GeoCollector";
@@ -242,25 +242,6 @@ public class ContextophelesConstants {
     public static final Uri    TERM_COLLECTOR_CACHE_CONTENT_URI = Uri.parse("content://" + TERM_COLLECTOR_AUTHORITY + "/" + TERM_COLLECTOR_CACHE_TABLE);
     public static final String TERM_COLLECTOR_CACHE_FIELD_TERM_CONTENT = "term_content";
     public static final String TERM_COLLECTOR_CACHE_FIELD_IS_CITE = "is_city";
-
-
-    //Geo Collector
-
-    public static final String GEO_COLLECTOR_PLUGIN_NAME = "plugin.geo_collector";
-    public static final String GEO_COLLECTOR_AUTHORITY = "com.aware.provider." + GEO_COLLECTOR_PLUGIN_NAME;
-    public static final String GEO_COLLECTOR_MAIN_TABLE = "plugin_geo_collector";
-
-
-    public static final Uri     GEO_COLLECTOR_CONTENT_URI =        Uri.parse("content://" + GEO_COLLECTOR_AUTHORITY + "/" + GEO_COLLECTOR_MAIN_TABLE);
-    public static final String  GEO_COLLECTOR_CONTENT_TYPE =       "vnd.android.cursor.dir/vnd.aware." + GEO_COLLECTOR_PLUGIN_NAME;
-    public static final String  GEO_COLLECTOR_CONTENT_ITEM_TYPE =  "vnd.android.cursor.item/vnd.aware." + GEO_COLLECTOR_PLUGIN_NAME;
-
-   public static final String GEO_COLLECTOR_FIELD_ID =           "_id";
-   public static final String GEO_COLLECTOR_FIELD_TIMESTAMP =     "timestamp";
-   public static final String GEO_COLLECTOR_FIELD_DEVICE_ID =     "device_id";
-
-   public static final String GEO_COLLECTOR_FIELD_TERM_CONTENT =  "term_content";
-   public static final String GEO_COLLECTOR_FIELD_TERM_SOURCE =   "term_source";
 
     // Light Sensor
     public static final String LIGHT_URI = "content://com.aware.provider.light/light";

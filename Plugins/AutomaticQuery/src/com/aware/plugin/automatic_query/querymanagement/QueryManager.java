@@ -37,6 +37,12 @@ public class QueryManager {
         whereManager = new TermManager("WhereManager");
         whereManager.registerPlugin(ContextophelesConstants.TERM_COLLECTOR_GEODATA_CONTENT_URI.toString(), ContextophelesConstants.TERM_COLLECTOR_GEODATA_MAX_STORAGE, ContextophelesConstants.TERM_COLLECTOR_GEODATA_WEAROFF_TIME);
         whereManager.registerPlugin(ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_MAX_STORAGE, ContextophelesConstants.GEONAME_RESOLVER_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.UI_CONTENT_CONTENT_URI.toString(), ContextophelesConstants.UI_CONTENT_MAX_STORAGE, ContextophelesConstants.UI_CONTENT_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.CLIPBOARD_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.CLIPBOARD_CATCHER_MAX_STORAGE, ContextophelesConstants.CLIPBOARD_CATCHER_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.OSMPOI_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.OSMPOI_RESOLVER_MAX_STORAGE, ContextophelesConstants.OSMPOI_RESOLVER_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.NOTIFICATION_CATCHER_CONTENT_URI.toString(), ContextophelesConstants.NOTIFICATION_CATCHER_MAX_STORAGE, ContextophelesConstants.NOTIFICATION_CATCHER_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.SMS_RECEIVER_CONTENT_URI.toString(), ContextophelesConstants.SMS_RECEIVER_MAX_STORAGE, ContextophelesConstants.SMS_RECEIVER_WEAROFF_TIME);
+        whereManager.registerPlugin(ContextophelesConstants.GEONAME_RESOLVER_CONTENT_URI.toString(), ContextophelesConstants.GEONAME_RESOLVER_MAX_STORAGE, ContextophelesConstants.GEONAME_RESOLVER_WEAROFF_TIME);
     }
 
     public void addWhatObject(WhatObject toAdd) {
