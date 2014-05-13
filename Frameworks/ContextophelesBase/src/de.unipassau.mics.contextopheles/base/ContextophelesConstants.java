@@ -4,12 +4,12 @@ import android.net.Uri;
 
 public class ContextophelesConstants {
     // Tags
-    public static final String TAG_AUTOMATIC_QUERY = "Contextopheles AutomaticQuery";
-    public static final String TAG_CLIPBOARD_CATCHER = "Contextopheles Clipboard Catcher";
+    public static final String TAG_AUTOMATIC_QUERY = "AutomaticQuery";
+    public static final String TAG_CLIPBOARD_CATCHER = "ClipboardCatcher";
     public static final String TAG_GEONAME_RESOLVER = "GeonameResolver";
     public static final String TAG_OSMPOI_RESOLVER = "OSMPoiResolver";
     public static final String TAG_IMAGE_RECEIVER = "ImageReceiver";
-    public static final String TAG_NOTIFICATION_CATCHER = "Contextopheles Notification Catcher";
+    public static final String TAG_NOTIFICATION_CATCHER = "NotificationCatcher";
     public static final String TAG_SMS_RECEIVER = "SMSReceiver";
     public static final String TAG_UI_CONTENT = "UIContent";
     public static final String TAG_GEO_COLLECTOR = "GeoCollector";
