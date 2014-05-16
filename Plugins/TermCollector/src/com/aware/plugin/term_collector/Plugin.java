@@ -434,17 +434,17 @@ public class Plugin extends Aware_Plugin {
     // if 3 tokens in the array have the form <AllowedNoun>, <CommonConnector>, <AllowedNoun> or
     // <AllowedNoun>, <NoPunctuation>, <AllowedNoun> they are joined with " " and added additionally 
     private String[] splitAndReformulateContent(String content) {
-        Log.wtf(TAG, "Splitting Content: " + content);
+        //Log.wtf(TAG, "Splitting Content: " + content);
 
         String[] tokenArray = content.split("\\s+");
         //remove all characters that are not A-Za-z
         ArrayList<String> resultList = new ArrayList<String>();
 
-        String latex = "\\boxed{" + TextUtils.join("} \\boxed{", tokenArray) + "}";
-        int chunksize = 1000;
-        for(int i=0; i< latex.length(); i = i + chunksize){
-            Log.wtf(TAG, "Reformulating Contentlist: "  + latex.substring(i, Math.min(i+chunksize, latex.length())));
-        }
+     //   String latex = "\\boxed{" + TextUtils.join("} \\boxed{", tokenArray) + "}";
+     //   int chunksize = 1000;
+     //   for(int i=0; i< latex.length(); i = i + chunksize){
+     //       Log.wtf(TAG, "Reformulating Contentlist: "  + latex.substring(i, Math.min(i+chunksize, latex.length())));
+     //   }
 
 
 
@@ -499,7 +499,7 @@ public class Plugin extends Aware_Plugin {
 
     //Takes an array of Strings, removes unwanted characters in every string and returns the contents as a list
     private ArrayList<String> sanitizeTokens(String[] tokens) {
-        Log.wtf(TAG, "Sanitizing tokens: \\boxed{" + TextUtils.join("} \\boxed{", tokens) + "}");
+        //Log.wtf(TAG, "Sanitizing tokens: \\boxed{" + TextUtils.join("} \\boxed{", tokens) + "}");
         ArrayList<String> filteredTokens = new ArrayList<String>();
 
         for (String token : tokens) {
@@ -509,13 +509,13 @@ public class Plugin extends Aware_Plugin {
         //deduplicate tokens
         filteredTokens= new ArrayList<String>(new LinkedHashSet<String>(filteredTokens));
 
-        Log.wtf(TAG, "Sanitized tokens: \\boxed{" + TextUtils.join("} \\boxed{", filteredTokens) + "}");
+        //Log.wtf(TAG, "Sanitized tokens: \\boxed{" + TextUtils.join("} \\boxed{", filteredTokens) + "}");
         return filteredTokens;
     }
 
     // Takes a list of contentTokens and returns an Array of length 2, with a list of cityTokens at position 0 and a list of nonCityTokens at position 1.
     private ArrayList<String>[] classifyData(String[] contentTokens) {
-        Log.wtf(TAG, "Classifying tokens: \\boxed{" + TextUtils.join("} \\boxed{", contentTokens) + "}");
+       // Log.wtf(TAG, "Classifying tokens: \\boxed{" + TextUtils.join("} \\boxed{", contentTokens) + "}");
 
         //filter any unwanted Characters from the input
         ArrayList<String> filteredTokens = sanitizeTokens(contentTokens);
