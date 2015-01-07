@@ -71,16 +71,10 @@ TermCollector
 
 ## Support Tools
 ### TermViewer
-[Download and install APK](termviewer.apk)
+[Download and install APK](TermViewer-debug-unaligned.apk)
 
 The TermViewer tool allows access to the contents of the plugin-databases.
 
 # Uninstall
 To uninstall, remove the APKs via App Management.
 
-# Troubleshooting
-t.b.d.
-
-# Changelog of this Document
-* 2014-03-04, Initial Version
-* 2014-03-09, Changed to use modified Repository in AWARE App
