@@ -1,6 +1,7 @@
 # Contextopheles
-Contextopheles is a mobile just-in-time retrieval application for the Android platform. Based on the current user context, it proactively retrieves and presents cultural heritage objects from Europeana. For example, if a text selection is copied to the clipboard, the content of the clipboard is analyzed and a corresponding query is sent to Europeana. 
-![Copy text to clipboard](/demo/1.png "Copy text to clipboard")
+Contextopheles is a mobile just-in-time retrieval application for the Android platform. Based on the current user context, it proactively retrieves and presents cultural heritage objects from Europeana. 
+For example, if a text selection is copied to the clipboard, the content of the clipboard is analyzed and a corresponding query is sent to Europeana. 
+<img src="demo/1.png" width="200" height="355" alt="Copy text to clipboard" title="Copy text to clipboard" />
 If this query yields results, a little icon appears in the notification bar. Investigating this notification, a message with the query terms and the amount of received results is shown. 
 ![Notification, swipe to view query](/demo/2.png "Notification, swipe to view query")
 Selecting the query displays the results in a list.
