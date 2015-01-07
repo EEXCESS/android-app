@@ -1,8 +1,8 @@
 # Contextopheles
 Contextopheles is a mobile just-in-time retrieval application for the Android platform. Based on the current user context, it proactively retrieves and presents cultural heritage objects from Europeana. 
 
-For example, if a text selection is copied to the clipboard, the content of the clipboard is analyzed and a corresponding query is sent to Europeana (see <a href="#screen-1">image 1</a>). 
-If this query yields results, a little icon appears in the notification bar (see <a href="#screen-2">image 2</a>). Investigating this notification, a message with the query terms and the amount of received results is shown. Selecting the query displays the results in a list (see <a href="#screen-3">image 3</a>). A screencast of this interaction process in conjunction with (fake) location information is available at <a href="demo/location_selection.mp4">demo/location_selection.mp4</a>. If you want to install and test the application, please visit the <a href="APKs">APKS</a>-folder.
+For example, if a text selection is copied to the clipboard, the content of the clipboard is analyzed and a corresponding query is sent to Europeana (see <a href="#user-content-screen-1">image 1</a>). 
+If this query yields results, a little icon appears in the notification bar (see <a href="#user-content-screen-2">image 2</a>). Investigating this notification, a message with the query terms and the amount of received results is shown. Selecting the query displays the results in a list (see <a href="#user-content-screen-3">image 3</a>). A screencast of this interaction process in conjunction with (fake) location information is available at <a href="demo/location_selection.mp4">demo/location_selection.mp4</a>. If you want to install and test the application, please visit the <a href="APKs">APKS</a>-folder.
 
 <img id="screen-1" src="demo/1.png" width="220" alt="Copy text to clipboard" title="Copy text to clipboard" />
 <img id="screen-2" src="demo/2.png" width="220" alt="Notification, swipe to view query" title="Notification, swipe to view query" />
